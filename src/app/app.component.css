@@ -1,0 +1,11 @@
+div{
+    background-color: rgb(241, 131, 188);
+    text-align: center;
+    font-size: xx-large;
+    margin-top: 10px;
+    direction: rtl;
+}
+#n{
+    border: 1px solid black;
+    background-color: rgb(222, 135, 205);
+}

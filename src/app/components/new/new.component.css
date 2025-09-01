@@ -1,0 +1,182 @@
+    /* עיצוב כללי */
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+    }
+
+    /* כותרת המשחק */
+    p:first-child {
+      text-align: center;
+      font-size: 2.5rem;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      margin: 20px 0;
+      font-weight: bold;
+    }
+
+    /* הודעת ניצחון */
+    h1 {
+      text-align: center;
+      background: linear-gradient(45deg, #ff6b6b, #feca57);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      font-size: 2rem;
+      margin: 20px auto;
+      width: fit-content;
+      animation: bounce 0.6s ease-in-out;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      direction: rtl;
+    }
+
+    /* אנימציה להודעת ניצחון */
+    @keyframes bounce {
+      0%, 20%, 60%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      80% {
+        transform: translateY(-5px);
+      }
+    }
+
+    /* עיצוב הטבלה */
+    table {
+      margin: 30px auto;
+      border-collapse: separate;
+      border-spacing: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    /* עיצוב התאים */
+    td {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    td:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      background: rgba(255, 255, 255, 1);
+    }
+
+    /* עיצוב הדיב */
+    div {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      border-radius: 15px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    div::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: left 0.5s;
+    }
+
+    div:hover::before {
+      left: 100%;
+    }
+
+    /* עיצוב הטקסט */
+    p {
+      font-size: 3rem;
+      font-weight: bold;
+      margin: 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    /* עיצוב מיוחד לסמלים */
+    p:contains("❌") {
+      color: #e74c3c;
+      text-shadow: 2px 2px 8px rgba(231, 76, 60, 0.3);
+    }
+
+    p:contains("⭕") {
+      color: #3498db;
+      text-shadow: 2px 2px 8px rgba(52, 152, 219, 0.3);
+    }
+
+    /* אפקט לחיצה */
+    div:active {
+      transform: scale(0.95);
+    }
+
+    /* עיצוב רספונסיבי */
+    @media (max-width: 768px) {
+      table {
+        margin: 20px auto;
+        padding: 15px;
+      }
+  
+      div {
+        width: 80px;
+        height: 80px;
+      }
+  
+      p {
+        font-size: 2.5rem;
+      }
+  
+      h1 {
+        font-size: 1.5rem;
+        padding: 15px;
+      }
+    }
+
+    /* אפקט זוהר עדין */
+    table::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+      border-radius: 22px;
+      z-index: -1;
+      animation: glow 3s linear infinite;
+      opacity: 0.3;
+    }
+
+    @keyframes glow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* עיצוב נוסף לחוויה טובה יותר */
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-attachment: fixed;
+    }
