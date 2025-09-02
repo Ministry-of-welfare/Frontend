@@ -1,0 +1,66 @@
+<p>environments works!</p>
+<button (click)="onGetAll()">Get All</button>
+<button (click)="onAdd()">Add</button>
+<form #envForm="ngForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="id">ID</label>
+    <input
+      type="number"
+      id="id"
+      name="environmentId"
+      [(ngModel)]="environment.environmentId"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="code">Code</label>
+    <select
+      id="code"
+      name="environmentCode"
+      [(ngModel)]="environment.environmentCode"
+      required
+    >
+      <option value="DEV">DEV</option>
+      <option value="TEST">TEST</option>
+      <option value="PREPROD">PREPROD</option>
+      <option value="PROD">PROD</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="name">Name</label>
+    <select
+      id="name"
+      name="environmentName"
+      [(ngModel)]="environment.environmentName"
+      required
+    >
+      <option value="Development">Development</option>
+      <option value="Test">Test</option>
+      <option value="Preprod">Preprod</option>
+      <option value="Production">Production</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="desc">Description</label>
+    <input
+      type="text"
+      id="desc"
+      name="description"
+      [(ngModel)]="environment.description"
+    />
+  </div>
+
+  <button type="submit">Save Environment</button>
+</form>
+
+<button (click)="onUpdate()">Update</button>
+<button (click)="onDelete(id)">Delete</button>
+<input
+      type="text"
+      id="desc"
+      name="description"
+      [(ngModel)]="id"
+    />
