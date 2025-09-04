@@ -7,12 +7,12 @@ import { Environment } from '../../models/environment.model';
   providedIn: 'root'
 })
 export class EnvironmentsService {
-  private BASE_URL = 'api/environments';
+  private BASE_URL = 'https://localhost:54525/api/Environments';
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Environment[]> {
-    return this.http.get<Environment[]>(this.BASE_URL + '/getAll');
+    return this.http.get<Environment[]>(this.BASE_URL )//+ '/getAll');
   }
 
   getById(id: number): Observable<Environment> {
