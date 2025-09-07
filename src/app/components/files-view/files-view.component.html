@@ -1,0 +1,55 @@
+<p>files-view works!</p>
+<h2>רשימת תהליכים</h2>
+<div class="view-toggle">
+  <button [class.active]="viewMode === 'cards'" (click)="setView('cards')">תצוגת כרטיסיות</button>
+  <button [class.active]="viewMode === 'table'" (click)="setView('table')">תצוגת טבלה</button>
+</div>
+
+<!-- Cards View -->
+<div *ngIf="viewMode === 'cards'" class="cards">
+  <div *ngFor="let p of processes" class="card">
+    <div>
+      <h3>{{ p.name }}</h3>
+      <p><strong>שם סכמה:</strong> {{ p.schema }}</p>
+      <p><strong>מערכת:</strong> {{ p.system }}</p>
+      <p class="status" [ngClass]="p.status">
+        <strong>סטטוס:</strong> {{ formatStatus(p.status) }}
+      </p>
+    </div>
+    <div class="actions">
+      <button>✏️</button>
+      <button>🗑️</button>
+      <button>👁️</button>
+    </div>
+  </div>
+</div>
+
+<!-- Table View -->
+<div *ngIf="viewMode === 'table'" class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>מס׳</th>
+        <th>שם תהליך</th>
+        <th>שם סכמה</th>
+        <th>מערכת</th>
+        <th>סטטוס</th>
+        <th>פעולות</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of processes; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.schema }}</td>
+        <td>{{ p.system }}</td>
+        <td class="status" [ngClass]="p.status">{{ formatStatus(p.status) }}</td>
+        <td>
+          <button>✏️</button>
+          <button>🗑️</button>
+          <button>👁️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
