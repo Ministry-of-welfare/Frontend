@@ -39,15 +39,15 @@ import { Systems } from '../../models/systems.model';
 
   ngOnInit() {
     this.ImportStatusService.getAll().subscribe(data => {
-      this.statuses!= data;
+      this.statuses!= data.map(item => item.ImportStatusDesc);
     });
 
     this.SystemsService.getAll().subscribe(data => {
-      this.systems!= data;
+      this.systems!= data.map(item => item.SystemName);
     });
 
     this.DataSourceTypeService.getAll().subscribe(data => {
-      this.types!= data;
+      this.types!= data.map(item=>item.DataSourceTypeDesc)
     });
   }
 
