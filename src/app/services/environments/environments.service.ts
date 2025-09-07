@@ -9,6 +9,8 @@ import { Environment } from '../../models/environment.model';
 export class EnvironmentsService {
   private BASE_URL = 'https://localhost:54525/api/Environments';
 
+
+
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Environment[]> {

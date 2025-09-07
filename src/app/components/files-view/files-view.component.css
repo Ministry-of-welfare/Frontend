@@ -1,0 +1,161 @@
+body {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: #f4f6fb;
+  margin: 0;
+  padding: 20px;
+  direction: rtl;
+}
+h2 {
+  margin-bottom: 20px;
+  text-align: right;
+  font-size: 22px;
+  color: #1e293b;
+  font-weight: bold;
+}
+.view-toggle {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+button {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  margin: 0 0 0 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+  font-family: inherit;
+  outline: none;
+}
+button.active {
+  background: #4338ca;
+}
+button:hover {
+  background: #4f46e5;
+}
+/* כרטיסים */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 24px;
+  margin-top: 0;
+  direction: rtl;
+}
+/* כרטיסים */
+/* כרטיס בודד */
+.card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(67,56,202,0.08);
+  padding: 18px 24px 14px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 220px;
+  position: relative;
+  border: 2px solid #eef2ff;
+  direction: rtl;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+.status-icon {
+  font-size: 22px;
+  margin-left: 8px;
+}
+.card-type {
+  background: #eef2ff;
+  color: #4338ca;
+  border-radius: 8px;
+  padding: 2px 10px;
+  font-size: 13px;
+  margin-left: 8px;
+  font-weight: 500;
+}
+.card h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #111827;
+  font-weight: bold;
+  text-align: right;
+}
+.card .schema {
+  font-size: 13px;
+  color: #6366f1;
+  font-weight: bold;
+  margin-bottom: 6px;
+  text-align: right;
+}
+.card p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #374151;
+  text-align: right;
+}
+.actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.actions button {
+  background: #e5e7eb;
+  color: #111;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 16px;
+  border: none;
+  transition: background 0.2s;
+  margin: 0 0 0 6px;
+}
+.actions button:hover {
+  background: #d1d5db;
+}
+/* טבלה */
+/* טבלה */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(67,56,202,0.08);
+  margin-bottom: 10px;
+  border: 2px solid #eef2ff;
+  direction: rtl;
+}
+table th, table td {
+  text-align: right;
+  padding: 12px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+table th {
+  background: #eef2ff;
+  font-weight: bold;
+  color: #4338ca;
+  text-align: right;
+}
+table tr:last-child td {
+  border-bottom: none;
+}
+.status {
+  font-weight: bold;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+}
+.status.active { color: #22c55e; }
+.status.warning { color: #f59e42; }
+.status.inactive { color: #ef4444; }
