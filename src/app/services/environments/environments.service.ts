@@ -12,9 +12,10 @@ export class EnvironmentsService {
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Environment[]> {
-    return this.http.get<Environment[]>(this.BASE_URL )//+ '/getAll');
+    return this.http.get<Environment[]>(this.BASE_URL + '/getAll');
   }
 
+  
   getById(id: number): Observable<Environment> {
     return this.http.get<Environment>(`${this.BASE_URL}/get/${id}`);
   }
