@@ -9,12 +9,15 @@ import { Environment } from '../../models/environment.model';
 export class EnvironmentsService {
   private BASE_URL = 'https://localhost:54525/api/Environments';
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 93b526501e3cf6c68a0ac5e76eec4bb31bcab239
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Environment[]> {
-    return this.http.get<Environment[]>(this.BASE_URL + '/getAll');
+    return this.http.get<Environment[]>(this.BASE_URL);
   }
 
   
