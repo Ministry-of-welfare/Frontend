@@ -1,0 +1,23 @@
+<div class="search-container">
+  <form [formGroup]="form" (ngSubmit)="onSearch()" class="filter-form">
+    
+    <input type="text" formControlName="query" placeholder="הכנס תיאור, שם טבלה או סוג קליטה..." />
+
+    <select formControlName="system">
+      <option *ngFor="let sys of systems" [value]="sys">{{ sys }}</option>
+    </select>
+
+    <select formControlName="type">
+      <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+    </select>
+
+    <select formControlName="status">
+      <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+    </select>
+
+    <div class="buttons">
+      <button type="submit" class="search-btn">🔍 חפש</button>
+      <button type="button" class="clear-btn" (click)="onClear()">🗑️ נקה סינון</button>
+    </div>
+  </form>
+</div>

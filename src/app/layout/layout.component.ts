@@ -8,5 +8,9 @@ import { Component } from '@angular/core';
   styleUrl: './layout.component.css'
 })
 export class LayoutComponent {
+ searchResult: any;
 
+  onSearch(data: any) {
+    this.searchResult = data;   // מעביר את הנתונים לקומפוננטת התצוגה
+  }
 }
