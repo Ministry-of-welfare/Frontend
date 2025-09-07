@@ -7,7 +7,7 @@ import { Environment } from '../../models/environment.model';
   providedIn: 'root'
 })
 export class EnvironmentsService {
-  private BASE_URL = 'api/environments';
+  private BASE_URL = 'https://localhost:54525/api/Environments';
 
   constructor(private http: HttpClient) {}
 

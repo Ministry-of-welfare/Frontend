@@ -1,0 +1,41 @@
+.search-container {
+  background: #f9fafc;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.filter-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+input, select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  min-width: 180px;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.search-btn, .clear-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.search-btn {
+  background-color: #6d4cff;
+  color: #fff;
+}
+
+.clear-btn {
+  background-color: #f3f3f3;
+}
