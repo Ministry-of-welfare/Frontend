@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, NgModel } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -6,7 +6,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-search-file',
   standalone: true,
-  imports: [FormsModule,ReactiveFormsModule ],
+  imports: [FormsModule,ReactiveFormsModule ,CommonModule],
     
   templateUrl: './search-file.component.html',
   styleUrl: './search-file.component.css'
@@ -14,10 +14,10 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
  export class SearchFileComponent {
 
   form: FormGroup;
-
-  systems = ['כל המערכות', 'מערכת א', 'מערכת ב'];
-  types = ['כל הסוגים', 'סוג 1', 'סוג 2'];
-  statuses = ['כל הסטטוסים', 'פעיל', 'לא פעיל'];
+ @Output() searchEvent = new EventEmitter<any>();   
+  systems = ['כל המערכות', 'מערכת ניהול משאבי אנוש', 'מערכת תשלומים'];
+  types = ['כל הסוגים', 'טעינה ועיבוד (טעינה+ בדיקת פורמט + בדיקות דאטה) ', 'טעינה ובדיקת פורמט', 'טעינה בלבד'];
+  statuses = ['כל הסטטוסים','בתהליך קליטה','ממתין לקליטה', 'קליטה הסתיימה בהצלחה', 'קליטה הסתיימה בכשלון'];
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -30,6 +30,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
   onSearch() {
     console.log('Search data:', this.form.value);
+     this.searchEvent.emit(this.form.value);
   }
 
   onClear() {

@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { EnvironmentsComponent } from "./components/environments/environments.component";
 import { SearchFileComponent } from "./components/search-file/search-file.component";
-import { LayoutComponent } from './components/layout/layout.component';
+import { LayoutComponent } from './layout/layout.component';
 
 
 
