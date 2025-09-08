@@ -11,11 +11,21 @@ import { FilesViewComponent } from './components/files-view/files-view.component
 
 
 
+
+
+
+
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet,  HttpClientModule,SearchFileComponent, EnvironmentsComponent,LayoutComponent,FilesViewComponent],
 
+
+
+
+
+
+  imports: [RouterOutlet,  HttpClientModule,SearchFileComponent, EnvironmentsComponent,LayoutComponent,FilesViewComponent],
 
 
   templateUrl: './app.component.html',
