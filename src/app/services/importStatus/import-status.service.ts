@@ -13,7 +13,7 @@ export class ImportStatusService {
    constructor(private http: HttpClient) {}
 
    getAll(): Observable<ImportStatus[]> {
-    return this.http.get<ImportStatus[]>(this.BASE_URL+'/getAll');
+    return this.http.get<ImportStatus[]>(this.BASE_URL);
   }
 
 

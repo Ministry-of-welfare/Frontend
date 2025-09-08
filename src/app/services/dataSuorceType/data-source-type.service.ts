@@ -8,11 +8,12 @@ import { DataSourceType } from '../../models/dataSourceType.model';
 })
 export class DataSourceTypeService {
 
-  private BASE_URL = 'https://localhost:54525/api/dataSourceType';
+  private BASE_URL = 'https://localhost:54525/api/DataSourceTypes';
     
        constructor(private http: HttpClient) {}
     
        getAll(): Observable<DataSourceType[]> {
-        return this.http.get<DataSourceType[]>(this.BASE_URL+'/getAll');
+        
+        return this.http.get<DataSourceType[]>(this.BASE_URL);
       }
 }
