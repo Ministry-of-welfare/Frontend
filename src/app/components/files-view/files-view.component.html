@@ -17,9 +17,9 @@
       </p>
     </div>
     <div class="actions">
-      <button>✏️</button>
+      <button (click)="openEditDialog(p)">✏️</button>
       <button>🗑️</button>
-      <button>👁️</button>
+      <button (click)="openViewDialog(p)">👁️</button>
     </div>
   </div>
 </div>
@@ -31,7 +31,7 @@
       <tr>
         <th>מס׳</th>
         <th>שם תהליך</th>
-        <th>שם סכמה</th>
+        <th>שם סchema</th>
         <th>מערכת</th>
         <th>סטטוס</th>
         <th>פעולות</th>
@@ -45,11 +45,20 @@
         <td>{{ p.system }}</td>
         <td class="status" [ngClass]="p.status">{{ formatStatus(p.status) }}</td>
         <td>
-          <button>✏️</button>
+          <button (click)="openEditDialog(p)">✏️</button>
           <button>🗑️</button>
-          <button>👁️</button>
+          <button (click)="openViewDialog(p)">👁️</button>
         </td>
       </tr>
     </tbody>
   </table>
 </div>
+
+<app-edit-process-dialog
+  [visible]="dialogVisible"
+  [data]="dialogData"
+  [isEdit]="dialogIsEdit"
+  [isView]="dialogIsView"
+  (confirm)="onDialogConfirm($event)"
+  (cancel)="onDialogCancel()"
+></app-edit-process-dialog>
