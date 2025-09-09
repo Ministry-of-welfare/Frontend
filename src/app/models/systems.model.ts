@@ -1,6 +1,6 @@
 export class Systems {
     SystemId!: number;
    SystemCode!: number;
-   SystemName!:string
+   systemName!:string
     OwnerEmail?: string;
 }

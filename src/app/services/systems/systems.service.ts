@@ -9,11 +9,11 @@ import { Observable } from 'rxjs';
 export class SystemsService {
 
   
-    private BASE_URL = 'https://localhost:54525/api/systems';
+    private BASE_URL = 'https://localhost:54525/api/Systems';
   
      constructor(private http: HttpClient) {}
   
      getAll(): Observable<Systems[]> {
-      return this.http.get<Systems[]>(this.BASE_URL+'/getAll');
+      return this.http.get<Systems[]>(this.BASE_URL);
     }
 }
