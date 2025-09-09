@@ -7,14 +7,6 @@ import { LayoutComponent } from './layout/layout.component';
 
 import { FilesViewComponent } from './components/files-view/files-view.component';
 
-
-
-
-
-
-
-
-
 @Component({
   selector: 'app-root',
   standalone: true,

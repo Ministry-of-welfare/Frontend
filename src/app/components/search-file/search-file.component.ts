@@ -40,8 +40,9 @@ import { Systems } from '../../models/systems.model';
 
   ngOnInit() {
     this.ImportStatusService.getAll().subscribe(data => {
-      this.statuses= data.map(item => item.ImportStatusDesc)
+      this.statuses= data.map(item => item.importStatusDesc)
   .filter((t): t is string => t !== undefined);
+  console.log(data)
     });
 
     this.SystemsService.getAll().subscribe(data => {

@@ -1,5 +1,5 @@
 export class ImportStatus {
- ImportStatusId!:number
-    ImportStatusDesc?: string;
+ importStatusId!:number
+    importStatusDesc?: string;
    
 }
