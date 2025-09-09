@@ -1,4 +1,4 @@
-<p>files-view works!</p>
+
 <h2>רשימת תהליכים</h2>
 <div class="view-toggle">
   <button [class.active]="viewMode === 'cards'" (click)="setView('cards')">תצוגת כרטיסיות</button>
@@ -10,8 +10,8 @@
   <div *ngFor="let p of processes" class="card">
     <div>
       <h3>{{ p.name }}</h3>
-      <p><strong>שם סכמה:</strong> {{ p.schema }}</p>
-      <p><strong>מערכת:</strong> {{ p.system }}</p>
+      <p><strong> מערכת:</strong> {{ p.schema }}</p>
+      <p><strong>סוג קליטה:</strong> {{ p.system }}</p>
       <p class="status" [ngClass]="p.status">
         <strong>סטטוס:</strong> {{ formatStatus(p.status) }}
       </p>
