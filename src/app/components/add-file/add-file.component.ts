@@ -1,6 +1,7 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { AddFileConfirmationComponent } from '../add-file-confirmation/add-file-confirmation.component';
 
 interface Column {
   order: number;
@@ -11,12 +12,14 @@ interface Column {
 @Component({
   selector: 'app-add-file',
   standalone: true,
-  imports: [NgClass,FormsModule, CommonModule],
+  imports: [NgClass,FormsModule, CommonModule, AddFileConfirmationComponent],
   templateUrl: './add-file.component.html',
   styleUrl: './add-file.component.css'
 })
 export class AddFileComponent implements OnInit {
 currentStep = 1;
+
+  fileSummary: any[] = [];
 
   // Step 1 fields
   description = '';
@@ -68,7 +71,7 @@ currentStep = 1;
       if (this.currentStep < 3) {
         this.currentStep++;
         if (this.currentStep === 3) {
-          this.updatePreview();
+            this.prepareFileSummary();
         }
       }
     }
@@ -116,8 +119,20 @@ currentStep = 1;
     }
   }
 
-  updatePreview() {
-    // preview is bound in template using Angular bindings
+  prepareFileSummary() {
+    this.fileSummary = [
+      { label: 'תיאור תהליך', value: this.description },
+      { label: 'סוג קליטה', value: this.getDataSourceLabel() },
+      { label: 'מערכת', value: this.systemOptions.find(opt => opt.value === this.systemType)?.label || '' },
+      { label: 'נתיב קבצי מקור', value: this.urlFile },
+      { label: 'נתיב קבצים מעובדים', value: this.urlFileAfter },
+    ];
+    if (this.jobName) {
+      this.fileSummary.push({ label: 'שם Job', value: this.jobName });
+    }
+    if (this.errorRecipients) {
+      this.fileSummary.push({ label: 'כתובות מייל לשגיאות', value: this.errorRecipients });
+    }
   }
 
   generateTableName(description: string): string {

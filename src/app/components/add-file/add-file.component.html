@@ -146,82 +146,17 @@
       </div>
 
       <!-- שלב 3: אישור ויצירה -->
-      <div *ngIf="currentStep===3" class="step-content">
-        <div class="form-section">
-          <div class="section-title">✅ סיכום ואישור</div>
-
-          <div class="preview-card">
-            <div class="preview-title">📋 סיכום הגדרות הקובץ</div>
-            <div class="preview-info">
-              <div class="preview-item">
-                <div class="preview-label">תיאור תהליך:</div>
-                <div class="preview-value">{{description}}</div>
-              </div>
-              <div class="preview-item">
-                <div class="preview-label">סוג קליטה:</div>
-                <div class="preview-value">
-                  {{getDataSourceLabel()}}
-                </div>
-              </div>
-              <div class="preview-item">
-                <div class="preview-label">מערכת:</div>
-                <div class="preview-value">
-                 {{getDataSourceLabel()}}
-                </div>
-              </div>
-              <div class="preview-item">
-                <div class="preview-label">נתיב קבצי מקור:</div>
-                <div class="preview-value">{{urlFile}}</div>
-              </div>
-              <div class="preview-item">
-                <div class="preview-label">נתיב קבצים מעובדים:</div>
-                <div class="preview-value">{{urlFileAfter}}</div>
-              </div>
-              <div class="preview-item" *ngIf="jobName">
-                <div class="preview-label">שם Job:</div>
-                <div class="preview-value">{{jobName}}</div>
-              </div>
-              <div class="preview-item" *ngIf="errorRecipients">
-                <div class="preview-label">כתובות מייל לשגיאות:</div>
-                <div class="preview-value">{{errorRecipients}}</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="preview-card" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-color: rgba(33, 150, 243, 0.2);">
-            <div class="preview-title" style="color: #1565c0;">🗂️ פרטי הטבלה שתיווצר</div>
-            <div class="preview-info">
-              <div class="preview-item">
-                <div class="preview-label">שם טבלה:</div>
-                <div class="preview-value">{{generateTableName(description)}}</div>
-              </div>
-              <div class="preview-item">
-                <div class="preview-label">מספר עמודות:</div>
-                <div class="preview-value">{{columns.length}} + 2 עמודות מערכת</div>
-              </div>
-              <div class="preview-item">
-                <div class="preview-label">סוג עמודות:</div>
-                <div class="preview-value">VARCHAR(MAX)</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="success-message" *ngIf="successMessageVisible">
-            ✅ הקובץ נוצר בהצלחה! המערכת יצרה את הטבלה ועדכנה את כל ההגדרות הנדרשות.
-          </div>
-
-          <div class="error-message" *ngIf="errorMessageVisible">
-            ❌ אירעה שגיאה ביצירת הקובץ. אנא בדוק את הפרטים ונסה שוב.
-          </div>
-        </div>
-
-        <div class="actions-section">
-          <button type="button" class="btn btn-secondary" (click)="prevStep()">⬅️ חזרה לעריכה</button>
-          <button type="button" class="btn btn-primary" (click)="createFile()" [disabled]="creatingFile">
-            {{creatingFile ? '⏳ יוצר קובץ...' : '🚀 צור קובץ'}}
-          </button>
-        </div>
-      </div>
+      <app-add-file-confirmation
+        *ngIf="currentStep===3"
+        [fileSummary]="fileSummary"
+        [tableName]="generateTableName(description)"
+        [columnCount]="columns.length"
+        [columnsType]="'VARCHAR(MAX)'"
+        [success]="successMessageVisible"
+        [error]="errorMessageVisible"
+        (back)="prevStep()"
+        (create)="createFile()"
+      ></app-add-file-confirmation>
     </div>
   </div>
 </div>
