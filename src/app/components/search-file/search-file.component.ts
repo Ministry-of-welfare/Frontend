@@ -19,12 +19,13 @@ import { Systems } from '../../models/systems.model';
 
   form: FormGroup;
  @Output() searchEvent = new EventEmitter<any>();   
-  // systems = ['כל המערכות', 'מערכת ניהול משאבי אנוש', 'מערכת תשלומים'];
-  // types = ['כל הסוגים', 'טעינה ועיבוד (טעינה+ בדיקת פורמט + בדיקות דאטה) ', 'טעינה ובדיקת פורמט', 'טעינה בלבד'];
-  // statuses = ['כל הסטטוסים','בתהליך קליטה','ממתין לקליטה', 'קליטה הסתיימה בהצלחה', 'קליטה הסתיימה בכשלון'];
-  statuses=[]
-  systems = []
-  types = []
+
+  statuses: (string | undefined)[] = [];
+  systems: (string | undefined)[] = [];
+
+  types: (string | undefined)[] = [];
+
+
   constructor(private fb: FormBuilder,
      private SystemsService: SystemsService,
      private DataSourceTypeService: DataSourceTypeService,
@@ -39,15 +40,23 @@ import { Systems } from '../../models/systems.model';
 
   ngOnInit() {
     this.ImportStatusService.getAll().subscribe(data => {
-      this.statuses!= data.map(item => item.ImportStatusDesc);
+      this.statuses= data.map(item => item.ImportStatusDesc)
+  .filter((t): t is string => t !== undefined);
     });
 
     this.SystemsService.getAll().subscribe(data => {
-      this.systems!= data.map(item => item.SystemName);
+      this.systems= data.map(item => item.systemName)
+  .filter((t): t is string => t !== undefined);
+      console.log(this.systems)
     });
 
     this.DataSourceTypeService.getAll().subscribe(data => {
-      this.types!= data.map(item=>item.DataSourceTypeDesc)
+     
+      this.types = data.map(item => item.dataSourceTypeDesc)
+  .filter((t): t is string => t !== undefined);
+
+  
+   
     });
   }
 

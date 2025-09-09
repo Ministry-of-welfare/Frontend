@@ -10,7 +10,10 @@ export class EnvironmentsService {
   private BASE_URL = 'https://localhost:54525/api/Environments';
  
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> searchBranch
 
   constructor(private http: HttpClient) {}
 
