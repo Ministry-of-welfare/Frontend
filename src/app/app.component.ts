@@ -5,11 +5,12 @@ import { EnvironmentsComponent } from "./components/environments/environments.co
 import { SearchFileComponent } from "./components/search-file/search-file.component";
 import { LayoutComponent } from './layout/layout.component';
 import { FilesViewComponent } from './components/files-view/files-view.component';
+import { AddFileComponent } from './components/add-file/add-file.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HttpClientModule, SearchFileComponent, EnvironmentsComponent, LayoutComponent, FilesViewComponent],
+  imports: [RouterOutlet, HttpClientModule, SearchFileComponent, EnvironmentsComponent, LayoutComponent, FilesViewComponent,AddFileComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
