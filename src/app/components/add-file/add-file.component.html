@@ -1,0 +1,229 @@
+<p>add-file works!</p>
+
+<div class="header">
+  <div class="header-content">
+    <div>
+      <h1>📄 הוספת קובץ חדש</h1>
+      <div class="breadcrumb">
+        <a href="#dashboard">דשבורד</a> 
+        <span>→</span> 
+        <a href="#files">ניהול קבצים</a> 
+        <span>→</span> 
+        <span>הוספת קובץ חדש</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="wizard-container fade-in">
+    <!-- צעדי האשף -->
+    <div class="wizard-steps">
+      <div class="step" [ngClass]="{'active': currentStep===1, 'completed': currentStep>1}">
+        <div class="step-number">1</div>
+        <div class="step-title">פרטים כלליים</div>
+      </div>
+      <div class="step" [ngClass]="{'active': currentStep===2, 'completed': currentStep>2}">
+        <div class="step-number">2</div>
+        <div class="step-title">הגדרת עמודות</div>
+      </div>
+      <div class="step" [ngClass]="{'active': currentStep===3}">
+        <div class="step-number">3</div>
+        <div class="step-title">אישור ויצירה</div>
+      </div>
+    </div>
+
+    <div class="wizard-content">
+      <!-- שלב 1: פרטים כלליים -->
+      <div *ngIf="currentStep===1" class="step-content">
+        <div class="form-section">
+          <div class="section-title">⚙️ הגדרות בסיסיות</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">תיאור תהליך <span class="required">*</span></label>
+              <input type="text" class="form-input" [(ngModel)]="description" placeholder="הכנס תיאור מפורט של התהליך">
+              <div class="help-text">תיאור ברור שיעזור לזהות את התהליך במערכת</div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">סוג קליטה <span class="required">*</span></label>
+              <select class="form-select" [(ngModel)]="dataSourceType">
+                <option value="">בחר סוג קליטה</option>
+                <option *ngFor="let option of dataSourceOptions" [value]="option.value">{{option.label}}</option>
+              </select>
+              <div class="help-text">קובע את רמת הוולידציה שתתבצע על הקובץ</div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">מערכת <span class="required">*</span></label>
+              <select class="form-select" [(ngModel)]="systemType">
+                <option value="">בחר מערכת</option>
+                <option *ngFor="let option of systemOptions" [value]="option.value">{{option.label}}</option>
+              </select>
+              <div class="help-text">המערכת שאליה שייך הקובץ</div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">שם Job</label>
+              <input type="text" class="form-input" [(ngModel)]="jobName" placeholder="שם הג'וב שמפעיל את התהליך">
+              <div class="help-text">שם הג'וב ב-SQL Server או בכלי הניהול</div>
+            </div>
+
+            <div class="form-field full-width">
+              <label class="form-label">נתיב קבצי מקור <span class="required">*</span></label>
+              <input type="text" class="form-input" [(ngModel)]="urlFile" placeholder="\\server\shared\import\">
+              <div class="help-text">הנתיב בו קיימים הקבצים המיועדים לקליטה</div>
+            </div>
+
+            <div class="form-field full-width">
+              <label class="form-label">נתיב קבצים מעובדים <span class="required">*</span></label>
+              <input type="text" class="form-input" [(ngModel)]="urlFileAfter" placeholder="\\server\shared\processed\">
+              <div class="help-text">הנתיב אליו יועברו הקבצים לאחר עיבוד</div>
+            </div>
+
+            <div class="form-field full-width">
+              <label class="form-label">כתובות מייל לשגיאות</label>
+              <textarea class="form-textarea" [(ngModel)]="errorRecipients" placeholder="admin@company.com, it@company.com"></textarea>
+              <div class="help-text">כתובות מייל המופרדות בפסיק, שיקבלו התראות על שגיאות</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-section">
+          <div></div>
+          <button type="button" class="btn btn-primary" (click)="nextStep()">המשך לשלב הבא ➡️</button>
+        </div>
+      </div>
+
+      <!-- שלב 2: הגדרת עמודות -->
+      <div *ngIf="currentStep===2" class="step-content">
+        <div class="form-section">
+          <div class="section-title">📋 הגדרת עמודות הקובץ</div>
+
+          <div class="form-field" style="margin-bottom: 20px;">
+            <label class="form-label">מספר עמודות בקובץ <span class="required">*</span></label>
+            <input type="number" class="form-input" [(ngModel)]="columnCount" (change)="updateColumnCount()" style="max-width:200px">
+            <div class="help-text">הכנס את מספר העמודות והטבלה תתעדכן אוטומטיה</div>
+          </div>
+
+          <div class="columns-section">
+            <div class="columns-header">
+              <h3>רשימת עמודות:</h3>
+              <button type="button" class="add-column-btn" (click)="addColumn()">➕ הוסף עמודה</button>
+            </div>
+
+            <div class="columns-table">
+              <div class="table-header">
+                <div>#</div>
+                <div>שם עמודה (אנגלית)</div>
+                <div>שם עמודה (עברית)</div>
+                <div>סוג שדה</div>
+                <div>פעולות</div>
+              </div>
+              <div *ngFor="let col of columns; let i = index" class="table-row fade-in">
+                <div class="row-number">{{col.order}}</div>
+                <div><input type="text" class="table-input" [(ngModel)]="col.nameEng" placeholder="column_name"></div>
+                <div><input type="text" class="table-input" [(ngModel)]="col.nameHeb" placeholder="שם עמודה בעברית"></div>
+                <div>
+                  <select class="table-select" [(ngModel)]="col.type">
+                    <option value="VARCHAR">VARCHAR</option>
+                    <option value="INT">INT</option>
+                    <option value="DATETIME">DATETIME</option>
+                  </select>
+                </div>
+                <div>
+                  <button type="button" class="delete-btn" (click)="deleteColumn(i)">🗑️</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-section">
+          <button type="button" class="btn btn-secondary" (click)="prevStep()">⬅️ חזרה</button>
+          <button type="button" class="btn btn-primary" (click)="nextStep()">המשך לאישור ➡️</button>
+        </div>
+      </div>
+
+      <!-- שלב 3: אישור ויצירה -->
+      <div *ngIf="currentStep===3" class="step-content">
+        <div class="form-section">
+          <div class="section-title">✅ סיכום ואישור</div>
+
+          <div class="preview-card">
+            <div class="preview-title">📋 סיכום הגדרות הקובץ</div>
+            <div class="preview-info">
+              <div class="preview-item">
+                <div class="preview-label">תיאור תהליך:</div>
+                <div class="preview-value">{{description}}</div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">סוג קליטה:</div>
+                <div class="preview-value">
+                  {{getDataSourceLabel()}}
+                </div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">מערכת:</div>
+                <div class="preview-value">
+                 {{getDataSourceLabel()}}
+                </div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">נתיב קבצי מקור:</div>
+                <div class="preview-value">{{urlFile}}</div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">נתיב קבצים מעובדים:</div>
+                <div class="preview-value">{{urlFileAfter}}</div>
+              </div>
+              <div class="preview-item" *ngIf="jobName">
+                <div class="preview-label">שם Job:</div>
+                <div class="preview-value">{{jobName}}</div>
+              </div>
+              <div class="preview-item" *ngIf="errorRecipients">
+                <div class="preview-label">כתובות מייל לשגיאות:</div>
+                <div class="preview-value">{{errorRecipients}}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-card" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-color: rgba(33, 150, 243, 0.2);">
+            <div class="preview-title" style="color: #1565c0;">🗂️ פרטי הטבלה שתיווצר</div>
+            <div class="preview-info">
+              <div class="preview-item">
+                <div class="preview-label">שם טבלה:</div>
+                <div class="preview-value">{{generateTableName(description)}}</div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">מספר עמודות:</div>
+                <div class="preview-value">{{columns.length}} + 2 עמודות מערכת</div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">סוג עמודות:</div>
+                <div class="preview-value">VARCHAR(MAX)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="success-message" *ngIf="successMessageVisible">
+            ✅ הקובץ נוצר בהצלחה! המערכת יצרה את הטבלה ועדכנה את כל ההגדרות הנדרשות.
+          </div>
+
+          <div class="error-message" *ngIf="errorMessageVisible">
+            ❌ אירעה שגיאה ביצירת הקובץ. אנא בדוק את הפרטים ונסה שוב.
+          </div>
+        </div>
+
+        <div class="actions-section">
+          <button type="button" class="btn btn-secondary" (click)="prevStep()">⬅️ חזרה לעריכה</button>
+          <button type="button" class="btn btn-primary" (click)="createFile()" [disabled]="creatingFile">
+            {{creatingFile ? '⏳ יוצר קובץ...' : '🚀 צור קובץ'}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
