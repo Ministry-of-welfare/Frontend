@@ -6,25 +6,11 @@ import { SearchFileComponent } from "./components/search-file/search-file.compon
 import { LayoutComponent } from './layout/layout.component';
 import { FilesViewComponent } from './components/files-view/files-view.component';
 
-<<<<<<< HEAD
+
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, HttpClientModule, SearchFileComponent, EnvironmentsComponent, LayoutComponent, FilesViewComponent],
-=======
-
-
-
-
-
-
-
-
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet,  HttpClientModule,SearchFileComponent, EnvironmentsComponent,LayoutComponent,FilesViewComponent],
->>>>>>> searchBranch
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
