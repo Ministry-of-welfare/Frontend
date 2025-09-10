@@ -99,7 +99,7 @@ export class FilesViewComponent implements OnChanges {
     this.dialogIsEdit = true;
     this.dialogIsView = false;
     this.dialogData = {
-      dataSourceId: process.dataSourceId || process.id || '',
+      importDataSourceId: process.importDataSourceId || process.dataSourceId || process.id || '',
       importDataSourceDesc: process.importDataSourceDesc || process.name || '',
       type: process.type || 'FILE_IMPORT',
       systemId: process.systemId || '',
@@ -147,7 +147,12 @@ export class FilesViewComponent implements OnChanges {
   }
 
   get displayedProcesses() {
-    return this.filteredProcesses;
+    // Remove time part from startDate and endDate for display
+    return this.filteredProcesses.map(p => ({
+      ...p,
+      startDate: p.startDate ? p.startDate.toString().split('T')[0] : p.startDate,
+      endDate: p.endDate ? p.endDate.toString().split('T')[0] : p.endDate
+    }));
   }
 
   clearFilter() {
