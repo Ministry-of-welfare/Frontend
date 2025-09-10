@@ -92,7 +92,17 @@ export class FilesViewComponent implements OnChanges {
     switch (status) {
       case 'active': return 'פעיל';
       case 'inactive': return 'לא פעיל';
-      default: return status;
+      case 'design': return 'בעיצוב';
+      default: return status || 'פעיל';
+    }
+  }
+
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'active': return 'status-success';
+      case 'inactive': return 'status-error';
+      case 'design': return 'status-warning';
+      default: return 'status-success';
     }
   }
 
@@ -162,6 +172,10 @@ export class FilesViewComponent implements OnChanges {
     this.filteredProcesses = this.processes;
     this.hasActiveSearch = false;
     this.clearSearchEvent.emit();
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 
 
