@@ -21,9 +21,9 @@
       <p><strong>סטטוס:</strong> {{ formatStatus(p.status) }}</p>
     </div>
     <div class="actions">
-      <button>✏️</button>
+      <button (click)="openEditDialog(p)">✏️</button>
       <button>🗑️</button>
-      <button>👁️</button>
+      <button (click)="openViewDialog(p)">👁️</button>
     </div>
   </div>
 </div>
@@ -36,6 +36,9 @@
         <th>מס׳</th>
         <th>תיאור</th>
         <th>שם סכמה</th>
+
+        <th>שם תהליך</th>
+        <th>שם סchema</th>
         <th>מערכת</th>
         <th>סוג קליטה</th>
         <th>סטטוס</th>
@@ -58,11 +61,20 @@
         <td>{{ p.created }}</td>
         <td>{{ p.updated }}</td>
         <td>
-          <button>✏️</button>
+          <button (click)="openEditDialog(p)">✏️</button>
           <button>🗑️</button>
-          <button>👁️</button>
+          <button (click)="openViewDialog(p)">👁️</button>
         </td>
       </tr>
     </tbody>
   </table>
 </div>
+
+<app-edit-process-dialog
+  [visible]="dialogVisible"
+  [data]="dialogData"
+  [isEdit]="dialogIsEdit"
+  [isView]="dialogIsView"
+  (confirm)="onDialogConfirm($event)"
+  (cancel)="onDialogCancel()"
+></app-edit-process-dialog>

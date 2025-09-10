@@ -1,0 +1,94 @@
+<div class="popup-overlay" *ngIf="visible">
+  <div class="popup-container">
+    <div class="popup-header">{{ isEdit ? 'עדכון מקור נתונים' : isView ? 'צפיה במקור נתונים' : 'הוספת מקור נתונים' }}</div>
+    <div class="popup-content">
+      <form (ngSubmit)="onConfirm()" autocomplete="off">
+        <!-- שורה ראשונה -->
+        <div class="form-row">
+          <div class="field-group">
+            <label class="field-label">מזהה מקור נתונים</label>
+            <input type="text" class="field-input readonly-field" [value]="data.dataSourceId || ''" disabled>
+            <div class="validation-hint">שדה לא ניתן לעדכון</div>
+          </div>
+          <div class="field-group" [ngClass]="{ 'show-hint': isEdit }">
+            <label class="field-label">תיאור מקור נתונים <span class="required">*</span></label>
+            <input type="text" class="field-input" [(ngModel)]="data.importDataSourceDesc" name="importDataSourceDesc" [disabled]="isView">
+            <div class="validation-hint" *ngIf="isEdit">אותיות, '-', '_' בלבד</div>
+            <div class="error-message" *ngIf="errors.importDataSourceDesc">{{ errors.importDataSourceDesc }}</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">סוג מקור נתונים</label>
+            <input type="text" class="field-input readonly-field" [value]="data.type || 'FILE_IMPORT'" disabled>
+            <div class="validation-hint">שדה לא ניתן לעדכון</div>
+          </div>
+        </div>
+        <!-- שורה שנייה -->
+        <div class="form-row">
+          <div class="field-group" [ngClass]="{'show-hint': isEdit}">
+            <label class="field-label">מזהה מערכת <span class="required">*</span></label>
+            <select class="field-input" [(ngModel)]="data.systemId" name="systemId" [disabled]="isView">
+              <option value="">בחר מערכת</option>
+              <option *ngFor="let s of systems" [value]="s.value">{{ s.label }}</option>
+            </select>
+            <div class="validation-hint" *ngIf="isEdit">בחר מערכת קיימת</div>
+            <div class="error-message" *ngIf="errors.systemId">{{ errors.systemId }}</div>
+          </div>
+          <div class="field-group" [ngClass]="{'show-hint': isEdit}">
+            <label class="field-label">שם תהליך <span class="required">*</span></label>
+            <input type="text" class="field-input" [(ngModel)]="data.jobName" name="jobName" [disabled]="isView">
+            <div class="validation-hint" *ngIf="isEdit">אותיות, '-', '_' בלבד</div>
+            <div class="error-message" *ngIf="errors.jobName">{{ errors.jobName }}</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">שם טבלה</label>
+            <input type="text" class="field-input readonly-field" [value]="data.tableName || ''" disabled>
+            <div class="validation-hint" *ngIf="!isView">שדה לא ניתן לעדכון</div>
+          </div>
+        </div>
+        <!-- שורה שלישית -->
+        <div class="form-row">
+          <div class="field-group" [ngClass]="{'show-hint': isEdit}">
+            <label class="field-label">נתיב קובץ <span class="required">*</span></label>
+            <input type="text" class="field-input" [(ngModel)]="data.urlFile" name="urlFile" [disabled]="isView">
+            <div class="validation-hint" *ngIf="isEdit">אותיות, '-', '_', '/', ':' בלבד</div>
+            <div class="error-message" *ngIf="errors.urlFile">{{ errors.urlFile }}</div>
+          </div>
+          <div class="field-group" [ngClass]="{'show-hint': isEdit}">
+            <label class="field-label">נתיב קובץ לאחר עיבוד <span class="required">*</span></label>
+            <input type="text" class="field-input" [(ngModel)]="data.urlFileAfterProcess" name="urlFileAfterProcess" [disabled]="isView">
+            <div class="validation-hint" *ngIf="isEdit">אותיות, '-', '_', '/', ':' בלבד</div>
+            <div class="error-message" *ngIf="errors.urlFileAfterProcess">{{ errors.urlFileAfterProcess }}</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">תאריך סיום <span class="required">*</span></label>
+            <input type="date" class="field-input" [(ngModel)]="data.endDate" name="endDate" [disabled]="isView">
+            <div class="error-message" *ngIf="errors.endDate">{{ errors.endDate }}</div>
+          </div>
+        </div>
+        <!-- שורה רביעית -->
+        <div class="form-row">
+          <div class="field-group" [ngClass]="{'show-hint': isEdit}">
+            <label class="field-label">נמעני שגיאות <span class="required">*</span></label>
+            <input type="text" class="field-input" [(ngModel)]="data.errorRecipients" name="errorRecipients" [disabled]="isView">
+            <div class="validation-hint" *ngIf="isEdit">כתובות מייל מופרדות ב-';' (xxx&#64;xxx.xx)</div>
+            <div class="error-message" *ngIf="errors.errorRecipients">{{ errors.errorRecipients }}</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">תאריך הוספה</label>
+            <input type="text" class="field-input current-date" [value]="data.createdDate || ''" disabled>
+            <div class="validation-hint" *ngIf="!isView">תאריך נוכחי</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">תאריך התחלה <span class="required">*</span></label>
+            <input type="date" class="field-input" [(ngModel)]="data.startDate" name="startDate" [disabled]="isView">
+            <div class="error-message" *ngIf="errors.startDate">{{ errors.startDate }}</div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="popup-actions">
+      <button *ngIf="!isView" type="button" class="btn btn-primary" (click)="onConfirm()">אישור</button>
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">ביטול</button>
+    </div>
+  </div>
+</div>
