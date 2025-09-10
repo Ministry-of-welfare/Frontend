@@ -2,12 +2,6 @@
 <div class="view-toggle">
   <button [class.active]="viewMode === 'cards'" (click)="setView('cards')">תצוגת כרטיסיות</button>
   <button [class.active]="viewMode === 'table'" (click)="setView('table')">תצוגת טבלה</button>
-  <button (click)="showDataStructure()" style="background: red; color: white;">הצג מבנה נתונים</button>
-</div>
-
-<div *ngIf="showData" style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
-  <h3>מבנה הנתונים:</h3>
-  <pre>{{ dataStructure }}</pre>
 </div>
 
 <div *ngIf="loading" class="loading">טוען נתונים...</div>

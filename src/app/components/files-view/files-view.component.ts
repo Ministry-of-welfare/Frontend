@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { NgClass, CommonModule } from '@angular/common';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { EditProcessDialogComponent, EditProcessData } from '../edit-process-dialog/edit-process-dialog.component';
@@ -17,9 +17,8 @@ export class FilesViewComponent implements OnChanges {
   filteredProcesses: any[] = [];
   loading = true;
   @Input() searchCriteria: any = null;
+  @Output() clearSearchEvent = new EventEmitter<void>();
   hasActiveSearch = false;
-  showData = false;
-  dataStructure = '';
 
   constructor(private importDS: ImportDataSourceService) {}
 
@@ -28,34 +27,25 @@ export class FilesViewComponent implements OnChanges {
   }
 
   ngOnChanges(): void {
-    console.log('ngOnChanges called with searchCriteria:', this.searchCriteria);
     this.filterProcesses();
   }
 
   loadProcesses(): void {
-    console.log('Starting to load processes...');
     this.importDS.getAll().subscribe({
       next: (data) => {
-        console.log('=== נתונים מהשרת ===');
-        console.log('Total items:', data?.length || 0);
-        console.log('First item structure:', data?.[0]);
-        console.log('All data:', data);
-        this.processes = data;
-        this.filteredProcesses = data;
+        this.processes = data || [];
+        this.filteredProcesses = data || [];
         this.loading = false;
         this.filterProcesses();
       },
       error: (err) => {
-        console.error('=== שגיאה בקבלת נתונים ===', err);
+        console.error('שגיאה בקבלת נתונים', err);
         this.loading = false;
       }
     });
   }
 
   filterProcesses(): void {
-    console.log('filterProcesses called with:', this.searchCriteria);
-    console.log('Available processes:', this.processes);
-    
     if (!this.searchCriteria || 
         (!this.searchCriteria.query && 
          this.searchCriteria.system === 'כל המערכות' && 
@@ -63,38 +53,29 @@ export class FilesViewComponent implements OnChanges {
          this.searchCriteria.status === 'כל הסטטוסים')) {
       this.filteredProcesses = this.processes;
       this.hasActiveSearch = false;
-      console.log('No active search, showing all processes:', this.filteredProcesses.length);
       return;
     }
 
     this.hasActiveSearch = true;
-    console.log('Active search detected');
     
     this.filteredProcesses = this.processes.filter(process => {
-      console.log('Checking process:', process);
-      
       const matchesQuery = !this.searchCriteria.query || 
         process.importDataSourceDesc?.toLowerCase().includes(this.searchCriteria.query.toLowerCase()) ||
         process.tableName?.toLowerCase().includes(this.searchCriteria.query.toLowerCase()) ||
-        process.dataSourceTypeId?.toLowerCase().includes(this.searchCriteria.query.toLowerCase());
+        process.jobName?.toLowerCase().includes(this.searchCriteria.query.toLowerCase());
 
       const matchesSystem = this.searchCriteria.system === 'כל המערכות' || 
-        process.systemId === this.searchCriteria.system ||
-        process.systemName === this.searchCriteria.system;
+        process.systemId?.toString() === this.searchCriteria.system?.toString();
 
       const matchesType = this.searchCriteria.type === 'כל הסוגים' || 
-        process.dataSourceTypeId === this.searchCriteria.type ||
-        process.dataSourceTypeDesc === this.searchCriteria.type;
+        process.dataSourceTypeId?.toString() === this.searchCriteria.type?.toString();
 
-      const matchesStatus = this.searchCriteria.status === 'כל הסטטוסים' || 
-        process.importStatusDesc === this.searchCriteria.status ||
-        process.status === this.searchCriteria.status;
+      const matchesStatus = this.searchCriteria.status === 'כל הסטטוסים' ||
+        process.status === this.searchCriteria.status ||
+        this.formatStatus(process.status) === this.searchCriteria.status;
 
-      console.log('Match results:', { matchesQuery, matchesSystem, matchesType, matchesStatus });
       return matchesQuery && matchesSystem && matchesType && matchesStatus;
     });
-    
-    console.log('Filtered results:', this.filteredProcesses.length);
   }
 
   dialogVisible = false;
@@ -172,12 +153,8 @@ export class FilesViewComponent implements OnChanges {
   clearFilter() {
     this.filteredProcesses = this.processes;
     this.hasActiveSearch = false;
+    this.clearSearchEvent.emit();
   }
 
-  showDataStructure() {
-    this.showData = !this.showData;
-    if (this.showData && this.processes.length > 0) {
-      this.dataStructure = JSON.stringify(this.processes[0], null, 2);
-    }
-  }
+
 }
