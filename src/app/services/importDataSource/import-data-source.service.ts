@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DataSourceType } from '../../models/dataSourceType.model';
+import { ImportDataSources } from '../../models/importDataSources.model';
+import { ImportStatus } from '../../models/importStatus.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +14,11 @@ export class ImportDataSourceService {
     
        constructor(private http: HttpClient) {}
     
-       getAll(): Observable<DataSourceType[]> {
-        
-        return this.http.get<DataSourceType[]>(this.BASE_URL);
+       getAll(): Observable<ImportDataSources[]> {
+        return this.http.get<ImportDataSources[]>(this.BASE_URL);
+      }
+
+      addImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
+        return this.http.post<ImportDataSources>(this.BASE_URL, importDataSource);
       }
 }

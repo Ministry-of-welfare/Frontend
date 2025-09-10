@@ -9,12 +9,16 @@
 <div *ngIf="viewMode === 'cards'" class="cards">
   <div *ngFor="let p of processes" class="card">
     <div>
-      <h3>{{ p.name }}</h3>
-      <p><strong> מערכת:</strong> {{ p.schema }}</p>
-      <p><strong>סוג קליטה:</strong> {{ p.system }}</p>
-      <p class="status" [ngClass]="p.status">
-        <strong>סטטוס:</strong> {{ formatStatus(p.status) }}
-      </p>
+      <h3>{{ p.importDataSourceDesc }}</h3>
+      <p><strong>שם טבלה:</strong> {{ p.tableName }}</p>
+      <p><strong>מערכת:</strong> {{ p.systemId }}</p>
+      <p><strong>סוג מקור נתונים:</strong> {{ p.dataSourceTypeId }}</p>
+      <p><strong>קובץ מקור:</strong> {{ p.urlFile }}</p>
+      <p><strong>קובץ לאחר עיבוד:</strong> {{ p.urlFileAfterProcess }}</p>
+      <p><strong>תאריך התחלה:</strong> {{ p.startDate }}</p>
+      <p><strong>תאריך סיום:</strong> {{ p.endDate }}</p>
+      <p><strong>נמעני שגיאה:</strong> {{ p.errorRecipients }}</p>
+      <p><strong>סטטוס:</strong> {{ formatStatus(p.status) }}</p>
     </div>
     <div class="actions">
       <button>✏️</button>
@@ -30,20 +34,29 @@
     <thead>
       <tr>
         <th>מס׳</th>
-        <th>שם תהליך</th>
+        <th>תיאור</th>
         <th>שם סכמה</th>
         <th>מערכת</th>
+        <th>סוג קליטה</th>
         <th>סטטוס</th>
+        <th>תאריך יצירה</th>
+        <th>עדכון אחרון</th>
         <th>פעולות</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let p of processes; let i = index">
         <td>{{ i + 1 }}</td>
-        <td>{{ p.name }}</td>
-        <td>{{ p.schema }}</td>
-        <td>{{ p.system }}</td>
-        <td class="status" [ngClass]="p.status">{{ formatStatus(p.status) }}</td>
+        <td>{{ p.importDataSourceDesc }}</td>
+        <td>{{ p.tableName }}</td>
+        <td>{{ p.systemName }}</td>
+        <td>{{ p.dataSourceTypeName }}</td>
+        <td>
+          <span [style.color]="p.status.color">{{ p.status.icon }}</span>
+          <span>{{ p.status.label }}</span>
+        </td>
+        <td>{{ p.created }}</td>
+        <td>{{ p.updated }}</td>
         <td>
           <button>✏️</button>
           <button>🗑️</button>
