@@ -159,3 +159,40 @@ table tr:last-child td {
 .status.active { color: #22c55e; }
 .status.warning { color: #f59e42; }
 .status.inactive { color: #ef4444; }
+
+.no-results {
+  text-align: center;
+  padding: 40px 20px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(67,56,202,0.08);
+  border: 2px solid #eef2ff;
+  margin: 20px 0;
+}
+
+.no-results h3 {
+  color: #6b7280;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.no-results p {
+  color: #9ca3af;
+  font-size: 14px;
+  margin: 0 0 15px 0;
+}
+
+.clear-filter-btn {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 0;
+}
+
+.clear-filter-btn:hover {
+  background: #4f46e5;
+}

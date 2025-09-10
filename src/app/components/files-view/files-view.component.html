@@ -1,13 +1,26 @@
-
 <h2>רשימת תהליכים</h2>
 <div class="view-toggle">
   <button [class.active]="viewMode === 'cards'" (click)="setView('cards')">תצוגת כרטיסיות</button>
   <button [class.active]="viewMode === 'table'" (click)="setView('table')">תצוגת טבלה</button>
+  <button (click)="showDataStructure()" style="background: red; color: white;">הצג מבנה נתונים</button>
+</div>
+
+<div *ngIf="showData" style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
+  <h3>מבנה הנתונים:</h3>
+  <pre>{{ dataStructure }}</pre>
+</div>
+
+<div *ngIf="loading" class="loading">טוען נתונים...</div>
+
+<div *ngIf="!loading && hasActiveSearch && displayedProcesses.length === 0" class="no-results">
+  <h3>לא נמצאו תוצאות תואמות</h3>
+  <p>נסה לשנות את קריטריוני החיפוש או לנקות את הסינון</p>
+  <button (click)="clearFilter()" class="clear-filter-btn">🗑️ נקה סינון והצג הכל</button>
 </div>
 
 <!-- Cards View -->
-<div *ngIf="viewMode === 'cards'" class="cards">
-  <div *ngFor="let p of processes" class="card">
+<div *ngIf="viewMode === 'cards' && !loading" class="cards">
+  <div *ngFor="let p of displayedProcesses" class="card">
     <div>
       <h3>{{ p.importDataSourceDesc }}</h3>
       <p><strong>שם טבלה:</strong> {{ p.tableName }}</p>
@@ -18,7 +31,6 @@
       <p><strong>תאריך התחלה:</strong> {{ p.startDate }}</p>
       <p><strong>תאריך סיום:</strong> {{ p.endDate }}</p>
       <p><strong>נמעני שגיאה:</strong> {{ p.errorRecipients }}</p>
-      <p><strong>סטטוס:</strong> {{ formatStatus(p.status) }}</p>
     </div>
     <div class="actions">
       <button (click)="openEditDialog(p)">✏️</button>
@@ -29,37 +41,29 @@
 </div>
 
 <!-- Table View -->
-<div *ngIf="viewMode === 'table'" class="table-wrapper">
+<div *ngIf="viewMode === 'table' && !loading" class="table-wrapper">
   <table>
     <thead>
       <tr>
         <th>מס׳</th>
         <th>תיאור</th>
-        <th>שם סכמה</th>
-
-        <th>שם תהליך</th>
-        <th>שם סchema</th>
+        <th>שם טבלה</th>
         <th>מערכת</th>
-        <th>סוג קליטה</th>
-        <th>סטטוס</th>
-        <th>תאריך יצירה</th>
-        <th>עדכון אחרון</th>
+        <th>סוג מקור נתונים</th>
+        <th>תאריך התחלה</th>
+        <th>תאריך סיום</th>
         <th>פעולות</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let p of processes; let i = index">
+      <tr *ngFor="let p of displayedProcesses; let i = index">
         <td>{{ i + 1 }}</td>
         <td>{{ p.importDataSourceDesc }}</td>
         <td>{{ p.tableName }}</td>
-        <td>{{ p.systemName }}</td>
-        <td>{{ p.dataSourceTypeName }}</td>
-        <td>
-          <span [style.color]="p.status.color">{{ p.status.icon }}</span>
-          <span>{{ p.status.label }}</span>
-        </td>
-        <td>{{ p.created }}</td>
-        <td>{{ p.updated }}</td>
+        <td>{{ p.systemId }}</td>
+        <td>{{ p.dataSourceTypeId }}</td>
+        <td>{{ p.startDate }}</td>
+        <td>{{ p.endDate }}</td>
         <td>
           <button (click)="openEditDialog(p)">✏️</button>
           <button>🗑️</button>

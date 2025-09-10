@@ -73,5 +73,6 @@ import { Systems } from '../../models/systems.model';
       type: 'כל הסוגים',
       status: 'כל הסטטוסים'
     });
+    this.searchEvent.emit(this.form.value);
   }
 }

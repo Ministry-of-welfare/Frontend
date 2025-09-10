@@ -4,11 +4,8 @@
 
 <app-layout>
 <!-- <app-environments></app-environments> -->
-<app-files-view></app-files-view>
-<app-search-file></app-search-file>
+<app-search-file (searchEvent)="onSearch($event)"></app-search-file>
+<app-files-view [searchCriteria]="searchCriteria"></app-files-view>
 <app-add-file></app-add-file>
-<app-files-view></app-files-view>
-
-
 
 <router-outlet />

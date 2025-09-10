@@ -16,5 +16,10 @@ import { AddFileComponent } from './components/add-file/add-file.component';
 })
 export class AppComponent {
   title = 'empty-project';
-}
+  searchCriteria: any = null;
 
+  onSearch(criteria: any) {
+    console.log('Search criteria received:', criteria);
+    this.searchCriteria = { ...criteria };
+  }
+}

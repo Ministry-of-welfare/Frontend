@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { NgClass, CommonModule } from '@angular/common';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { EditProcessDialogComponent, EditProcessData } from '../edit-process-dialog/edit-process-dialog.component';
@@ -11,110 +11,91 @@ import { EditProcessDialogComponent, EditProcessData } from '../edit-process-dia
   styleUrls: ['./files-view.component.css']
 })
 
-export class FilesViewComponent {
+export class FilesViewComponent implements OnChanges {
   viewMode: 'cards' | 'table' = 'cards';
   processes: any[] = [];
+  filteredProcesses: any[] = [];
+  loading = true;
+  @Input() searchCriteria: any = null;
+  hasActiveSearch = false;
+  showData = false;
+  dataStructure = '';
 
   constructor(private importDS: ImportDataSourceService) {}
 
   ngOnInit(): void {
+    this.loadProcesses();
+  }
+
+  ngOnChanges(): void {
+    console.log('ngOnChanges called with searchCriteria:', this.searchCriteria);
+    this.filterProcesses();
+  }
+
+  loadProcesses(): void {
+    console.log('Starting to load processes...');
     this.importDS.getAll().subscribe({
       next: (data) => {
+        console.log('=== נתונים מהשרת ===');
+        console.log('Total items:', data?.length || 0);
+        console.log('First item structure:', data?.[0]);
+        console.log('All data:', data);
         this.processes = data;
-        console.log('importDS נתונים מהשרת:', data);
+        this.filteredProcesses = data;
+        this.loading = false;
+        this.filterProcesses();
       },
       error: (err) => {
-        console.error('importDS שגיאה בקבלת נתונים', err);
+        console.error('=== שגיאה בקבלת נתונים ===', err);
+        this.loading = false;
       }
     });
   }
-  proccess = [
-    {
-      id: '1',
-      name: 'קבוצת קליטת עובדים סוציאליים',
-      schema: 'BULK_SOCIAL_WORKERS',
-      system: 'משאבי אנוש',
-      systemId: 'HR_SYSTEM',
-      status: 'active',
-      type: 'מערכת קליטה',
-      created: '15.1.2025',
-      updated: '1.9.2025',
-      file: 'ImportSocialWorkersJob',
-      urlFile: '/data/import/social.csv',
-      urlFileAfter: '/data/processed/social.csv',
-      errorRecipients: 'admin@company.com',
-      endDate: '2025-12-31',
-      startDate: '2025-01-01'
-    },
-    {
-      id: '2',
-      name: 'קליטת שעות מ-OkToGo',
-      schema: 'BULK_HOURS_OKTOGO',
-      system: 'מערכת נוכחות',
-      systemId: 'HR_SYSTEM',
-      status: 'active',
-      type: 'מערכת נוכחות',
-      created: '20.1.2025',
-      updated: '2.9.2025',
-      file: 'ImportOkToGoHoursJob',
-      urlFile: '/data/import/hours.csv',
-      urlFileAfter: '/data/processed/hours.csv',
-      errorRecipients: 'hr@company.com',
-      endDate: '2025-12-31',
-      startDate: '2025-01-01'
-    },
-    {
-      id: '3',
-      name: 'קליטת ניהול סופרים',
-      schema: 'BULK_PACKAGES_DATA',
-      system: 'מערכת דוחות',
-      systemId: 'FINANCE_SYSTEM',
-      status: 'warning',
-      type: 'מערכת דוחות',
-      created: '5.2.2025',
-      updated: '2.9.2025',
-      file: 'ImportPackagesJob',
-      urlFile: '/data/import/packages.csv',
-      urlFileAfter: '/data/processed/packages.csv',
-      errorRecipients: 'finance@company.com',
-      endDate: '2025-12-31',
-      startDate: '2025-01-01'
-    },
-    {
-      id: '4',
-      name: 'קליטת נתוני מלונות חירום',
-      schema: 'BULK_EMERGENCY_HOTELS',
-      system: 'מערכת דיור',
-      systemId: 'CRM_SYSTEM',
-      status: 'inactive',
-      type: 'מערכת דיור',
-      created: '30.8.2024',
-      updated: '30.8.2025',
-      file: 'ImportEmergencyHotelsJob',
-      urlFile: '/data/import/hotels.csv',
-      urlFileAfter: '/data/processed/hotels.csv',
-      errorRecipients: 'admin@company.com',
-      endDate: '2025-12-31',
-      startDate: '2025-01-01'
-    },
-    {
-      id: '5',
-      name: 'קליטת נתוני תמיכה לעובדים סוציאליים',
-      schema: 'BULK_SOCIAL_WORKERS_SUPPORT',
-      system: 'משאבי אנוש',
-      systemId: 'HR_SYSTEM',
-      status: 'inactive',
-      type: 'מערכת קליטה',
-      created: '13.2.2025',
-      updated: '15.7.2025',
-      file: 'ImportSupportSocialWorkersJob',
-      urlFile: '/data/import/support.csv',
-      urlFileAfter: '/data/processed/support.csv',
-      errorRecipients: 'support@company.com',
-      endDate: '2025-12-31',
-      startDate: '2025-01-01'
+
+  filterProcesses(): void {
+    console.log('filterProcesses called with:', this.searchCriteria);
+    console.log('Available processes:', this.processes);
+    
+    if (!this.searchCriteria || 
+        (!this.searchCriteria.query && 
+         this.searchCriteria.system === 'כל המערכות' && 
+         this.searchCriteria.type === 'כל הסוגים' && 
+         this.searchCriteria.status === 'כל הסטטוסים')) {
+      this.filteredProcesses = this.processes;
+      this.hasActiveSearch = false;
+      console.log('No active search, showing all processes:', this.filteredProcesses.length);
+      return;
     }
-  ];
+
+    this.hasActiveSearch = true;
+    console.log('Active search detected');
+    
+    this.filteredProcesses = this.processes.filter(process => {
+      console.log('Checking process:', process);
+      
+      const matchesQuery = !this.searchCriteria.query || 
+        process.importDataSourceDesc?.toLowerCase().includes(this.searchCriteria.query.toLowerCase()) ||
+        process.tableName?.toLowerCase().includes(this.searchCriteria.query.toLowerCase()) ||
+        process.dataSourceTypeId?.toLowerCase().includes(this.searchCriteria.query.toLowerCase());
+
+      const matchesSystem = this.searchCriteria.system === 'כל המערכות' || 
+        process.systemId === this.searchCriteria.system ||
+        process.systemName === this.searchCriteria.system;
+
+      const matchesType = this.searchCriteria.type === 'כל הסוגים' || 
+        process.dataSourceTypeId === this.searchCriteria.type ||
+        process.dataSourceTypeDesc === this.searchCriteria.type;
+
+      const matchesStatus = this.searchCriteria.status === 'כל הסטטוסים' || 
+        process.importStatusDesc === this.searchCriteria.status ||
+        process.status === this.searchCriteria.status;
+
+      console.log('Match results:', { matchesQuery, matchesSystem, matchesType, matchesStatus });
+      return matchesQuery && matchesSystem && matchesType && matchesStatus;
+    });
+    
+    console.log('Filtered results:', this.filteredProcesses.length);
+  }
 
   dialogVisible = false;
   dialogData: EditProcessData = {};
@@ -137,17 +118,17 @@ export class FilesViewComponent {
     this.dialogIsEdit = true;
     this.dialogIsView = false;
     this.dialogData = {
-      dataSourceId: process.id || '',
-      importDataSourceDesc: process.name || '',
+      dataSourceId: process.dataSourceId || process.id || '',
+      importDataSourceDesc: process.importDataSourceDesc || process.name || '',
       type: process.type || 'FILE_IMPORT',
       systemId: process.systemId || '',
-      jobName: process.file || '',
-      tableName: process.schema || '',
+      jobName: process.jobName || process.file || '',
+      tableName: process.tableName || process.schema || '',
       urlFile: process.urlFile || '',
-      urlFileAfterProcess: process.urlFileAfter || '',
+      urlFileAfterProcess: process.urlFileAfterProcess || process.urlFileAfter || '',
       errorRecipients: process.errorRecipients || '',
       endDate: process.endDate || '',
-      createdDate: process.created || '',
+      createdDate: process.createdDate || process.created || '',
       startDate: process.startDate || ''
     };
     this.dialogVisible = true;
@@ -157,17 +138,17 @@ export class FilesViewComponent {
     this.dialogIsEdit = false;
     this.dialogIsView = true;
     this.dialogData = {
-      dataSourceId: process.id || '',
-      importDataSourceDesc: process.name || '',
+      dataSourceId: process.dataSourceId || process.id || '',
+      importDataSourceDesc: process.importDataSourceDesc || process.name || '',
       type: process.type || 'FILE_IMPORT',
       systemId: process.systemId || '',
-      jobName: process.file || '',
-      tableName: process.schema || '',
+      jobName: process.jobName || process.file || '',
+      tableName: process.tableName || process.schema || '',
       urlFile: process.urlFile || '',
-      urlFileAfterProcess: process.urlFileAfter || '',
+      urlFileAfterProcess: process.urlFileAfterProcess || process.urlFileAfter || '',
       errorRecipients: process.errorRecipients || '',
       endDate: process.endDate || '',
-      createdDate: process.created || '',
+      createdDate: process.createdDate || process.created || '',
       startDate: process.startDate || ''
     };
     this.dialogVisible = true;
@@ -176,7 +157,6 @@ export class FilesViewComponent {
   onDialogConfirm(data: EditProcessData) {
     if (this.dialogIsEdit) {
       // עדכון תהליך קיים
-      // כאן אפשר לעדכן את המערך processes בהתאם ל-id
     }
     this.dialogVisible = false;
   }
@@ -184,5 +164,20 @@ export class FilesViewComponent {
   onDialogCancel() {
     this.dialogVisible = false;
   }
-}
 
+  get displayedProcesses() {
+    return this.filteredProcesses;
+  }
+
+  clearFilter() {
+    this.filteredProcesses = this.processes;
+    this.hasActiveSearch = false;
+  }
+
+  showDataStructure() {
+    this.showData = !this.showData;
+    if (this.showData && this.processes.length > 0) {
+      this.dataStructure = JSON.stringify(this.processes[0], null, 2);
+    }
+  }
+}

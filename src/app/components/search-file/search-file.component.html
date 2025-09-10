@@ -4,19 +4,22 @@
     <input type="text" formControlName="query" placeholder="הכנס תיאור, שם טבלה או סוג קליטה..." />
 
     <select formControlName="system">
+      <option value="כל המערכות">כל המערכות</option>
       <option *ngFor="let sys of systems" [value]="sys">{{ sys }}</option>
     </select>
 
     <select formControlName="type">
+      <option value="כל הסוגים">כל הסוגים</option>
       <option *ngFor="let t of types" [value]="t">{{ t }}</option>
     </select>
 
     <select formControlName="status">
+      <option value="כל הסטטוסים">כל הסטטוסים</option>
       <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
     </select>
 
     <div class="buttons">
-      <button type="submit" class="search-btn">🔍 חפש</button>
+      <button type="submit" class="search-btn" [disabled]="form.invalid">🔍 חפש</button>
       <button type="button" class="clear-btn" (click)="onClear()">🗑️ נקה סינון</button>
     </div>
   </form>
