@@ -5,12 +5,12 @@
 
     <select formControlName="system">
       <option value="כל המערכות">כל המערכות</option>
-      <option *ngFor="let sys of systems" [value]="sys">{{ sys }}</option>
+      <option *ngFor="let sys of systems" [value]="sys.id">{{ sys.name }}</option>
     </select>
 
     <select formControlName="type">
       <option value="כל הסוגים">כל הסוגים</option>
-      <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+      <option *ngFor="let t of types" [value]="t.id">{{ t.name }}</option>
     </select>
 
     <select formControlName="status">

@@ -1,11 +1,23 @@
-div{
-    background-color: rgb(241, 131, 188);
-    text-align: center;
-    font-size: xx-large;
-    margin-top: 10px;
-    direction: rtl;
+.main-nav {
+  background: #2c3e50;
+  padding: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-#n{
-    border: 1px solid black;
-    background-color: rgb(222, 135, 205);
+
+.main-nav a {
+  display: inline-block;
+  padding: 15px 25px;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.3s;
+  border-bottom: 3px solid transparent;
+}
+
+.main-nav a:hover {
+  background-color: #34495e;
+}
+
+.main-nav a.active {
+  background-color: #3498db;
+  border-bottom-color: #2980b9;
 }
