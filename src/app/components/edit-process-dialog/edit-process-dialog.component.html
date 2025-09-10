@@ -59,20 +59,16 @@
             <div class="validation-hint" *ngIf="isEdit">אותיות, '-', '_', '/', ':' בלבד</div>
             <div class="error-message" *ngIf="errors.urlFileAfterProcess">{{ errors.urlFileAfterProcess }}</div>
           </div>
-          <div class="field-group">
-            <label class="field-label">תאריך סיום <span class="required">*</span></label>
-            <input type="date" class="field-input" [(ngModel)]="data.endDate" name="endDate" [disabled]="isView">
-            <div class="error-message" *ngIf="errors.endDate">{{ errors.endDate }}</div>
-          </div>
-        </div>
-        <!-- שורה רביעית -->
-        <div class="form-row">
           <div class="field-group" [ngClass]="{'show-hint': isEdit}">
             <label class="field-label">נמעני שגיאות <span class="required">*</span></label>
             <input type="text" class="field-input" [(ngModel)]="data.errorRecipients" name="errorRecipients" [disabled]="isView">
             <div class="validation-hint" *ngIf="isEdit">כתובות מייל מופרדות ב-';' (xxx&#64;xxx.xx)</div>
             <div class="error-message" *ngIf="errors.errorRecipients">{{ errors.errorRecipients }}</div>
           </div>
+  </div>
+  <div style="height: 32px;"></div>
+        <!-- שורה רביעית -->
+        <div class="form-row">
           <div class="field-group">
             <label class="field-label">תאריך הוספה</label>
             <input type="text" class="field-input current-date" [value]="data.createdDate || ''" disabled>
@@ -82,6 +78,11 @@
             <label class="field-label">תאריך התחלה <span class="required">*</span></label>
             <input type="date" class="field-input" [(ngModel)]="data.startDate" name="startDate" [disabled]="isView">
             <div class="error-message" *ngIf="errors.startDate">{{ errors.startDate }}</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">תאריך סיום <span class="required">*</span></label>
+            <input type="date" class="field-input" [(ngModel)]="data.endDate" name="endDate" [disabled]="isView">
+            <div class="error-message" *ngIf="errors.endDate">{{ errors.endDate }}</div>
           </div>
         </div>
         <div class="popup-actions">
