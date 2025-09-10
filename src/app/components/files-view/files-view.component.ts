@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { NgClass, CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { EditProcessDialogComponent, EditProcessData } from '../edit-process-dialog/edit-process-dialog.component';
 
@@ -20,7 +21,7 @@ export class FilesViewComponent implements OnChanges {
   @Output() clearSearchEvent = new EventEmitter<void>();
   hasActiveSearch = false;
 
-  constructor(private importDS: ImportDataSourceService) {}
+  constructor(private importDS: ImportDataSourceService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadProcesses();
@@ -146,6 +147,8 @@ export class FilesViewComponent implements OnChanges {
     this.dialogVisible = false;
   }
 
+
+
   get displayedProcesses() {
     return this.filteredProcesses;
   }
@@ -155,6 +158,8 @@ export class FilesViewComponent implements OnChanges {
     this.hasActiveSearch = false;
     this.clearSearchEvent.emit();
   }
+
+
 
 
 }

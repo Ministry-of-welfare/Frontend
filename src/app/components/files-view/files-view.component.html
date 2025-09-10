@@ -1,4 +1,6 @@
-<h2>רשימת תהליכים</h2>
+<div class="header">
+  <h2>רשימת תהליכים</h2>
+</div>
 <div class="view-toggle">
   <button [class.active]="viewMode === 'cards'" (click)="setView('cards')">תצוגת כרטיסיות</button>
   <button [class.active]="viewMode === 'table'" (click)="setView('table')">תצוגת טבלה</button>
@@ -9,7 +11,7 @@
 <div *ngIf="!loading && hasActiveSearch && displayedProcesses.length === 0" class="no-results">
   <h3>לא נמצאו תוצאות תואמות</h3>
   <p>נסה לשנות את קריטריוני החיפוש או לנקות את הסינון</p>
-  <button (click)="clearFilter()" class="clear-filter-btn">🗑️ נקה סינון והצג הכל</button>
+  <button (click)="clearFilter()" class="clear-filter-btn">נקה סינון</button>
 </div>
 
 <!-- Cards View -->
