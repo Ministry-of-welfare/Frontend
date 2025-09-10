@@ -1,95 +1,74 @@
 <div class="container">
 
-
-
-  <div class="wizard-container fade-in">
-    <div class="wizard-steps">
-      <div class="step" [class.active]="viewMode === 'table'" (click)="setView('table')">
-        <div class="step-number">📊</div>
-        <div class="step-title">טבלה</div>
-      </div>
-      <div class="step" [class.active]="viewMode === 'cards'" (click)="setView('cards')">
-        <div class="step-number">🃏</div>
-        <div class="step-title">כרטיסים</div>
-      </div>
-    </div>
-    <div class="top-actions">
-      <div class="actions-left">
-        <button class="btn btn-secondary" (click)="goToDashboard()">🏠 דשבורד</button>
-      </div>
-      <div class="actions-right">
-        <button class="btn btn-primary">➕ הוסף קובץ חדש</button>
-      </div>
-    </div>
+  <div class="header">
+    <h2>רשימת תהליכים</h2>
+  </div>
+  <div class="view-toggle">
+    <button [class.active]="viewMode === 'cards'" (click)="setView('cards')">תצוגת כרטיסיות</button>
+    <button [class.active]="viewMode === 'table'" (click)="setView('table')">תצוגת טבלה</button>
+  </div>
 
   <div *ngIf="loading" class="loading">טוען נתונים...</div>
 
-  <div *ngIf="!loading && hasActiveSearch && displayedProcesses.length === 0" class="no-results">
+  <div *ngIf="!loading && displayedProcesses.length === 0" class="no-results">
     <h3>לא נמצאו תוצאות תואמות</h3>
-    <p>נסה לשנות את קריטריוני החיפוש או לנקות את הסינון</p>
-    <button (click)="clearFilter()" class="clear-filter-btn">נקה סינון</button>
+    <p>נסה לשנות את קריטריוני החיפוש</p>
   </div>
 
-    <div class="wizard-content results-container">
-      <div class="form-section">
-        <div class="section-title">
-          📁 רשימת סוגי קבצים לקליטה
-        </div>
-    <div id="tableView" [class.hidden]="viewMode !== 'table'" class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>פעולות</th><th>עדכון אחרון</th><th>תאריך יצירה</th><th>סטטוס</th>
-            <th>סוג קליטה</th><th>מערכת</th><th>שם עבודה</th><th>תיאור</th><th>מזהה</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let p of displayedProcesses; let i = index">
-            <td>
-              <div class="actions">
-                <button class="action-btn delete-btn">🗑️</button>
-                <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
-                <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
-              </div>
-            </td>
-            <td>{{ p.endDate || '—' }}</td>
-            <td>{{ p.createdDate || p.startDate || '—' }}</td>
-            <td><span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ formatStatus(p.status) }}</span></td>
-            <td>{{ p.dataSourceTypeId || '—' }}</td>
-            <td>{{ p.systemId || '—' }}</td>
-            <td>{{ p.jobName || p.tableName || '—' }}</td>
-            <td>{{ p.importDataSourceDesc || '—' }}</td>
-            <td>{{ i + 1 }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <!-- Table View -->
+  <div *ngIf="viewMode === 'table' && !loading" class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>פעולות</th><th>עדכון אחרון</th><th>תאריך יצירה</th><th>סטטוס</th>
+          <th>סוג קליטה</th><th>מערכת</th><th>שם עבודה</th><th>תיאור</th><th>מזהה</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of displayedProcesses; let i = index">
+          <td>
+            <div class="actions">
+              <button class="action-btn delete-btn">🗑️</button>
+              <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
+              <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
+            </div>
+          </td>
+          <td>{{ p.endDate || '—' }}</td>
+          <td>{{ p.createdDate || p.startDate || '—' }}</td>
+          <td><span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ formatStatus(p.status) }}</span></td>
+          <td>{{ p.dataSourceTypeId || '—' }}</td>
+          <td>{{ p.systemId || '—' }}</td>
+          <td>{{ p.jobName || p.tableName || '—' }}</td>
+          <td>{{ p.importDataSourceDesc || '—' }}</td>
+          <td>{{ i + 1 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- CARDS -->
-    <div id="cardsView" class="cards-view" [class.hidden]="viewMode !== 'cards'">
-      <article class="job-card" *ngFor="let p of displayedProcesses">
-        <div class="card-header">
-          <div>
-            <div class="card-title">{{ p.importDataSourceDesc || 'ללא תיאור' }}</div>
-            <div class="card-subtitle">{{ p.jobName || p.tableName || 'ללא שם עבודה' }}</div>
-          </div>
-          <span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ formatStatus(p.status) }}</span>
+  <!-- Cards View -->
+  <div *ngIf="viewMode === 'cards' && !loading" class="cards">
+    <article class="job-card" *ngFor="let p of displayedProcesses">
+      <div class="card-header">
+        <div>
+          <div class="card-title">{{ p.importDataSourceDesc || 'ללא תיאור' }}</div>
+          <div class="card-subtitle">{{ p.jobName || p.tableName || 'ללא שם עבודה' }}</div>
         </div>
-        <div class="card-details">
-          <div class="row"><span class="label">מערכת:</span><span class="value">{{ p.systemId || '—' }}</span></div>
-          <div class="row"><span class="label">סוג קליטה:</span><span class="value">{{ p.dataSourceTypeId || '—' }}</span></div>
-          <div class="row"><span class="label">תאריך יצירה:</span><span class="value">{{ p.createdDate || p.startDate || '—' }}</span></div>
-          <div class="row"><span class="label">עדכון אחרון:</span><span class="value">{{ p.endDate || '—' }}</span></div>
-          <div class="row"><span class="label">קוד עבודה:</span><span class="value">{{ p.jobName || '—' }}</span></div>
-        </div>
-        <div class="card-actions">
-          <button class="action-btn delete-btn">🗑️</button>
-          <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
-          <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
-        </div>
-      </article>
+        <span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ formatStatus(p.status) }}</span>
       </div>
-    </div>
+      <div class="card-details">
+        <div class="row"><span class="label">מערכת:</span><span class="value">{{ p.systemId || '—' }}</span></div>
+        <div class="row"><span class="label">סוג קליטה:</span><span class="value">{{ p.dataSourceTypeId || '—' }}</span></div>
+        <div class="row"><span class="label">תאריך יצירה:</span><span class="value">{{ p.createdDate || p.startDate || '—' }}</span></div>
+        <div class="row"><span class="label">עדכון אחרון:</span><span class="value">{{ p.endDate || '—' }}</span></div>
+        <div class="row"><span class="label">קוד עבודה:</span><span class="value">{{ p.jobName || '—' }}</span></div>
+      </div>
+      <div class="card-actions">
+        <button class="action-btn delete-btn">🗑️</button>
+        <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
+        <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
+      </div>
+    </article>
   </div>
 </div>
 

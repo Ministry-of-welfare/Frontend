@@ -47,14 +47,37 @@
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(0,0,0,0.15);
 }
-.wizard-container {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.1);
-  border: 1px solid rgba(255,255,255,0.3);
-  overflow: hidden;
-  flex-shrink: 0;
+
+
+.view-toggle {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  justify-content: flex-end;
+}
+
+.view-toggle button {
+  padding: 12px 24px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0;
+}
+
+.view-toggle button:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.view-toggle button.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
 }
 .wizard-steps {
   display: flex;
@@ -255,30 +278,19 @@ tbody tr:hover{background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);}
 .status-success{background:#d1f2df; color:#059669}
 .status-warning{background:#fef3c7; color:#d97706}
 .status-error{background:#fee2e2; color:#dc2626}
-.cards-view{display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:16px; flex: 1; overflow-y: auto; padding-right: 10px;}
+.cards{display:grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap:24px;}
 .job-card{
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 20px;
-  padding: 25px;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(20px);
-  transition: all 0.4s ease;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
   position: relative;
-  overflow: hidden;
-}
-.job-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
 }
 .job-card:hover{
-  transform: translateY(-8px);
-  box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 .card-header{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px}
 .card-title{font-size:16px; font-weight:800; color:#1f2937; margin-bottom:6px}
