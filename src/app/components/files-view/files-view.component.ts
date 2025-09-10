@@ -32,15 +32,55 @@ export class FilesViewComponent implements OnChanges {
   }
 
   loadProcesses(): void {
+    // נתונים דמה לבדיקה
+    const dummyData = [
+      {
+        id: 1,
+        importDataSourceDesc: 'קליטת נתוני עובדים',
+        tableName: 'BULK_EMPLOYEE_DATA',
+        jobName: 'ImportEmployeeJob',
+        systemId: 'משאבי אנוש',
+        dataSourceTypeId: 'טעינה ועיבוד',
+        status: 'active',
+        createdDate: '2025-01-15',
+        endDate: '2025-01-20'
+      },
+      {
+        id: 2,
+        importDataSourceDesc: 'קליטת נתוני לקוחות',
+        tableName: 'BULK_CUSTOMERS',
+        jobName: 'ImportCustomersJob',
+        systemId: 'סאפ',
+        dataSourceTypeId: 'טעינה בלבד',
+        status: 'design',
+        createdDate: '2025-01-10',
+        endDate: '2025-01-18'
+      },
+      {
+        id: 3,
+        importDataSourceDesc: 'קליטת דוחות כספים',
+        tableName: 'BULK_FINANCIAL_REPORTS',
+        jobName: 'ImportFinancialJob',
+        systemId: 'אוקטגו',
+        dataSourceTypeId: 'טעינה ובדיקת פורמט',
+        status: 'inactive',
+        createdDate: '2025-01-05',
+        endDate: '2025-01-12'
+      }
+    ];
+
     this.importDS.getAll().subscribe({
       next: (data) => {
-        this.processes = data || [];
-        this.filteredProcesses = data || [];
+        // אם אין נתונים מהשרת, נשתמש בנתונים דמה
+        this.processes = (data && data.length > 0) ? data : dummyData;
+        this.filteredProcesses = this.processes;
         this.loading = false;
         this.filterProcesses();
       },
       error: (err) => {
-        console.error('שגיאה בקבלת נתונים', err);
+        console.error('שגיאה בקבלת נתונים, משתמש בנתונים דמה', err);
+        this.processes = dummyData;
+        this.filteredProcesses = dummyData;
         this.loading = false;
       }
     });
