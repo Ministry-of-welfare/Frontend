@@ -140,7 +140,7 @@ currentStep = 1;
       if (success) {
         this.successMessageVisible = true;
         if (confirm('הקובץ נוצר בהצלחה! האם תרצה לחזור לרשימת הקבצים?')) {
-          window.location.href = '#files-list';
+          window.location.href = '/files';
         }
       } else {
         this.errorMessageVisible = true;
