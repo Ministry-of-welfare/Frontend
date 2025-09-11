@@ -1,4 +1,3 @@
-
 <h2>רשימת תהליכים</h2>
 <div class="view-toggle">
   <button [class.active]="viewMode === 'cards'" (click)="setView('cards')">תצוגת כרטיסיות</button>
@@ -22,7 +21,7 @@
     </div>
     <div class="actions">
       <button (click)="openEditDialog(p)">✏️</button>
-      <button>🗑️</button>
+      <button (click)="openDeleteDialog(p)">🗑️</button>
       <button (click)="openViewDialog(p)">👁️</button>
     </div>
   </div>
@@ -52,17 +51,15 @@
         <td>{{ i + 1 }}</td>
         <td>{{ p.importDataSourceDesc }}</td>
         <td>{{ p.tableName }}</td>
-        <td>{{ p.systemName }}</td>
-        <td>{{ p.dataSourceTypeName }}</td>
-        <td>
-          <span [style.color]="p.status.color">{{ p.status.icon }}</span>
-          <span>{{ p.status.label }}</span>
-        </td>
-        <td>{{ p.created }}</td>
-        <td>{{ p.updated }}</td>
+        <td>{{ p.jobName }}</td>
+        <td>{{ p.dataSourceTypeId }}</td>
+        <td>{{ p.systemId }}</td>
+        <td>{{ p.status }}</td>
+        <td>{{ p.insertDate }}</td>
+        <td>{{ p.endDate }}</td>
         <td>
           <button (click)="openEditDialog(p)">✏️</button>
-          <button>🗑️</button>
+          <button (click)="openDeleteDialog(p)">🗑️</button>
           <button (click)="openViewDialog(p)">👁️</button>
         </td>
       </tr>
@@ -78,3 +75,27 @@
   (confirm)="onDialogConfirm($event)"
   (cancel)="onDialogCancel()"
 ></app-edit-process-dialog>
+
+<!-- פופאפ מחיקה -->
+<div class="backdrop" *ngIf="deleteDialogVisible" (click)="onBackdropClick($event)">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button class="close-x" (click)="closeDeleteDialog()" aria-label="סגור חלון">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" stroke="#64748b" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="modal-head">
+      <div class="modal-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6h18M8 6l1-2h6l1 2m-1 0l-1.2 13.2A2 2 0 0 1 12.81 21h-1.62a2 2 0 0 1-1.99-1.8L8 6Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="modal-title">מחיקה</p>
+    </div>
+    <p class="modal-text">האם אתה בטוח שברצונך למחוק?</p>
+    <div class="modal-actions">
+      <button class="btn btn-danger" (click)="confirmDelete()">אישור</button>
+      <button class="btn btn-outline" (click)="closeDeleteDialog()">ביטול</button>
+    </div>
+  </div>
+</div>
