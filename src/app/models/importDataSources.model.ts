@@ -1,6 +1,6 @@
 
 export class ImportDataSources {
-    importDataSourceId!: number;
+    importDataSourceId?: number;
     importDataSourceDesc?: string;
     dataSourceTypeId!: number;
     systemId?: number;

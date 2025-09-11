@@ -1,6 +1,8 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
+import { ImportDataSources } from '../../models/importDataSources.model';
 
 interface Column {
   order: number;
@@ -16,6 +18,33 @@ interface Column {
   styleUrl: './add-file.component.css'
 })
 export class AddFileComponent implements OnInit {
+  constructor(private importDS: ImportDataSourceService) {}
+  submitGeneralDetails() {
+    // Build the object according to ImportDataSources model
+    const newFile: ImportDataSources = {
+      importDataSourceDesc: this.description,
+      dataSourceTypeId: Number(this.dataSourceType),
+      systemId: Number(this.systemType),
+      jobName: this.jobName,
+      tableName: "",
+      urlFile: this.urlFile,
+      urlFileAfterProcess: this.urlFileAfter,
+      errorRecipients: this.errorRecipients,
+      insertDate: new Date().toISOString(),
+      startDate: undefined,
+      endDate: undefined
+    };
+    this.importDS.addImportDataSource(newFile).subscribe({
+      next: (res) => {
+        alert('הפרטים נשלחו בהצלחה!');
+        console.log('Success:', res);
+      },
+      error: (err) => {
+        alert('שגיאה בשליחת הפרטים');
+        console.error('Error:', err);
+      }
+    });
+  }
 currentStep = 1;
 
   // Step 1 fields
@@ -49,11 +78,11 @@ currentStep = 1;
     { value: '4', label: 'מערכת משאבי אנוש' },
   ];
 
-  constructor() {}
+
 
   ngOnInit(): void {
-    this.initColumns();
-    this.loadDraft();
+  this.initColumns();
+  this.loadDraft();
   }
 
   initColumns() {
@@ -120,14 +149,8 @@ currentStep = 1;
     // preview is bound in template using Angular bindings
   }
 
-  generateTableName(description: string): string {
-    let tableName = description
-      .replace(/[^a-zA-Z0-9\u0590-\u05FF\s]/g, '')
-      .replace(/\s+/g, '_')
-      .substring(0, 30)
-      .toUpperCase();
-    return `BULK_${tableName}`;
-  }
+  
+  
 
   createFile() {
     this.creatingFile = true;
