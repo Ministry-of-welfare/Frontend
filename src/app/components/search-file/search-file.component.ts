@@ -21,9 +21,8 @@ import { Systems } from '../../models/systems.model';
  @Output() searchEvent = new EventEmitter<any>();   
 
   statuses: (string | undefined)[] = [];
-  systems: (string | undefined)[] = [];
-
-  types: (string | undefined)[] = [];
+  systems: any[] = [];
+  types: any[] = [];
 
 
   constructor(private fb: FormBuilder,
@@ -46,18 +45,11 @@ import { Systems } from '../../models/systems.model';
     });
 
     this.SystemsService.getAll().subscribe(data => {
-      this.systems= data.map(item => item.systemName)
-  .filter((t): t is string => t !== undefined);
-      console.log(this.systems)
+      this.systems = data.map(item => ({ id: item.SystemId, name: item.systemName }));
     });
 
     this.DataSourceTypeService.getAll().subscribe(data => {
-     
-      this.types = data.map(item => item.dataSourceTypeDesc)
-  .filter((t): t is string => t !== undefined);
-
-  
-   
+      this.types = data.map(item => ({ id: item.DataSourceTypeId, name: item.dataSourceTypeDesc }));
     });
   }
 
@@ -73,5 +65,6 @@ import { Systems } from '../../models/systems.model';
       type: 'כל הסוגים',
       status: 'כל הסטטוסים'
     });
+    this.searchEvent.emit(this.form.value);
   }
 }

@@ -22,7 +22,11 @@ export class ImportDataSourceService {
         return this.http.post<ImportDataSources>(this.BASE_URL, importDataSource);
       }
 
-      updateImportDataSource(id: number, importDataSource: ImportDataSources): Observable<ImportDataSources> {
+      updateImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
+        return this.http.put<ImportDataSources>(`${this.BASE_URL}/${importDataSource.importDataSourceId}`, importDataSource);
+      }
+
+      updateTheEndDate(id: number, importDataSource: ImportDataSources): Observable<ImportDataSources> {
         return this.http.put<ImportDataSources>(`${this.BASE_URL}/updateJustEndDate/${id}`, importDataSource);
       }
 }

@@ -1,14 +1,10 @@
-
-
-
-
 <app-layout>
-<!-- <app-environments></app-environments> -->
-<app-files-view></app-files-view>
-<app-search-file></app-search-file>
-<app-add-file></app-add-file>
-<app-files-view></app-files-view>
-
-
-
-<router-outlet />
+  <nav class="main-nav">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">דף הבית</a>
+    <a routerLink="/files" routerLinkActive="active">רשימת קבצים</a>
+    <a routerLink="/add-file" routerLinkActive="active">הוסף קובץ</a>
+    <a routerLink="/environments" routerLinkActive="active">סביבות</a>
+  </nav>
+  
+  <router-outlet></router-outlet>
+</app-layout>
