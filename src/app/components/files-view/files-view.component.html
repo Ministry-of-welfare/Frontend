@@ -55,7 +55,7 @@
         <tr *ngFor="let p of displayedProcesses; let i = index">
           <td>
             <div class="actions">
-              <button class="action-btn delete-btn">🗑️</button>
+              <button class="action-btn delete-btn" (click)="openDeleteDialog(p)">🗑️</button>
               <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
               <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
             </div>
@@ -91,7 +91,7 @@
         <div class="row"><span class="label">קוד עבודה:</span><span class="value">{{ p.jobName || '—' }}</span></div>
       </div>
       <div class="card-actions">
-        <button class="action-btn delete-btn">🗑️</button>
+  <button class="action-btn delete-btn" (click)="openDeleteDialog(p)">🗑️</button>
         <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
         <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
       </div>

@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
+import { finalize } from 'rxjs';
 import { NgClass, CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
@@ -200,42 +201,25 @@ export class FilesViewComponent implements OnChanges {
 
   confirmDelete() {
     if (!this.selectedProcessToDelete) return;
-    // Build the object with correct field names for the server
-    const updated = {
-      importDataSourceId: this.selectedProcessToDelete.importDataSourceId,
-      importDataSourceDesc: this.selectedProcessToDelete.importDataSourceDesc,
-      dataSourceTypeId: this.selectedProcessToDelete.dataSourceTypeId,
-      systemId: this.selectedProcessToDelete.systemId,
-      jobName: this.selectedProcessToDelete.jobName,
-      tableName: this.selectedProcessToDelete.tableName,
-      urlFile: this.selectedProcessToDelete.urlFile,
-      urlFileAfterProcess: this.selectedProcessToDelete.urlFileAfterProcess,
-      endDate: this.selectedProcessToDelete.endDate,
-      errorRecipients: this.selectedProcessToDelete.errorRecipients,
-      insertDate: this.selectedProcessToDelete.insertDate,
-      startDate: this.selectedProcessToDelete.startDate,
-      status: 'inactive'
-      // הוסף שדות נוספים אם נדרשים ע"י השרת
-    };
-    this.importDS.updateTheEndDate(updated.importDataSourceId, updated).subscribe({
-      next: () => {
-        // רענון מהשרת
-        this.importDS.getAll().subscribe({
-          next: (data) => {
-            this.processes = data;
-            this.closeDeleteDialog();
-          },
-          error: () => {
-            alert('שגיאה ברענון נתונים');
-            this.closeDeleteDialog();
-          }
-        });
-      },
-      error: () => {
-        alert('שגיאה במחיקה');
-        this.closeDeleteDialog();
-      }
-    });
+    const id = this.selectedProcessToDelete.importDataSourceId;
+    this.importDS.updateTheEndDate(id)
+      .pipe(finalize(() => this.closeDeleteDialog()))
+      .subscribe({
+        next: () => {
+          // רענון מהשרת
+          this.importDS.getAll().subscribe({
+            next: (data) => {
+              this.processes = data;
+            },
+            error: () => {
+              alert('שגיאה ברענון נתונים');
+            }
+          });
+        },
+        error: () => {
+          alert('שגיאה בעדכון EndDate');
+        }
+      });
   }
 
   onDialogConfirm(data: EditProcessData) {

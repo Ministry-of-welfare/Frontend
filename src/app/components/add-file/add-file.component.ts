@@ -39,10 +39,7 @@ export class AddFileComponent implements OnInit {
         alert('הפרטים נשלחו בהצלחה!');
         console.log('Success:', res);
       },
-      error: (err) => {
-        alert('שגיאה בשליחת הפרטים');
-        console.error('Error:', err);
-      }
+     
     });
   }
 currentStep = 1;

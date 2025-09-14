@@ -11,22 +11,22 @@ import { ImportStatus } from '../../models/importStatus.model';
 export class ImportDataSourceService {
 
   private BASE_URL = 'https://localhost:54525/api/ImportDataSources';
-    
-       constructor(private http: HttpClient) {}
-    
-       getAll(): Observable<ImportDataSources[]> {
-        return this.http.get<ImportDataSources[]>(this.BASE_URL);
-      }
 
-      addImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
-        return this.http.post<ImportDataSources>(this.BASE_URL, importDataSource);
-      }
+  constructor(private http: HttpClient) { }
 
-      updateImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
-        return this.http.put<ImportDataSources>(`${this.BASE_URL}/${importDataSource.importDataSourceId}`, importDataSource);
-      }
+  getAll(): Observable<ImportDataSources[]> {
+    return this.http.get<ImportDataSources[]>(this.BASE_URL);
+  }
 
-      updateTheEndDate(id: number, importDataSource: ImportDataSources): Observable<ImportDataSources> {
-        return this.http.put<ImportDataSources>(`${this.BASE_URL}/updateJustEndDate/${id}`, importDataSource);
-      }
+  addImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
+    return this.http.post<ImportDataSources>(`${this.BASE_URL}/create`, importDataSource);
+  }
+
+  updateImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
+    return this.http.put<ImportDataSources>(`${this.BASE_URL}/${importDataSource.importDataSourceId}`, importDataSource);
+  }
+
+  updateTheEndDate(id: number): Observable<void> {
+  return this.http.put<void>(`${this.BASE_URL}/updateJustEndDate/${id}`, {});
+}
 }
