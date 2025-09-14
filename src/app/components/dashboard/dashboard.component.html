@@ -1,0 +1,314 @@
+<div class="dashboard-container">
+  <!-- Enhanced Header with Filters -->
+  <div class="dashboard-header">
+    <div class="header-title">
+      <h1>🏢 דשבורד מרכזי - ניהול קליטת נתונים</h1>
+      <p class="header-subtitle">מעקב חי אחר תהליכי קליטה ואיכות נתונים</p>
+    </div>
+    <button class="refresh-btn" (click)="onRefreshClick()" [disabled]="loading">
+      <span class="btn-icon">🔄</span>
+      רענן נתונים
+      <span class="last-update">עודכן: {{ getLastUpdateTime() }}</span>
+    </button>
+  </div>
+
+  <!-- Advanced Filters Bar -->
+  <div class="filters-container">
+    <div class="filters-header">
+      <h3>🎯 פילטרים מתקדמים</h3>
+      <button class="clear-filters-btn" (click)="clearFilters()">נקה הכל</button>
+    </div>
+    <form class="filters-grid" (ngSubmit)="onFiltersChange()">
+      <div class="filter-group">
+        <label class="filter-label">📅 טווח תאריכים</label>
+        <div class="date-range">
+          <input type="date" class="filter-input" [(ngModel)]="filters.fromDate" name="fromDate" (change)="onFiltersChange()">
+          <span class="date-separator">עד</span>
+          <input type="date" class="filter-input" [(ngModel)]="filters.toDate" name="toDate" (change)="onFiltersChange()">
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <label class="filter-label">🖥️ מערכת</label>
+        <select class="filter-select" [(ngModel)]="filters.system" name="system" (change)="onFiltersChange()">
+          <option value="">כל המערכות</option>
+          <option *ngFor="let system of dummyFilters.systems" [value]="system.id">{{ system.name }}</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label class="filter-label">📂 מקור קליטה</label>
+        <select class="filter-select" [(ngModel)]="filters.source" name="source" (change)="onFiltersChange()">
+          <option value="">כל המקורות</option>
+          <option *ngFor="let source of dummyFilters.sources" [value]="source.id">{{ source.name }}</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label class="filter-label">📊 סטטוס</label>
+        <select class="filter-select" [(ngModel)]="filters.status" name="status" (change)="onFiltersChange()">
+          <option value="">כל הסטטוסים</option>
+          <option value="pending">⏳ בהמתנה</option>
+          <option value="processing">⚙️ בתהליך</option>
+          <option value="success">✅ הצלחה</option>
+          <option value="failed">❌ כישלון</option>
+        </select>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading & Error States -->
+  <div *ngIf="loading" class="loading-state">טוען נתונים...</div>
+  <div *ngIf="error" class="error-state">{{ error }}</div>
+
+  <!-- Today's Runs Status -->
+  <div class="section today-runs" *ngIf="!loading">
+    <div class="section-header">
+      <h2>📈 סטטוס יומי חי (Today's Runs)</h2>
+      <div class="live-indicator">
+        <span class="pulse-dot"></span>
+        עדכון חי
+      </div>
+    </div>
+    
+    <div class="status-grid">
+      <div class="status-card pending" [attr.data-count]="dummyData.dailyStatus.pending">
+        <div class="card-icon">⏳</div>
+        <div class="status-number">{{ dummyData.dailyStatus.pending }}</div>
+        <div class="status-label">בהמתנה</div>
+        <div class="status-trend">+2 מהשעה</div>
+      </div>
+      <div class="status-card processing" [attr.data-count]="dummyData.dailyStatus.processing">
+        <div class="card-icon">⚙️</div>
+        <div class="status-number">{{ dummyData.dailyStatus.processing }}</div>
+        <div class="status-label">בתהליך</div>
+        <div class="status-trend">-1 מהשעה</div>
+      </div>
+      <div class="status-card success" [attr.data-count]="dummyData.dailyStatus.success">
+        <div class="card-icon">✅</div>
+        <div class="status-number">{{ dummyData.dailyStatus.success }}</div>
+        <div class="status-label">הצלחה</div>
+        <div class="status-trend">+15 מהשעה</div>
+      </div>
+      <div class="status-card failed" [attr.data-count]="dummyData.dailyStatus.failed">
+        <div class="card-icon">❌</div>
+        <div class="status-number">{{ dummyData.dailyStatus.failed }}</div>
+        <div class="status-label">כישלון</div>
+        <div class="status-trend">+1 מהשעה</div>
+      </div>
+    </div>
+    
+    <div class="kpi-grid">
+      <div class="kpi-card highlight">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-value">{{ dummyData.kpis.totalRuns }}</div>
+        <div class="kpi-label">מספר הרצות היום</div>
+      </div>
+      <div class="kpi-card success">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-value">{{ dummyData.kpis.successRate }}%</div>
+        <div class="kpi-label">אחוז הצלחות</div>
+      </div>
+      <div class="kpi-card time">
+        <div class="kpi-icon">⏱️</div>
+        <div class="kpi-value">{{ dummyData.kpis.avgTime }}</div>
+        <div class="kpi-label">זמן קליטה ממוצע</div>
+      </div>
+      <div class="kpi-card time">
+        <div class="kpi-icon">📏</div>
+        <div class="kpi-value">{{ dummyData.kpis.medianTime }}</div>
+        <div class="kpi-label">זמן קליטה חציוני</div>
+      </div>
+      <div class="kpi-card sla">
+        <div class="kpi-icon">🎖️</div>
+        <div class="kpi-value">{{ dummyData.kpis.slaCompliance }}%</div>
+        <div class="kpi-label">SLA עמידות</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Queue & Errors Row -->
+  <div class="row-section">
+    <!-- Queue -->
+    <div class="half-section queue-section">
+      <div class="section-header">
+        <h2>📋 תור קבצים ממתינים (Queue)</h2>
+        <span class="queue-total">{{ dummyData.queue.length }} מקורות</span>
+      </div>
+      <div class="queue-list">
+        <div class="queue-item" *ngFor="let item of dummyData.queue" [class]="item.priority">
+          <div class="queue-info">
+            <div class="source-name">
+              <span class="source-icon">{{ item.icon }}</span>
+              {{ item.sourceName }}
+            </div>
+            <div class="queue-details">
+              <span class="queue-count">{{ item.fileCount }} קבצים ממתינים</span>
+              <span class="queue-size">{{ item.totalSize }}</span>
+            </div>
+          </div>
+          <div class="queue-timing">
+            <div class="eta" [class]="item.urgency">ETA: {{ item.eta }}</div>
+            <div class="sla-status" [class]="item.slaStatus">SLA: {{ item.slaWindow }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Errors -->
+    <div class="half-section errors-section">
+      <div class="section-header">
+        <h2>🚨 שגיאות מובילות (Top Errors)</h2>
+        <span class="errors-total">{{ dummyData.topErrors.length }} סוגי שגיאות</span>
+      </div>
+      <div class="errors-list">
+        <div class="error-item" *ngFor="let error of dummyData.topErrors; let i = index" (click)="onErrorClick(error.code)">
+          <div class="error-rank">{{ i + 1 }}</div>
+          <div class="error-info">
+            <div class="error-code">{{ error.code }}</div>
+            <div class="error-desc">{{ error.description }}</div>
+            <div class="error-fields">שדות: {{ error.affectedFields.join(', ') }}</div>
+          </div>
+          <div class="error-stats">
+            <div class="error-count">{{ error.count }}</div>
+            <div class="error-trend" [class]="error.trend">{{ error.trendIcon }} {{ error.trendText }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Problematic Sources & Throughput -->
+  <div class="row-section">
+    <div class="half-section sources-section">
+      <div class="section-header">
+        <h2>⚠️ מקורות בעייתיים</h2>
+        <span class="sources-count">{{ dummyData.problematicSources.length }} מקורות בסיכון</span>
+      </div>
+      <div class="sources-list">
+        <div class="source-item" *ngFor="let source of dummyData.problematicSources" [class]="source.riskLevel">
+          <div class="source-info">
+            <div class="source-name">
+              <span class="risk-icon">{{ source.riskIcon }}</span>
+              {{ source.name }}
+            </div>
+            <div class="source-issues">
+              <span class="issue-tag" *ngFor="let issue of source.issues">{{ issue }}</span>
+            </div>
+          </div>
+          <div class="source-stats">
+            <div class="failure-rate">{{ source.failureRate }}% כישלון</div>
+            <div class="avg-time">{{ source.avgTime }} זמן ממוצע</div>
+            <button class="source-link" (click)="navigateToSource(source.id)">🔗 פרטים</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="half-section throughput-section">
+      <div class="section-header">
+        <h2>📈 הזרמה/תפוקה (Throughput)</h2>
+        <div class="chart-controls">
+          <button class="chart-btn active">יום</button>
+          <button class="chart-btn">שבוע</button>
+        </div>
+      </div>
+      <div class="throughput-chart">
+        <div class="chart-placeholder">
+          <div class="chart-icon">📊</div>
+          <div class="chart-title">גרף קצב קליטות</div>
+          <div class="chart-subtitle">תפוקה לאורך היום</div>
+        </div>
+        <div class="throughput-stats">
+          <div class="stat-item">
+            <span class="stat-icon">📁</span>
+            <span class="stat-value">{{ dummyData.throughput.files | number }}</span>
+            <span class="stat-label">קבצים</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">📊</span>
+            <span class="stat-value">{{ dummyData.throughput.records | number }}</span>
+            <span class="stat-label">רשומות</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-icon">💾</span>
+            <span class="stat-value">{{ dummyData.throughput.dataVolume }}</span>
+            <span class="stat-label">נפח נתונים</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Quality & Alerts -->
+  <div class="row-section">
+    <div class="half-section quality-section">
+      <div class="section-header">
+        <h2>🎯 איכות נתונים (Data Quality KPIs)</h2>
+        <span class="quality-score" [class]="getQualityScoreClass()">ציון: {{ dummyData.dataQuality.overallScore }}/100</span>
+      </div>
+      <div class="quality-metrics">
+        <div class="quality-item critical">
+          <div class="metric-info">
+            <span class="metric-icon">🚫</span>
+            <span class="metric-label">אחוז שורות פגומות</span>
+          </div>
+          <div class="metric-value">{{ dummyData.dataQuality.corruptedRowsPercent }}%</div>
+          <div class="metric-details">{{ dummyData.dataQuality.corruptedRows | number }} מתוך {{ dummyData.dataQuality.totalRows | number }}</div>
+        </div>
+        <div class="quality-item warning">
+          <div class="metric-info">
+            <span class="metric-icon">⚠️</span>
+            <span class="metric-label">עמודות עם הפרות ולידציה</span>
+          </div>
+          <div class="validation-columns">
+            <div class="column-violation" *ngFor="let col of dummyData.dataQuality.violationColumns">
+              <span class="column-name">{{ col.name }}</span>
+              <span class="violation-count">{{ col.violations }} הפרות</span>
+            </div>
+          </div>
+        </div>
+        <div class="quality-item info">
+          <div class="metric-info">
+            <span class="metric-icon">📋</span>
+            <span class="metric-label">איכות לפי מקור</span>
+          </div>
+          <div class="source-quality">
+            <div class="source-quality-item" *ngFor="let sq of dummyData.dataQuality.sourceQuality">
+              <span class="source-name">{{ sq.sourceName }}</span>
+              <div class="quality-bar">
+                <div class="quality-fill" [style.width.%]="sq.qualityScore"></div>
+              </div>
+              <span class="quality-percent">{{ sq.qualityScore }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="half-section alerts-section">
+      <div class="section-header">
+        <h2>🔔 התראות אחרונות</h2>
+        <span class="alerts-count">{{ dummyData.recentAlerts.length }} התראות פעילות</span>
+      </div>
+      <div class="alerts-list">
+        <div class="alert-item" *ngFor="let alert of dummyData.recentAlerts" [class]="alert.severity">
+          <div class="alert-header">
+            <span class="alert-time">{{ alert.time }}</span>
+            <span class="alert-severity" [class]="alert.severity">{{ alert.severityText }}</span>
+          </div>
+          <div class="alert-content">
+            <div class="alert-msg">{{ alert.message }}</div>
+            <div class="alert-details">
+              <span class="alert-recipient">נשלח ל: {{ alert.sentTo }}</span>
+              <span class="alert-about">על: {{ alert.about }}</span>
+            </div>
+          </div>
+          <div class="alert-status" [class]="alert.handlingStatus">
+            {{ alert.handlingStatusText }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
