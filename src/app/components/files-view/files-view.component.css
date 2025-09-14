@@ -1,3 +1,42 @@
+.modal-head {
+  margin-bottom: 1em;
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.modal-text {
+  font-size: 1em;
+  margin-bottom: 1.2em;
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1em;
+  justify-content: center;
+}
+
+.btn {
+  padding: 0.5em 1.2em;
+  border-radius: 6px;
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
+}
+.btn-danger {
+  background: #dc3545;
+  color: #fff;
+}
+.btn-outline {
+  background: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+}
 /* קונטיינר כללי */
 .container {
   padding: 1.5rem;
@@ -167,4 +206,46 @@ th {
 
 .status-error {
   background: #dc3545;
+}
+
+/* דיאלוג מחיקה */
+.backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 2em;
+  border-radius: 8px;
+  min-width: 320px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  position: relative;
+  border: 2px solid #2575fc;
+  z-index: 2000;
+  min-height: 60px;
+  max-height: 180px;
+  min-width: 280px;
+  max-width: 320px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2em 1.5em;
+}
+
+.close-x {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
 }

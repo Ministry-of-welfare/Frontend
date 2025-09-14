@@ -190,8 +190,9 @@ export class FilesViewComponent implements OnChanges {
   }
 
   openDeleteDialog(process: any) {
-    this.selectedProcessToDelete = process;
-    this.deleteDialogVisible = true;
+  this.selectedProcessToDelete = process;
+  this.deleteDialogVisible = true;
+  console.log('deleteDialogVisible:', this.deleteDialogVisible, 'selectedProcessToDelete:', this.selectedProcessToDelete);
   }
 
   closeDeleteDialog() {
@@ -202,24 +203,22 @@ export class FilesViewComponent implements OnChanges {
   confirmDelete() {
     if (!this.selectedProcessToDelete) return;
     const id = this.selectedProcessToDelete.importDataSourceId;
-    this.importDS.updateTheEndDate(id)
-      .pipe(finalize(() => this.closeDeleteDialog()))
-      .subscribe({
-        next: () => {
-          // רענון מהשרת
-          this.importDS.getAll().subscribe({
-            next: (data) => {
-              this.processes = data;
-            },
-            error: () => {
-              alert('שגיאה ברענון נתונים');
-            }
-          });
-        },
-        error: () => {
-          alert('שגיאה בעדכון EndDate');
-        }
-      });
+      this.importDS.updateTheEndDate(id)
+        .pipe(finalize(() => this.closeDeleteDialog()))
+        .subscribe({
+          next: () => {
+            // עדכון מיידי בתצוגה
+            const now = new Date().toISOString().split('T')[0];
+            // עדכון גם ב-processes וגם ב-filteredProcesses
+            [this.processes, this.filteredProcesses].forEach(list => {
+              const proc = list.find(p => p.importDataSourceId === id);
+              if (proc) proc.endDate = now;
+            });
+          },
+          error: () => {
+            alert('שגיאה בעדכון EndDate');
+          }
+        });
   }
 
   onDialogConfirm(data: EditProcessData) {
