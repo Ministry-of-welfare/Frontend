@@ -373,14 +373,14 @@ tbody tr:hover{
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(5px);
+  z-index: 9999;
+  backdrop-filter: blur(3px);
 }
 
 .modal {
@@ -480,4 +480,122 @@ tbody tr:hover{
 .btn-outline:hover {
   border-color: #667eea;
   color: #667eea;
+}
+
+/* פופאפ מחיקה מעוצב */
+.delete-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+.delete-modal {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 20px;
+  padding: 40px 35px;
+  max-width: 450px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: slideUp 0.4s ease;
+  position: relative;
+}
+
+.delete-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+.delete-title {
+  color: #2d3748;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  letter-spacing: -0.5px;
+}
+
+.delete-message {
+  color: #4a5568;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 35px;
+  padding: 0 10px;
+}
+
+.delete-message strong {
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+.delete-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.delete-confirm-btn {
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+  min-width: 140px;
+}
+
+.delete-confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(229, 62, 62, 0.4);
+  background: linear-gradient(135deg, #c53030 0%, #9c2626 100%);
+}
+
+.delete-cancel-btn {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  color: #4a5568;
+  border: 2px solid #e2e8f0;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.delete-cancel-btn:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e0;
+  background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

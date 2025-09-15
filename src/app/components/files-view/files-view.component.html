@@ -145,18 +145,21 @@
   ></app-edit-process-dialog>
 
   <!-- דיאלוג מחיקה -->
-  <div class="backdrop" *ngIf="deleteDialogVisible" (click)="onBackdropClick($event)">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <button class="close-x" (click)="closeDeleteDialog()" aria-label="סגור">
-        ✖
-      </button>
-      <div class="modal-head">
-        <p class="modal-title">מחיקה</p>
-      </div>
-      <p class="modal-text">האם אתה בטוח שברצונך למחוק?</p>
-      <div class="modal-actions">
-        <button class="btn btn-danger" (click)="confirmDelete()">אישור</button>
-        <button class="btn btn-outline" (click)="closeDeleteDialog()">ביטול</button>
+  <div *ngIf="deleteDialogVisible" class="delete-backdrop" (click)="closeDeleteDialog()">
+    <div class="delete-modal" (click)="$event.stopPropagation()">
+      <div class="delete-icon">🗑️</div>
+      <h3 class="delete-title">מחיקת פריט</h3>
+      <p class="delete-message">
+        האם אתה בטוח שברצונך למחוק את<br>
+        <strong>"{{ selectedProcessToDelete?.importDataSourceDesc || selectedProcessToDelete?.jobName || 'הפריט הנבחר' }}"</strong>?
+      </p>
+      <div class="delete-actions">
+        <button class="delete-confirm-btn" (click)="confirmDelete()">
+          ✓ אישור מחיקה
+        </button>
+        <button class="delete-cancel-btn" (click)="closeDeleteDialog()">
+          ✕ ביטול
+        </button>
       </div>
     </div>
   </div>

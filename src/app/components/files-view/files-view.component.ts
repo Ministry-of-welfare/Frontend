@@ -288,9 +288,11 @@ export class FilesViewComponent implements OnInit, OnChanges {
   }
 
   openDeleteDialog(process: any) {
-  this.selectedProcessToDelete = process;
-  this.deleteDialogVisible = true;
-  console.log('deleteDialogVisible:', this.deleteDialogVisible, 'selectedProcessToDelete:', this.selectedProcessToDelete);
+    console.log('openDeleteDialog called with:', process);
+    this.selectedProcessToDelete = process;
+    this.deleteDialogVisible = true;
+    console.log('deleteDialogVisible set to:', this.deleteDialogVisible);
+    console.log('selectedProcessToDelete:', this.selectedProcessToDelete);
   }
 
   closeDeleteDialog() {
