@@ -1,9 +1,34 @@
 <app-layout>
   <nav class="main-nav">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">דשבורד</a>
-    <a routerLink="/files" routerLinkActive="active">רשימת קבצים</a>
-    <a routerLink="/add-file" routerLinkActive="active">הוסף קובץ</a>
-    <a routerLink="/environments" routerLinkActive="active">סביבות</a>
+    <div class="nav-brand">
+      <span class="brand-icon">🏢</span>
+      <span class="brand-text">מערכת ניהול קבצים</span>
+    </div>
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+        <span class="nav-icon">📊</span>
+        <span>דשבורד</span>
+      </a>
+      <a routerLink="/files" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">📁</span>
+        <span>רשימת קבצים</span>
+      </a>
+      <a routerLink="/add-file" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">➕</span>
+        <span>הוסף קובץ</span>
+      </a>
+      <a routerLink="/environments" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">⚙️</span>
+        <span>סביבות</span>
+      </a>
+    </div>
+    <div class="nav-user">
+      <div class="user-avatar">🔒</div>
+      <div class="user-details">
+        <div class="user-name">אופיר עצמון דוד</div>
+        <div class="user-role">מנהל מערכת</div>
+      </div>
+    </div>
   </nav>
   
   <router-outlet></router-outlet>
