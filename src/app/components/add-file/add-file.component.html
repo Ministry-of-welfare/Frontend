@@ -20,8 +20,12 @@
     <!-- צעדי האשף -->
     <div class="wizard-steps">
       <div class="step" [ngClass]="{'active': currentStep===1, 'completed': currentStep>1}">
+     
         <div class="step-number">1</div>
+              <span *ngIf="currentStep>1" class="step-check">✓</span>
+
         <div class="step-title">פרטים כלליים</div>
+        
       </div>
       <div class="step" [ngClass]="{'active': currentStep===2, 'completed': currentStep>2}">
         <div class="step-number">2</div>
@@ -103,7 +107,7 @@
 
           <div class="form-field" style="margin-bottom: 20px;">
             <label class="form-label">מספר עמודות בקובץ <span class="required">*</span></label>
-            <input type="number" class="form-input" [(ngModel)]="columnCount" (change)="updateColumnCount()" style="max-width:200px">
+            <input type="number" class="form-input" [(ngModel)]="columnCount" (change)="updateColumnCount()" style="max-width:200px"min="1">
             <div class="help-text">הכנס את מספר העמודות והטבלה תתעדכן אוטומטיה</div>
           </div>
 
