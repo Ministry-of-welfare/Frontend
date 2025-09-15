@@ -150,22 +150,39 @@ currentStep = 1;
   
 
   createFile() {
+    console.log('createFile: התחלת תהליך יצירת קובץ');
+    const newFile: ImportDataSources = {
+      importDataSourceDesc: this.description,
+      dataSourceTypeId: Number(this.dataSourceType),
+      systemId: Number(this.systemType),
+      jobName: this.jobName,
+      tableName: '',
+      urlFile: this.urlFile,
+      urlFileAfterProcess: this.urlFileAfter,
+      errorRecipients: this.errorRecipients,
+      insertDate: new Date().toISOString(),
+      startDate: undefined,
+      endDate: undefined
+    };
+    console.log('createFile: נתונים שנשלחים לשרת:', newFile);
     this.creatingFile = true;
     this.successMessageVisible = false;
     this.errorMessageVisible = false;
-
-    setTimeout(() => {
-      const success = Math.random() > 0.2;
-      this.creatingFile = false;
-      if (success) {
+    this.importDS.addImportDataSource(newFile).subscribe({
+      next: (res) => {
+        console.log('createFile: תשובת שרת:', res);
         this.successMessageVisible = true;
+        this.creatingFile = false;
         if (confirm('הקובץ נוצר בהצלחה! האם תרצה לחזור לרשימת הקבצים?')) {
           window.location.href = '/files';
         }
-      } else {
+      },
+      error: (err) => {
+        console.error('createFile: שגיאה בשליחת נתונים לשרת:', err);
         this.errorMessageVisible = true;
+        this.creatingFile = false;
       }
-    }, 2000);
+    });
   }
 
   saveDraft() {

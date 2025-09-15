@@ -9,6 +9,9 @@ import { ImportStatus } from '../../models/importStatus.model';
   providedIn: 'root'
 })
 export class ImportDataSourceService {
+  createTable(importDataSourceId: number): Observable<any> {
+    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {});
+  }
 
   private BASE_URL = 'https://localhost:54525/api/ImportDataSources';
 
