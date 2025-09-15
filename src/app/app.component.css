@@ -1,23 +1,103 @@
 .main-nav {
-  background: #2c3e50;
-  padding: 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.main-nav a {
-  display: inline-block;
-  padding: 15px 25px;
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  font-size: 24px;
+}
+
+.brand-text {
   color: white;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  transition: background-color 0.3s;
-  border-bottom: 3px solid transparent;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 14px;
 }
 
-.main-nav a:hover {
-  background-color: #34495e;
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: translateY(-1px);
 }
 
-.main-nav a.active {
-  background-color: #3498db;
-  border-bottom-color: #2980b9;
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.nav-icon {
+  font-size: 16px;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.user-role {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  line-height: 1;
 }
