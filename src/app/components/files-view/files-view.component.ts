@@ -1,19 +1,23 @@
-import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnChanges, Output, EventEmitter, OnInit } from '@angular/core';
 import { finalize } from 'rxjs';
 import { NgClass, CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
+import { SystemsService } from '../../services/systems/systems.service';
+import { DataSourceTypeService } from '../../services/dataSuorceType/data-source-type.service';
+import { ImportStatusService } from '../../services/importStatus/import-status.service';
 import { EditProcessDialogComponent, EditProcessData } from '../edit-process-dialog/edit-process-dialog.component';
 
 @Component({
   selector: 'app-files-view',
   standalone: true,
-  imports: [NgClass, CommonModule, EditProcessDialogComponent],
+  imports: [NgClass, CommonModule, EditProcessDialogComponent, FormsModule],
   templateUrl: './files-view.component.html',
   styleUrls: ['./files-view.component.css']
 })
 
-export class FilesViewComponent implements OnChanges {
+export class FilesViewComponent implements OnInit, OnChanges {
   viewMode: 'cards' | 'table' = 'cards';
   processes: any[] = [];
   filteredProcesses: any[] = [];
@@ -21,103 +25,197 @@ export class FilesViewComponent implements OnChanges {
   @Input() searchCriteria: any = null;
   @Output() clearSearchEvent = new EventEmitter<void>();
   hasActiveSearch = false;
+  
+  // פילטרים
+  filters = {
+    status: '',
+    type: '',
+    system: '',
+    search: ''
+  };
+  
+  // נתוני רשימות נפתחות
+  statusOptions: any[] = [];
+  typeOptions: any[] = [];
+  systemOptions: any[] = [];
+  
+  // מצב חיפוש
+  searchPerformed = true;
+  
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
 
-  constructor(private importDS: ImportDataSourceService, private router: Router) {}
+  constructor(
+    private importDS: ImportDataSourceService, 
+    private router: Router,
+    private systemsService: SystemsService,
+    private dataSourceTypeService: DataSourceTypeService,
+    private importStatusService: ImportStatusService
+  ) {}
 
   ngOnInit(): void {
     this.loadProcesses();
+    this.loadFilterOptionsFromServices();
+    console.log('Component initialized');
   }
 
   ngOnChanges(): void {
-    this.filterProcesses();
+    this.applyFilters();
   }
 
   loadProcesses(): void {
-    // נתונים דמה לבדיקה
-    const dummyData = [
-      {
-        id: 1,
-        importDataSourceDesc: 'קליטת נתוני עובדים',
-        tableName: 'BULK_EMPLOYEE_DATA',
-        jobName: 'ImportEmployeeJob',
-        systemId: 'משאבי אנוש',
-        dataSourceTypeId: 'טעינה ועיבוד',
-        status: 'active',
-        createdDate: '2025-01-15',
-        endDate: '2025-01-20'
-      },
-      {
-        id: 2,
-        importDataSourceDesc: 'קליטת נתוני לקוחות',
-        tableName: 'BULK_CUSTOMERS',
-        jobName: 'ImportCustomersJob',
-        systemId: 'סאפ',
-        dataSourceTypeId: 'טעינה בלבד',
-        status: 'design',
-        createdDate: '2025-01-10',
-        endDate: '2025-01-18'
-      },
-      {
-        id: 3,
-        importDataSourceDesc: 'קליטת דוחות כספים',
-        tableName: 'BULK_FINANCIAL_REPORTS',
-        jobName: 'ImportFinancialJob',
-        systemId: 'אוקטגו',
-        dataSourceTypeId: 'טעינה ובדיקת פורמט',
-        status: 'inactive',
-        createdDate: '2025-01-05',
-        endDate: '2025-01-12'
-      }
-    ];
-
+    this.loading = true;
+    
     this.importDS.getAll().subscribe({
       next: (data) => {
-        // אם אין נתונים מהשרת, נשתמש בנתונים דמה
-        this.processes = (data && data.length > 0) ? data : dummyData;
-        this.filteredProcesses = this.processes;
+        this.processes = data || [];
+        console.log('Loaded processes:', this.processes.length);
+        this.applyFilters();
         this.loading = false;
-        this.filterProcesses();
       },
       error: (err) => {
-        console.error('שגיאה בקבלת נתונים, משתמש בנתונים דמה', err);
-        this.processes = dummyData;
-        this.filteredProcesses = dummyData;
+        console.error('שגיאה בקבלת נתונים מהשרת:', err);
+        this.processes = [];
         this.loading = false;
       }
     });
   }
+  
 
-  filterProcesses(): void {
-    if (!this.searchCriteria || 
-        (!this.searchCriteria.query && 
-         this.searchCriteria.system === 'כל המערכות' && 
-         this.searchCriteria.type === 'כל הסוגים' && 
-         this.searchCriteria.status === 'כל הסטטוסים')) {
-      this.filteredProcesses = this.processes;
-      this.hasActiveSearch = false;
-      return;
-    }
-
-    this.hasActiveSearch = true;
-    
-    this.filteredProcesses = this.processes.filter(process => {
-      const matchesQuery = !this.searchCriteria.query || 
-        process.importDataSourceDesc?.toLowerCase().includes(this.searchCriteria.query.toLowerCase()) ||
-        process.tableName?.toLowerCase().includes(this.searchCriteria.query.toLowerCase()) ||
-        process.jobName?.toLowerCase().includes(this.searchCriteria.query.toLowerCase());
-
-      const matchesSystem = this.searchCriteria.system === 'כל המערכות' || 
-        process.systemId?.toString() === this.searchCriteria.system?.toString();
-
-      const matchesType = this.searchCriteria.type === 'כל הסוגים' || 
-        process.dataSourceTypeId?.toString() === this.searchCriteria.type?.toString();
-
-      const matchesStatus = this.searchCriteria.status === 'כל הסטטוסים' ||
-        process.status === this.searchCriteria.status ||
-        this.formatStatus(process.status) === this.searchCriteria.status;
-
-      return matchesQuery && matchesSystem && matchesType && matchesStatus;
+  
+  loadFilterOptionsFromServices(): void {
+    // טעינת מערכות
+    this.systemsService.getAll().subscribe({
+      next: (data) => {
+        this.systemOptions = data.map(item => ({ 
+          value: item.SystemId, 
+          label: item.systemName 
+        }));
+      },
+      error: (err) => console.error('שגיאה בטעינת מערכות:', err)
     });
+
+    // טעינת סוגי קליטה
+    this.dataSourceTypeService.getAll().subscribe({
+      next: (data) => {
+        this.typeOptions = data.map(item => ({ 
+          value: item.DataSourceTypeId, 
+          label: item.dataSourceTypeDesc 
+        }));
+      },
+      error: (err) => console.error('שגיאה בטעינת סוגי קליטה:', err)
+    });
+
+    // טעינת סטטוסים
+    this.statusOptions = [
+      { value: 'active', label: 'פעיל' },
+      { value: 'inactive', label: 'לא פעיל' },
+      { value: 'design', label: 'בעיצוב' }
+    ];
+  }
+
+  applyFilters(): void {
+    console.log('Applying filters:', this.filters);
+    console.log('Total processes:', this.processes.length);
+    
+    let filtered = [...this.processes];
+    
+    if (this.filters.status) {
+      filtered = filtered.filter(p => p.status === this.filters.status);
+    }
+    
+    if (this.filters.type) {
+      filtered = filtered.filter(p => p.dataSourceTypeId?.includes(this.filters.type));
+    }
+    
+    if (this.filters.system) {
+      filtered = filtered.filter(p => p.systemId?.includes(this.filters.system));
+    }
+    
+    if (this.filters.search) {
+      const search = this.filters.search.toLowerCase();
+      filtered = filtered.filter(p => 
+        p.importDataSourceDesc?.toLowerCase().includes(search) ||
+        p.tableName?.toLowerCase().includes(search) ||
+        p.jobName?.toLowerCase().includes(search)
+      );
+    }
+    
+    console.log('Filtered processes:', filtered.length);
+    this.filteredProcesses = filtered;
+    this.updatePagination();
+  }
+  
+  onFiltersChange(): void {
+    this.currentPage = 1;
+    if (this.searchPerformed) {
+      this.applyFilters();
+    }
+  }
+  
+  performSearch(): void {
+    console.log('Search button clicked');
+    console.log('Current filters:', this.filters);
+    this.loading = true;
+    this.currentPage = 1;
+    
+    // קריאה לשרת עם פרמטרי חיפוש
+    this.importDS.search(this.filters).subscribe({
+      next: (data) => {
+        console.log('Search results from server:', data);
+        this.processes = data || [];
+        this.filteredProcesses = [...this.processes];
+        this.updatePagination();
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('שגיאה בחיפוש מהשרת, משתמש בסינון מקומי:', err);
+        // אם השרת לא תומך בחיפוש, נסנן מקומי
+        if (this.processes.length > 0) {
+          this.applyFilters();
+        } else {
+          // אם אין נתונים, נטען אותם מהשרת
+          this.loadProcesses();
+        }
+        this.loading = false;
+      }
+    });
+  }
+  
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredProcesses.length / this.itemsPerPage);
+  }
+  
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+  
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+  
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+  
+  getVisiblePages(): number[] {
+    const pages = [];
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+    
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
   }
 
   dialogVisible = false;
@@ -235,12 +333,17 @@ export class FilesViewComponent implements OnChanges {
 
 
   get displayedProcesses() {
-    // Remove time part from startDate and endDate for display
-    return this.filteredProcesses.map(p => ({
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    
+    const result = this.filteredProcesses.slice(start, end).map(p => ({
       ...p,
       startDate: p.startDate ? p.startDate.toString().split('T')[0] : p.startDate,
       endDate: p.endDate ? p.endDate.toString().split('T')[0] : p.endDate
     }));
+    
+    console.log('DisplayedProcesses called, returning:', result.length, 'items');
+    return result;
   }
 
   clearFilter() {

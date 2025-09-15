@@ -1,41 +1,113 @@
-<div class="search-container">
-  <div class="search-header">
-    <h1>🔍 חיפוש קבצים</h1>
+<div class="page" dir="rtl">
+  <div class="header">
+    <h1>📁 רשימת סוגי קבצים לקליטה</h1>
+    <div class="user-info">🔒 אופיר עצמון דוד — מנהל מערכת</div>
   </div>
-  
-  <div class="search-form-container">
-    <form [formGroup]="form" (ngSubmit)="onSearch()">
-      <div class="form-grid">
-        <div class="form-field">
-          <label class="form-label">סטטוס</label>
-          <select formControlName="status" class="form-select">
-            <option value="כל הסטטוסים">כל הסטטוסים</option>
-            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">סוג קליטה</label>
-          <select formControlName="type" class="form-select">
-            <option value="כל הסוגים">כל הסוגים</option>
-            <option *ngFor="let t of types" [value]="t.id">{{ t.name }}</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label">מערכת</label>
-          <select formControlName="system" class="form-select">
-            <option value="כל המערכות">כל המערכות</option>
-            <option *ngFor="let sys of systems" [value]="sys.id">{{ sys.name }}</option>
-          </select>
-        </div>
-        <div class="form-field full-width">
-          <label class="form-label">חיפוש חופשי</label>
-          <input type="text" formControlName="query" class="form-input" placeholder="הזנה חיפוש של שם עבודה או טלפון או אימייל..."/>
-        </div>
+
+  <section class="panel">
+    <div class="search-row">
+      <div class="form-group">
+        <label>סטטוס</label>
+        <select [(ngModel)]="searchFilters.status">
+          <option value="">כל הסטטוסים</option>
+          <option value="active">פעיל</option>
+          <option value="inactive">לא פעיל</option>
+        </select>
       </div>
-      <div class="actions-section">
-        <button type="button" class="btn btn-secondary" (click)="onClear()">🗑️ נקה סינון</button>
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid">🔍 חיפוש</button>
+      <div class="form-group">
+        <label>סוג קליטה</label>
+        <select [(ngModel)]="searchFilters.intakeType">
+          <option value="">כל הסוגים</option>
+          <option value="auto">חשבונות אוטומטי</option>
+          <option value="hr">משאבי אנוש</option>
+        </select>
       </div>
-    </form>
+      <div class="form-group">
+        <label>מערכת</label>
+        <select [(ngModel)]="searchFilters.system">
+          <option value="">כל המערכות</option>
+          <option value="sap">סאפ</option>
+          <option value="oktogo">אוקטגו</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>חיפוש חופשי</label>
+        <input type="text" [(ngModel)]="searchFilters.freeText" placeholder="הזנה חיפוש של שם עבודה או טלפון או אימייל..."/>
+      </div>
+      <button class="search-btn" (click)="onSearch()">🔍 חיפוש</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="controls-row">
+      <div class="right">
+        <button [class.active]="viewMode === 'table'" class="toggle-btn" (click)="setViewMode('table')">📊 טבלה</button>
+        <button [class.active]="viewMode === 'cards'" class="toggle-btn" (click)="setViewMode('cards')">🃏 כרטיסים</button>
+      </div>
+      <div class="left">📋 רשימת תוצאות</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <!-- TABLE VIEW -->
+    <div *ngIf="viewMode === 'table'" id="tableView">
+      <table>
+        <thead>
+          <tr>
+            <th>פעולות</th><th>עדכון אחרון</th><th>תאריך יצירה</th><th>סטטוס</th>
+            <th>סוג קליטה</th><th>מערכת</th><th>שם עבודה</th><th>תיאור</th><th>מזהה</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let fileType of fileTypes">
+            <td>
+              <div class="actions">
+                <button class="action-btn delete-btn" (click)="onDelete(fileType)">🗑️</button>
+                <button class="action-btn edit-btn" (click)="onEdit(fileType)">✏️</button>
+                <button class="action-btn view-btn" (click)="onView(fileType)">👁️</button>
+              </div>
+            </td>
+            <td>{{fileType.lastUpdate}}</td>
+            <td>{{fileType.createdDate}}</td>
+            <td><span class="status-badge" [ngClass]="getStatusClass(fileType.status)">{{getStatusText(fileType.status)}}</span></td>
+            <td>{{fileType.intakeType}}</td>
+            <td>{{fileType.system}}</td>
+            <td>{{fileType.jobName}}</td>
+            <td>{{fileType.description}}</td>
+            <td>{{fileType.id}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CARDS VIEW -->
+    <div *ngIf="viewMode === 'cards'" class="cards-view">
+      <article class="job-card" *ngFor="let fileType of fileTypes">
+        <div class="card-header">
+          <div>
+            <div class="card-title">{{fileType.system}}</div>
+            <div class="card-subtitle">{{fileType.jobName}}</div>
+          </div>
+          <span class="status-badge" [ngClass]="getStatusClass(fileType.status)">{{getStatusText(fileType.status)}}</span>
+        </div>
+        <div class="card-details">
+          <div class="row"><span class="label">מערכת:</span><span class="value">{{fileType.system}}</span></div>
+          <div class="row"><span class="label">סוג קליטה:</span><span class="value">{{fileType.intakeType}}</span></div>
+          <div class="row"><span class="label">תאריך יצירה:</span><span class="value">{{fileType.createdDate}}</span></div>
+          <div class="row"><span class="label">עדכון אחרון:</span><span class="value">{{fileType.lastUpdate}}</span></div>
+          <div class="row" *ngIf="fileType.jobCode"><span class="label">קוד עבודה:</span><span class="value">{{fileType.jobCode}}</span></div>
+        </div>
+        <div class="card-actions">
+          <button class="action-btn delete-btn" (click)="onDelete(fileType)">🗑️</button>
+          <button class="action-btn edit-btn" (click)="onEdit(fileType)">✏️</button>
+          <button class="action-btn view-btn" (click)="onView(fileType)">👁️</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <div class="pagination">
+    <button>❮❮</button><button>❮</button><span>עמוד 1 מתוך 5 דפים</span>
+    <button>2</button><button>3</button><button class="active">1</button><button>❯</button><button>❯❯</button>
   </div>
 </div>

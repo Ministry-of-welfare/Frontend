@@ -1,311 +1,287 @@
-<div class="dashboard-container">
-  <!-- Enhanced Header with Filters -->
-  <div class="dashboard-header">
-    <div class="header-title">
-      <h1>🏢 דשבורד מרכזי - ניהול קליטת נתונים</h1>
-      <p class="header-subtitle">מעקב חי אחר תהליכי קליטה ואיכות נתונים</p>
+<div class="header">
+  <h1>🗂️ דשבורד מערכת קליטת קבצים מכספות</h1>
+  <div class="filters">
+    <div class="filter-group">
+      <label>טווח תאריכים</label>
+      <input type="date" value="2025-09-02">
     </div>
-    <button class="refresh-btn" (click)="onRefreshClick()" [disabled]="loading">
-      <span class="btn-icon">🔄</span>
-      רענן נתונים
-      <span class="last-update">עודכן: {{ getLastUpdateTime() }}</span>
-    </button>
+    <div class="filter-group">
+      <label>עד תאריך</label>
+      <input type="date" value="2025-09-02">
+    </div>
+    <div class="filter-group">
+      <label>מערכת</label>
+      <select>
+        <option value="">כל המערכות</option>
+        <option value="1">מערכת כספות ראשית</option>
+        <option value="2">מערכת גיבוי</option>
+        <option value="3">מערכת דיווחים</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>מקור קליטה</label>
+      <select>
+        <option value="">כל המקורות</option>
+        <option value="1">קבצי משכורות</option>
+        <option value="2">דוחות כספיים</option>
+        <option value="3">נתוני לקוחות</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>סטטוס</label>
+      <select>
+        <option value="">כל הסטטוסים</option>
+        <option value="0">ממתין לקליטה</option>
+        <option value="1">בתהליך קליטה</option>
+        <option value="2">הסתיים בהצלחה</option>
+        <option value="3">הסתיים בכשלון</option>
+      </select>
+    </div>
+    <button class="refresh-btn" (click)="refreshDashboard()">🔄 רענן</button>
   </div>
+</div>
 
-  <!-- Advanced Filters Bar -->
-  <div class="filters-container">
-    <div class="filters-header">
-      <h3>🎯 פילטרים מתקדמים</h3>
-      <button class="clear-filters-btn" (click)="clearFilters()">נקה הכל</button>
-    </div>
-    <form class="filters-grid" (ngSubmit)="onFiltersChange()">
-      <div class="filter-group">
-        <label class="filter-label">📅 טווח תאריכים</label>
-        <div class="date-range">
-          <input type="date" class="filter-input" [(ngModel)]="filters.fromDate" name="fromDate" (change)="onFiltersChange()">
-          <span class="date-separator">עד</span>
-          <input type="date" class="filter-input" [(ngModel)]="filters.toDate" name="toDate" (change)="onFiltersChange()">
+<div class="dashboard">
+  <div class="dashboard-grid">
+    <!-- סטטוס יומי חי -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">📊</span> סטטוס יומי חי
+      </div>
+      <div class="status-grid">
+        <div class="status-item status-waiting">
+          <span class="status-number">5</span>
+          <div class="status-label">ממתין לקליטה</div>
+        </div>
+        <div class="status-item status-processing">
+          <span class="status-number">3</span>
+          <div class="status-label">בתהליך קליטה</div>
+        </div>
+        <div class="status-item status-success">
+          <span class="status-number">47</span>
+          <div class="status-label">הצלחה</div>
+        </div>
+        <div class="status-item status-error">
+          <span class="status-number">2</span>
+          <div class="status-label">כישלון</div>
         </div>
       </div>
-      
-      <div class="filter-group">
-        <label class="filter-label">🖥️ מערכת</label>
-        <select class="filter-select" [(ngModel)]="filters.system" name="system" (change)="onFiltersChange()">
-          <option value="">כל המערכות</option>
-          <option *ngFor="let system of dummyFilters.systems" [value]="system.id">{{ system.name }}</option>
-        </select>
-      </div>
-      
-      <div class="filter-group">
-        <label class="filter-label">📂 מקור קליטה</label>
-        <select class="filter-select" [(ngModel)]="filters.source" name="source" (change)="onFiltersChange()">
-          <option value="">כל המקורות</option>
-          <option *ngFor="let source of dummyFilters.sources" [value]="source.id">{{ source.name }}</option>
-        </select>
-      </div>
-      
-      <div class="filter-group">
-        <label class="filter-label">📊 סטטוס</label>
-        <select class="filter-select" [(ngModel)]="filters.status" name="status" (change)="onFiltersChange()">
-          <option value="">כל הסטטוסים</option>
-          <option value="pending">⏳ בהמתנה</option>
-          <option value="processing">⚙️ בתהליך</option>
-          <option value="success">✅ הצלחה</option>
-          <option value="failed">❌ כישלון</option>
-        </select>
-      </div>
-    </form>
-  </div>
-
-  <!-- Loading & Error States -->
-  <div *ngIf="loading" class="loading-state">טוען נתונים...</div>
-  <div *ngIf="error" class="error-state">{{ error }}</div>
-
-  <!-- Today's Runs Status -->
-  <div class="section today-runs" *ngIf="!loading">
-    <div class="section-header">
-      <h2>📈 סטטוס יומי חי (Today's Runs)</h2>
-      <div class="live-indicator">
-        <span class="pulse-dot"></span>
-        עדכון חי
+      <div class="kpi-grid">
+        <div class="kpi-item">
+          <div class="kpi-value">57</div>
+          <div class="kpi-label">הרצות היום</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value">96%</div>
+          <div class="kpi-label">אחוז הצלחות</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value">4.2 דק'</div>
+          <div class="kpi-label">זמן קליטה ממוצע</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value">3.1 דק'</div>
+          <div class="kpi-label">זמן קליטה חציוני</div>
+        </div>
       </div>
     </div>
-    
-    <div class="status-grid">
-      <div class="status-card pending" [attr.data-count]="dummyData.dailyStatus.pending">
-        <div class="card-icon">⏳</div>
-        <div class="status-number">{{ dummyData.dailyStatus.pending }}</div>
-        <div class="status-label">בהמתנה</div>
-        <div class="status-trend">+2 מהשעה</div>
-      </div>
-      <div class="status-card processing" [attr.data-count]="dummyData.dailyStatus.processing">
-        <div class="card-icon">⚙️</div>
-        <div class="status-number">{{ dummyData.dailyStatus.processing }}</div>
-        <div class="status-label">בתהליך</div>
-        <div class="status-trend">-1 מהשעה</div>
-      </div>
-      <div class="status-card success" [attr.data-count]="dummyData.dailyStatus.success">
-        <div class="card-icon">✅</div>
-        <div class="status-number">{{ dummyData.dailyStatus.success }}</div>
-        <div class="status-label">הצלחה</div>
-        <div class="status-trend">+15 מהשעה</div>
-      </div>
-      <div class="status-card failed" [attr.data-count]="dummyData.dailyStatus.failed">
-        <div class="card-icon">❌</div>
-        <div class="status-number">{{ dummyData.dailyStatus.failed }}</div>
-        <div class="status-label">כישלון</div>
-        <div class="status-trend">+1 מהשעה</div>
-      </div>
-    </div>
-    
-    <div class="kpi-grid">
-      <div class="kpi-card highlight">
-        <div class="kpi-icon">🎯</div>
-        <div class="kpi-value">{{ dummyData.kpis.totalRuns }}</div>
-        <div class="kpi-label">מספר הרצות היום</div>
-      </div>
-      <div class="kpi-card success">
-        <div class="kpi-icon">📊</div>
-        <div class="kpi-value">{{ dummyData.kpis.successRate }}%</div>
-        <div class="kpi-label">אחוז הצלחות</div>
-      </div>
-      <div class="kpi-card time">
-        <div class="kpi-icon">⏱️</div>
-        <div class="kpi-value">{{ dummyData.kpis.avgTime }}</div>
-        <div class="kpi-label">זמן קליטה ממוצע</div>
-      </div>
-      <div class="kpi-card time">
-        <div class="kpi-icon">📏</div>
-        <div class="kpi-value">{{ dummyData.kpis.medianTime }}</div>
-        <div class="kpi-label">זמן קליטה חציוני</div>
-      </div>
-      <div class="kpi-card sla">
-        <div class="kpi-icon">🎖️</div>
-        <div class="kpi-value">{{ dummyData.kpis.slaCompliance }}%</div>
-        <div class="kpi-label">SLA עמידות</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Queue & Errors Row -->
-  <div class="row-section">
-    <!-- Queue -->
-    <div class="half-section queue-section">
-      <div class="section-header">
-        <h2>📋 תור קבצים ממתינים (Queue)</h2>
-        <span class="queue-total">{{ dummyData.queue.length }} מקורות</span>
+    <!-- תור קבצים ממתינים -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">⏳</span> תור קבצים ממתינים
       </div>
       <div class="queue-list">
-        <div class="queue-item" *ngFor="let item of dummyData.queue" [class]="item.priority">
-          <div class="queue-info">
-            <div class="source-name">
-              <span class="source-icon">{{ item.icon }}</span>
-              {{ item.sourceName }}
-            </div>
-            <div class="queue-details">
-              <span class="queue-count">{{ item.fileCount }} קבצים ממתינים</span>
-              <span class="queue-size">{{ item.totalSize }}</span>
-            </div>
+        <div class="queue-item">
+          <div>
+            <div class="queue-source">קבצי משכורות - בנק הפועלים</div>
+            <div class="queue-eta">ETA: 5 דקות | SLA: 10 דקות</div>
           </div>
-          <div class="queue-timing">
-            <div class="eta" [class]="item.urgency">ETA: {{ item.eta }}</div>
-            <div class="sla-status" [class]="item.slaStatus">SLA: {{ item.slaWindow }}</div>
+          <span class="queue-status on-time">בזמן</span>
+        </div>
+        <div class="queue-item">
+          <div>
+            <div class="queue-source">דוחות יומיים - בנק לאומי</div>
+            <div class="queue-eta">ETA: 15 דקות | SLA: 10 דקות</div>
           </div>
+          <span class="queue-status delayed">מתעכב</span>
+        </div>
+        <div class="queue-item">
+          <div>
+            <div class="queue-source">נתוני לקוחות - מזרחי טפחות</div>
+            <div class="queue-eta">ETA: 3 דקות | SLA: 15 דקות</div>
+          </div>
+          <span class="queue-status on-time">בזמן</span>
+        </div>
+        <div class="queue-item">
+          <div>
+            <div class="queue-source">תנועות חשבון - בנק דיסקונט</div>
+            <div class="queue-eta">ETA: 8 דקות | SLA: 12 דקות</div>
+          </div>
+          <span class="queue-status on-time">בזמן</span>
         </div>
       </div>
     </div>
 
-    <!-- Top Errors -->
-    <div class="half-section errors-section">
-      <div class="section-header">
-        <h2>🚨 שגיאות מובילות (Top Errors)</h2>
-        <span class="errors-total">{{ dummyData.topErrors.length }} סוגי שגיאות</span>
+    <!-- שגיאות מובילות -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">⚠️</span> שגיאות מובילות (TOP 10)
       </div>
-      <div class="errors-list">
-        <div class="error-item" *ngFor="let error of dummyData.topErrors; let i = index" (click)="onErrorClick(error.code)">
-          <div class="error-rank">{{ i + 1 }}</div>
-          <div class="error-info">
-            <div class="error-code">{{ error.code }}</div>
-            <div class="error-desc">{{ error.description }}</div>
-            <div class="error-fields">שדות: {{ error.affectedFields.join(', ') }}</div>
+      <div class="error-list">
+        <div class="error-item" (click)="showErrorDetails(4)">
+          <div>
+            <div class="error-code">שדה אינו מספרי ייחודי</div>
+            <div style="font-size: 11px; color: #666;">עמודה: מספר זהות</div>
           </div>
-          <div class="error-stats">
-            <div class="error-count">{{ error.count }}</div>
-            <div class="error-trend" [class]="error.trend">{{ error.trendIcon }} {{ error.trendText }}</div>
-          </div>
+          <span class="error-count">23</span>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Problematic Sources & Throughput -->
-  <div class="row-section">
-    <div class="half-section sources-section">
-      <div class="section-header">
-        <h2>⚠️ מקורות בעייתיים</h2>
-        <span class="sources-count">{{ dummyData.problematicSources.length }} מקורות בסיכון</span>
-      </div>
-      <div class="sources-list">
-        <div class="source-item" *ngFor="let source of dummyData.problematicSources" [class]="source.riskLevel">
-          <div class="source-info">
-            <div class="source-name">
-              <span class="risk-icon">{{ source.riskIcon }}</span>
-              {{ source.name }}
-            </div>
-            <div class="source-issues">
-              <span class="issue-tag" *ngFor="let issue of source.issues">{{ issue }}</span>
-            </div>
+        <div class="error-item" (click)="showErrorDetails(20)">
+          <div>
+            <div class="error-code">שדה חובה אינו מלא</div>
+            <div style="font-size: 11px; color: #666;">עמודה: תאריך לידה</div>
           </div>
-          <div class="source-stats">
-            <div class="failure-rate">{{ source.failureRate }}% כישלון</div>
-            <div class="avg-time">{{ source.avgTime }} זמן ממוצע</div>
-            <button class="source-link" (click)="navigateToSource(source.id)">🔗 פרטים</button>
+          <span class="error-count">18</span>
+        </div>
+        <div class="error-item" (click)="showErrorDetails(10)">
+          <div>
+            <div class="error-code">פורמט תאריך לא תקין</div>
+            <div style="font-size: 11px; color: #666;">עמודה: תאריך התחלה</div>
           </div>
+          <span class="error-count">15</span>
+        </div>
+        <div class="error-item" (click)="showErrorDetails(31)">
+          <div>
+            <div class="error-code">ת.ז. לא קיימת במרשם</div>
+            <div style="font-size: 11px; color: #666;">עמודה: תעודת זהות</div>
+          </div>
+          <span class="error-count">12</span>
+        </div>
+        <div class="error-item" (click)="showErrorDetails(29)">
+          <div>
+            <div class="error-code">מייל אינו בפורמט תקין</div>
+            <div style="font-size: 11px; color: #666;">עמודה: כתובת מייל</div>
+          </div>
+          <span class="error-count">8</span>
         </div>
       </div>
     </div>
 
-    <div class="half-section throughput-section">
-      <div class="section-header">
-        <h2>📈 הזרמה/תפוקה (Throughput)</h2>
-        <div class="chart-controls">
-          <button class="chart-btn active">יום</button>
-          <button class="chart-btn">שבוע</button>
-        </div>
+    <!-- מקורות בעייתיים -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">🚨</span> מקורות בעייתיים
       </div>
-      <div class="throughput-chart">
-        <div class="chart-placeholder">
-          <div class="chart-icon">📊</div>
-          <div class="chart-title">גרף קצב קליטות</div>
-          <div class="chart-subtitle">תפוקה לאורך היום</div>
+      <div class="source-list">
+        <div class="source-item" (click)="goToSource(101)">
+          <div>
+            <div class="source-name">קבצי משכורות - חברה א'</div>
+            <div style="font-size: 11px; color: #666;">זמן קליטה: 15.2 דק' (ממוצע: 4.2 דק')</div>
+          </div>
+          <span class="failure-rate high-risk">25%</span>
         </div>
-        <div class="throughput-stats">
-          <div class="stat-item">
-            <span class="stat-icon">📁</span>
-            <span class="stat-value">{{ dummyData.throughput.files | number }}</span>
-            <span class="stat-label">קבצים</span>
+        <div class="source-item" (click)="goToSource(102)">
+          <div>
+            <div class="source-name">דוחות יומיים - מוסד ב'</div>
+            <div style="font-size: 11px; color: #666;">שורות פגומות: 18% מכלל השורות</div>
           </div>
-          <div class="stat-item">
-            <span class="stat-icon">📊</span>
-            <span class="stat-value">{{ dummyData.throughput.records | number }}</span>
-            <span class="stat-label">רשומות</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-icon">💾</span>
-            <span class="stat-value">{{ dummyData.throughput.dataVolume }}</span>
-            <span class="stat-label">נפח נתונים</span>
-          </div>
+          <span class="failure-rate high-risk">18%</span>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Data Quality & Alerts -->
-  <div class="row-section">
-    <div class="half-section quality-section">
-      <div class="section-header">
-        <h2>🎯 איכות נתונים (Data Quality KPIs)</h2>
-        <span class="quality-score" [class]="getQualityScoreClass()">ציון: {{ dummyData.dataQuality.overallScore }}/100</span>
-      </div>
-      <div class="quality-metrics">
-        <div class="quality-item critical">
-          <div class="metric-info">
-            <span class="metric-icon">🚫</span>
-            <span class="metric-label">אחוז שורות פגומות</span>
+        <div class="source-item" (click)="goToSource(103)">
+          <div>
+            <div class="source-name">נתוני תלמידים - מכללה ג'</div>
+            <div style="font-size: 11px; color: #666;">סטיית מספר רשומות: +/-15%</div>
           </div>
-          <div class="metric-value">{{ dummyData.dataQuality.corruptedRowsPercent }}%</div>
-          <div class="metric-details">{{ dummyData.dataQuality.corruptedRows | number }} מתוך {{ dummyData.dataQuality.totalRows | number }}</div>
+          <span class="failure-rate medium-risk">12%</span>
         </div>
-        <div class="quality-item warning">
-          <div class="metric-info">
-            <span class="metric-icon">⚠️</span>
-            <span class="metric-label">עמודות עם הפרות ולידציה</span>
+        <div class="source-item" (click)="goToSource(104)">
+          <div>
+            <div class="source-name">קבצי חשבוניות - ספק ד'</div>
+            <div style="font-size: 11px; color: #666;">אחוז כישלון שבועי</div>
           </div>
-          <div class="validation-columns">
-            <div class="column-violation" *ngFor="let col of dummyData.dataQuality.violationColumns">
-              <span class="column-name">{{ col.name }}</span>
-              <span class="violation-count">{{ col.violations }} הפרות</span>
-            </div>
-          </div>
-        </div>
-        <div class="quality-item info">
-          <div class="metric-info">
-            <span class="metric-icon">📋</span>
-            <span class="metric-label">איכות לפי מקור</span>
-          </div>
-          <div class="source-quality">
-            <div class="source-quality-item" *ngFor="let sq of dummyData.dataQuality.sourceQuality">
-              <span class="source-name">{{ sq.sourceName }}</span>
-              <div class="quality-bar">
-                <div class="quality-fill" [style.width.%]="sq.qualityScore"></div>
-              </div>
-              <span class="quality-percent">{{ sq.qualityScore }}%</span>
-            </div>
-          </div>
+          <span class="failure-rate medium-risk">8%</span>
         </div>
       </div>
     </div>
 
-    <div class="half-section alerts-section">
-      <div class="section-header">
-        <h2>🔔 התראות אחרונות</h2>
-        <span class="alerts-count">{{ dummyData.recentAlerts.length }} התראות פעילות</span>
+    <!-- הזרמה/תפוקה -->
+    <div class="card wide-card">
+      <div class="card-title">
+        <span class="icon">📈</span> הזרמה ותפוקה יומית
       </div>
-      <div class="alerts-list">
-        <div class="alert-item" *ngFor="let alert of dummyData.recentAlerts" [class]="alert.severity">
-          <div class="alert-header">
-            <span class="alert-time">{{ alert.time }}</span>
-            <span class="alert-severity" [class]="alert.severity">{{ alert.severityText }}</span>
-          </div>
+      <div class="chart-container">
+        <div class="chart-placeholder">📊</div>
+        <div>גרף קצב קליטות לאורך היום</div>
+        <div style="font-size: 14px; margin-top: 10px; font-weight: 600; color: #333;">
+          1,247 קבצים | 245,891 רשומות
+        </div>
+      </div>
+    </div>
+
+    <!-- איכות נתונים -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">🎯</span> איכות נתונים (KPIs)
+      </div>
+      <div class="kpi-grid" style="grid-template-columns: 1fr;">
+        <div class="kpi-item">
+          <div class="kpi-value" style="background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">94.2%</div>
+          <div class="kpi-label">איכות נתונים כללית</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value" style="background: linear-gradient(135deg, #f44336 0%, #e91e63 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">5.8%</div>
+          <div class="kpi-label">שורות פגומות</div>
+        </div>
+      </div>
+      <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%); border-radius: 12px;">
+        <div style="margin-bottom: 12px; color: #666; font-weight: 600; font-size: 13px;">עמודות עם הכי הרבה הפרות:</div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 8px;">
+          <span style="font-weight: 500;">מספר זהות</span>
+          <span style="background: linear-gradient(135deg, #f44336 0%, #e91e63 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">34 הפרות</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 8px;">
+          <span style="font-weight: 500;">תאריך לידה</span>
+          <span style="background: linear-gradient(135deg, #f44336 0%, #e91e63 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">21 הפרות</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 8px;">
+          <span style="font-weight: 500;">כתובת מייל</span>
+          <span style="background: linear-gradient(135deg, #f44336 0%, #e91e63 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">18 הפרות</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- התראות אחרונות -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">🔔</span> התראות אחרונות
+      </div>
+      <div class="alert-list">
+        <div class="alert-item">
+          <div class="alert-time">09:34</div>
           <div class="alert-content">
-            <div class="alert-msg">{{ alert.message }}</div>
-            <div class="alert-details">
-              <span class="alert-recipient">נשלח ל: {{ alert.sentTo }}</span>
-              <span class="alert-about">על: {{ alert.about }}</span>
-            </div>
+            <div class="alert-message">כישלון בקליטת קובץ משכורות - בנק הפועלים</div>
+            <div class="alert-recipient">נשלח ל: admin&#64;company.com, it&#64;company.com</div>
           </div>
-          <div class="alert-status" [class]="alert.handlingStatus">
-            {{ alert.handlingStatusText }}
+        </div>
+        <div class="alert-item">
+          <div class="alert-time">08:15</div>
+          <div class="alert-content">
+            <div class="alert-message">עיכוב בעיבוד קבצי דוחות יומיים</div>
+            <div class="alert-recipient">נשלח ל: operations&#64;company.com</div>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-time">07:42</div>
+          <div class="alert-content">
+            <div class="alert-message">שיעור שגיאות גבוה במקור נתוני תלמידים</div>
+            <div class="alert-recipient">נשלח ל: datamanager&#64;company.com</div>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-time">06:30</div>
+          <div class="alert-content">
+            <div class="alert-message">התחלת תהליך קליטה יומי - כל המערכות</div>
+            <div class="alert-recipient">נשלח ל: monitoring&#64;company.com</div>
           </div>
         </div>
       </div>
