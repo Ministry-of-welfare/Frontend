@@ -71,6 +71,11 @@
               <input type="text" class="form-input" [(ngModel)]="jobName" placeholder="שם הג'וב שמפעיל את התהליך">
               <div class="help-text">שם הג'וב ב-SQL Server או בכלי הניהול</div>
             </div>
+            <div class="form-field">
+              <label class="form-label">שם טבלה <span class="required">*</span></label>
+              <input type="text" class="form-input" [(ngModel)]="tableName" placeholder="הכנס שם טבלה">
+              <div class="help-text">שם הטבלה שתיווצר במסד הנתונים</div>
+            </div>
 
             <div class="form-field full-width">
               <label class="form-label">נתיב קבצי מקור <span class="required">*</span></label>
@@ -126,8 +131,23 @@
               </div>
               <div *ngFor="let col of columns; let i = index" class="table-row fade-in">
                 <div class="row-number">{{col.order}}</div>
-                <div><input type="text" class="table-input" [(ngModel)]="col.nameEng" placeholder="column_name"></div>
-                <div><input type="text" class="table-input" [(ngModel)]="col.nameHeb" placeholder="שם עמודה בעברית"></div>
+                <div>
+                  <input type="text" class="table-input" [(ngModel)]="col.nameEng" placeholder="column_name"
+                    (ngModelChange)="onColumnInput(i, 'nameEng', $event)"
+                    [class.error-input]="getColumnError(i).nameEng && getColumnError(i).nameEng.length > 0">
+                  <div *ngIf="getColumnError(i).nameEng && getColumnError(i).nameEng.length > 0" class="error-message">
+                    {{getColumnError(i).nameEng}}
+                  </div>
+                </div>
+                <div>
+                  <input type="text" class="table-input" [(ngModel)]="col.nameHeb" placeholder="שם עמודה בעברית"
+                      (input)="onColumnInput(i, 'nameHeb', getInputValue($event))"
+                      [class.error-input]="columnErrors[i] && columnErrors[i].nameHeb">
+                    <div *ngIf="columnErrors[i] && columnErrors[i].nameHeb"
+                         class="error-message">
+                      {{columnErrors[i].nameHeb}}
+                    </div>
+                </div>
                 <div>
                   <select class="table-select" [(ngModel)]="col.type">
                     <option value="VARCHAR">VARCHAR</option>
@@ -145,7 +165,7 @@
 
         <div class="actions-section">
           <button type="button" class="btn btn-secondary" (click)="prevStep()">⬅️ חזרה</button>
-          <button type="button" class="btn btn-primary" (click)="nextStep()">המשך לאישור ➡️</button>
+          <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isColumnsValid()">המשך לאישור ➡️</button>
         </div>
       </div>
 

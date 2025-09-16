@@ -18,15 +18,42 @@ interface Column {
   styleUrl: './add-file.component.css'
 })
 export class AddFileComponent implements OnInit {
+  getInputValue(event: Event): string {
+    const target = event.target as HTMLInputElement | null;
+    return target?.value ?? '';
+  }
+  getColumnError(i: number): { nameHeb: string; nameEng: string } {
+    const err = this.columnErrors[i] ?? {};
+    return { nameHeb: err.nameHeb ?? '', nameEng: err.nameEng ?? '' };
+  }
+  isColumnsValid(): boolean {
+    if (this.currentStep !== 2) return true;
+    for (let idx = 0; idx < this.columns.length; idx++) {
+      if (this.columnErrors[idx]?.nameEng || this.columnErrors[idx]?.nameHeb) {
+        return false;
+      }
+      if (!this.columns[idx].nameEng || !this.columns[idx].nameHeb) {
+        return false;
+      }
+    }
+    return true;
+  }
+  columnErrors: { nameEng?: string; nameHeb?: string }[] = [];
   constructor(private importDS: ImportDataSourceService) {}
+  tableName = '';
+
   submitGeneralDetails() {
+    if (!this.tableName) {
+      alert('אנא מלא את שם הטבלה');
+      return;
+    }
     // Build the object according to ImportDataSources model
     const newFile: ImportDataSources = {
       importDataSourceDesc: this.description,
       dataSourceTypeId: Number(this.dataSourceType),
       systemId: Number(this.systemType),
       jobName: this.jobName,
-      tableName: "",
+      tableName: this.tableName,
       urlFile: this.urlFile,
       urlFileAfterProcess: this.urlFileAfter,
       errorRecipients: this.errorRecipients,
@@ -39,7 +66,6 @@ export class AddFileComponent implements OnInit {
         alert('הפרטים נשלחו בהצלחה!');
         console.log('Success:', res);
       },
-     
     });
   }
 currentStep = 1;
@@ -84,8 +110,10 @@ currentStep = 1;
 
   initColumns() {
     this.columns = [];
+  this.columnErrors = [];
     for (let i = 0; i < this.columnCount; i++) {
       this.columns.push({ order: i + 1, nameEng: '', nameHeb: '', type: 'VARCHAR' });
+      this.columnErrors.push({ nameEng: '', nameHeb: '' });
     }
   }
 
@@ -114,14 +142,60 @@ currentStep = 1;
       }
     }
     if (this.currentStep === 2) {
-      if (this.columns.length === 0 || this.columns.some(c => !c.nameEng || !c.nameHeb)) {
-        alert('אנא מלא את שמות כל העמודות');
+  let valid = true;
+  this.columnErrors = [];
+      const hebrewRegex = /^[א-ת\s\-_,.()\[\]{}0-9]+$/;
+      const englishRegex = /^[A-Za-z\s\-_,.()\[\]{}0-9]+$/;
+      this.columns.forEach((col, idx) => {
+        if (!col.nameEng) {
+          this.columnErrors[idx] = { ...this.columnErrors[idx], nameEng: 'יש למלא שם עמודה באנגלית' };
+          valid = false;
+        } else if (!englishRegex.test(col.nameEng)) {
+          this.columnErrors[idx] = { ...this.columnErrors[idx], nameEng: 'יש להכניס רק אותיות באנגלית' };
+          valid = false;
+        }
+        if (!col.nameHeb) {
+          this.columnErrors[idx] = { ...this.columnErrors[idx], nameHeb: 'יש למלא שם עמודה בעברית' };
+          valid = false;
+        } else if (!hebrewRegex.test(col.nameHeb)) {
+          this.columnErrors[idx] = { ...this.columnErrors[idx], nameHeb: 'יש להכניס רק אותיות בעברית' };
+          valid = false;
+        }
+      });
+      if (!valid) {
         return false;
       }
     }
     return true;
   }
 
+  onColumnInput(idx: number, field: 'nameEng' | 'nameHeb', value: string) {
+    if (!this.columnErrors[idx]) this.columnErrors[idx] = {};
+    if (field === 'nameEng') {
+      const englishRegex = /^[A-Za-z\s\-_,.()\[\]{}0-9]+$/;
+      if (!value) {
+        this.columnErrors[idx].nameEng = 'יש למלא שם עמודה באנגלית';
+      } else if (!englishRegex.test(value)) {
+        this.columnErrors[idx].nameEng = 'יש להכניס רק אותיות באנגלית';
+      } else {
+        this.columnErrors[idx].nameEng = '';
+      }
+    }
+    if (field === 'nameHeb') {
+      const hebrewRegex = /^[א-ת\s\-_,.()\[\]{}0-9]+$/;
+      if (!value) {
+        this.columnErrors[idx].nameHeb = 'יש למלא שם עמודה בעברית';
+      } else if (!hebrewRegex.test(value)) {
+        this.columnErrors[idx].nameHeb = 'יש להכניס רק אותיות בעברית';
+      } else {
+        this.columnErrors[idx].nameHeb = '';
+      }
+    }
+    // מחיקת אובייקט שגיאה אם אין שגיאות בכלל
+    if (!this.columnErrors[idx].nameEng && !this.columnErrors[idx].nameHeb) {
+      delete this.columnErrors[idx];
+    }
+  }
   updateColumnCount() {
     this.columns = [];
     for (let i = 0; i < this.columnCount; i++) {
@@ -130,13 +204,15 @@ currentStep = 1;
   }
 
   addColumn() {
-    this.columns.push({ order: this.columns.length + 1, nameEng: '', nameHeb: '', type: 'VARCHAR' });
-    this.columnCount = this.columns.length;
+  this.columns.push({ order: this.columns.length + 1, nameEng: '', nameHeb: '', type: 'VARCHAR' });
+  this.columnErrors.push({ nameEng: '', nameHeb: '' });
+  this.columnCount = this.columns.length;
   }
 
   deleteColumn(index: number) {
     if (confirm('האם אתה בטוח שברצונך למחוק עמודה זו?')) {
       this.columns.splice(index, 1);
+      this.columnErrors.splice(index, 1);
       this.columns.forEach((col, idx) => (col.order = idx + 1));
       this.columnCount = this.columns.length;
     }
