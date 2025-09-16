@@ -20,18 +20,19 @@
     <!-- צעדי האשף -->
     <div class="wizard-steps">
       <div class="step" [ngClass]="{'active': currentStep===1, 'completed': currentStep>1}">
-     
-        <div class="step-number">1</div>
               <span *ngIf="currentStep>1" class="step-check">✓</span>
+        <div class="step-number">1</div>
 
         <div class="step-title">פרטים כלליים</div>
         
       </div>
       <div class="step" [ngClass]="{'active': currentStep===2, 'completed': currentStep>2}">
+                     <span *ngIf="currentStep>2" class="step-check">✓</span>
         <div class="step-number">2</div>
         <div class="step-title">הגדרת עמודות</div>
       </div>
       <div class="step" [ngClass]="{'active': currentStep===3}">
+                      <span *ngIf="currentStep>3" class="step-check">✓</span>
         <div class="step-number">3</div>
         <div class="step-title">אישור ויצירה</div>
       </div>
