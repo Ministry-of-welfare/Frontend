@@ -1,8 +1,12 @@
+
+
 import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { NgClass, CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { EditProcessDialogComponent, EditProcessData } from '../edit-process-dialog/edit-process-dialog.component';
+import { SystemsService } from '../../services/systems/systems.service';
+import { DataSourceTypeService } from '../../services/dataSuorceType/data-source-type.service';
 
 @Component({
   selector: 'app-files-view',
@@ -11,35 +15,68 @@ import { EditProcessDialogComponent, EditProcessData } from '../edit-process-dia
   templateUrl: './files-view.component.html',
   styleUrls: ['./files-view.component.css']
 })
-
 export class FilesViewComponent implements OnChanges {
   viewMode: 'cards' | 'table' = 'cards';
   processes: any[] = [];
   filteredProcesses: any[] = [];
   loading = true;
+  systemsMap: { [key: string]: string } = {}; 
+  DataSourceTypeMap: { [key: string]: string } = {}; 
+  @Input() systems: any[] = [];
+   @Input() DataSourceType: any[] = [];
   @Input() searchCriteria: any = null;
   @Output() clearSearchEvent = new EventEmitter<void>();
   hasActiveSearch = false;
 
-  constructor(private importDS: ImportDataSourceService, private router: Router) {}
+  constructor(
+    private importDS: ImportDataSourceService,
+    private router: Router,
+    private systemsService: SystemsService,
+    private DataTypeService: DataSourceTypeService
+  ) {}
 
   ngOnInit(): void {
     this.loadProcesses();
+    this.loadSystems();
+    this.lloadDataSourceType()
   }
 
   ngOnChanges(): void {
     this.filterProcesses();
+    if (this.systems && this.systems.length > 0) {
+      this.systemsMap = {};
+      this.systems.forEach(item => {
+        const systemId = item.SystemId || item.systemId;
+        const systemName = item.systemName || item.SystemName;
+        if (systemId !== undefined && systemName) {
+          this.systemsMap[systemId] = systemName;
+        }
+      });
+    }
+
+    if (this.DataSourceType && this.DataSourceType.length > 0) {
+      this.DataSourceTypeMap = this.DataSourceType.reduce((acc: any, item: any) => {
+        // תמיכה בשני סוגי שמות שדות
+        const typeId = item.dataSourceTypeId || item.DataSourceTypeId;
+        const typeDesc = item.dataSourceTypeDesc || item.DataSourceTypeDesc;
+        if (typeId && typeDesc) {
+          acc[typeId] = typeDesc;
+        }
+        return acc;
+      }, {});
+   }
+    this.filterProcesses();
   }
 
   loadProcesses(): void {
-    // נתונים דמה לבדיקה
     const dummyData = [
       {
         id: 1,
         importDataSourceDesc: 'קליטת נתוני עובדים',
         tableName: 'BULK_EMPLOYEE_DATA',
+        
         jobName: 'ImportEmployeeJob',
-        systemId: 'משאבי אנוש',
+        systemId: 1,
         dataSourceTypeId: 'טעינה ועיבוד',
         status: 'active',
         createdDate: '2025-01-15',
@@ -50,35 +87,23 @@ export class FilesViewComponent implements OnChanges {
         importDataSourceDesc: 'קליטת נתוני לקוחות',
         tableName: 'BULK_CUSTOMERS',
         jobName: 'ImportCustomersJob',
-        systemId: 'סאפ',
+        systemId: 2,
         dataSourceTypeId: 'טעינה בלבד',
         status: 'design',
         createdDate: '2025-01-10',
         endDate: '2025-01-18'
-      },
-      {
-        id: 3,
-        importDataSourceDesc: 'קליטת דוחות כספים',
-        tableName: 'BULK_FINANCIAL_REPORTS',
-        jobName: 'ImportFinancialJob',
-        systemId: 'אוקטגו',
-        dataSourceTypeId: 'טעינה ובדיקת פורמט',
-        status: 'inactive',
-        createdDate: '2025-01-05',
-        endDate: '2025-01-12'
       }
     ];
 
     this.importDS.getAll().subscribe({
       next: (data) => {
-        // אם אין נתונים מהשרת, נשתמש בנתונים דמה
         this.processes = (data && data.length > 0) ? data : dummyData;
         this.filteredProcesses = this.processes;
         this.loading = false;
         this.filterProcesses();
       },
       error: (err) => {
-        console.error('שגיאה בקבלת נתונים, משתמש בנתונים דמה', err);
+        console.error('שגיאה בקבלת נתונים, משתמש בנתוני דמה', err);
         this.processes = dummyData;
         this.filteredProcesses = dummyData;
         this.loading = false;
@@ -106,10 +131,10 @@ export class FilesViewComponent implements OnChanges {
         process.jobName?.toLowerCase().includes(this.searchCriteria.query.toLowerCase());
 
       const matchesSystem = this.searchCriteria.system === 'כל המערכות' || 
-        process.systemId?.toString() === this.searchCriteria.system?.toString();
+        this.getSystemName(process.systemId) === this.searchCriteria.system;
 
       const matchesType = this.searchCriteria.type === 'כל הסוגים' || 
-        process.dataSourceTypeId?.toString() === this.searchCriteria.type?.toString();
+        this.getDataSourceTypeName(process.dataSourceTypeId) === this.searchCriteria.type;
 
       const matchesStatus = this.searchCriteria.status === 'כל הסטטוסים' ||
         process.status === this.searchCriteria.status ||
@@ -117,6 +142,21 @@ export class FilesViewComponent implements OnChanges {
 
       return matchesQuery && matchesSystem && matchesType && matchesStatus;
     });
+  }
+
+  getSystemName(id: number | string): string {
+    if (!id) return '—';
+    // חיפוש במיפוי לפי ה-ID של התהליך
+    const systemName = this.systemsMap[id];
+    if (systemName) return systemName;
+    
+    // אם לא נמצא במיפוי, חפש ישירות במערכות
+    const system = this.systems.find(s => s.SystemId === Number(id));
+    return system ? system.systemName : id.toString();
+  }
+  getDataSourceTypeName(id: number | string): string {
+    if (!id) return '—';
+    return this.DataSourceTypeMap[id] || id.toString();
   }
 
   dialogVisible = false;
@@ -200,7 +240,6 @@ export class FilesViewComponent implements OnChanges {
 
   confirmDelete() {
     if (!this.selectedProcessToDelete) return;
-    // Build the object with correct field names for the server
     const updated = {
       importDataSourceId: this.selectedProcessToDelete.importDataSourceId,
       importDataSourceDesc: this.selectedProcessToDelete.importDataSourceDesc,
@@ -215,11 +254,9 @@ export class FilesViewComponent implements OnChanges {
       insertDate: this.selectedProcessToDelete.insertDate,
       startDate: this.selectedProcessToDelete.startDate,
       status: 'inactive'
-      // הוסף שדות נוספים אם נדרשים ע"י השרת
     };
     this.importDS.updateTheEndDate(updated.importDataSourceId, updated).subscribe({
       next: () => {
-        // רענון מהשרת
         this.importDS.getAll().subscribe({
           next: (data) => {
             this.processes = data;
@@ -249,10 +286,7 @@ export class FilesViewComponent implements OnChanges {
     this.dialogVisible = false;
   }
 
-
-
   get displayedProcesses() {
-    // Remove time part from startDate and endDate for display
     return this.filteredProcesses.map(p => ({
       ...p,
       startDate: p.startDate ? p.startDate.toString().split('T')[0] : p.startDate,
@@ -270,15 +304,49 @@ export class FilesViewComponent implements OnChanges {
     this.router.navigate(['/dashboard']);
   }
 
-
- onBackdropClick(event: MouseEvent) {
+  onBackdropClick(event: MouseEvent) {
     if (event.target === event.currentTarget) {
       this.closeDeleteDialog();
     }
   }
+  loadSystems(): void {
+  this.systemsService.getAll().subscribe({
+    next: (data) => {
+      this.systems = data;
+      // בניית מיפוי עם כל השדות האפשריים
+      this.systemsMap = {};
+      this.systems.forEach(item => {
+        const systemId = item.SystemId || item.systemId;
+        const systemName = item.systemName || item.SystemName;
+        if (systemId !== undefined && systemName) {
+          this.systemsMap[systemId] = systemName;
+        }
+      });
 
+    },
+    error: (err) => {
+      console.error('שגיאה בטעינת מערכות:', err);
+    }
+  });
 }
 
- 
+lloadDataSourceType(): void {
+  this.DataTypeService.getAll().subscribe({
+    next: (data) => {
+      this.DataSourceType = data;
+      this.DataSourceTypeMap = data.reduce((acc: any, item: any) => {
+        const typeId = item.dataSourceTypeId || item.DataSourceTypeId;
+        const typeDesc = item.dataSourceTypeDesc || item.DataSourceTypeDesc;
+        if (typeId && typeDesc) {
+          acc[typeId] = typeDesc;
+        }
+        return acc;
+      }, {});
+    },
+    error: (err) => {
+      console.error('שגיאה בטעינת סוגי מקורות נתונים:', err);
+    }
+  });
+}
 
-
+}

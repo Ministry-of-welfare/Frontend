@@ -38,11 +38,11 @@ import { Systems } from '../../models/systems.model';
   }
 
   ngOnInit() {
-    this.ImportStatusService.getAll().subscribe(data => {
-      this.statuses= data.map(item => item.importStatusDesc)
-  .filter((t): t is string => t !== undefined);
-  console.log(data)
-    });
+  //   this.ImportStatusService.getAll().subscribe(data => {
+  //     this.statuses= data.map(item => item.importStatusDesc)
+  // .filter((t): t is string => t !== undefined);
+  // console.log(data)
+  //   });
 
     this.SystemsService.getAll().subscribe(data => {
       this.systems = data.map(item => ({ id: item.SystemId, name: item.systemName }));
@@ -54,7 +54,6 @@ import { Systems } from '../../models/systems.model';
   }
 
   onSearch() {
-    console.log('Search data:', this.form.value);
      this.searchEvent.emit(this.form.value);
   }
 
