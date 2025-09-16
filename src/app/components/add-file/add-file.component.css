@@ -113,7 +113,12 @@
         .step:last-child::after {
             display: none;
         }
-        
+        .step-check {
+  font-size: 2rem;
+  /* color: #43a047; */
+  font-weight: bold;
+  margin-right: 8px;
+}
         .step.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -127,13 +132,15 @@
         }
         
         .step.completed {
-            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
-            color: white;
+            /* background: linear-gradient(135deg,#877c8f, #877c8f 100%); */
+            /* color: white; */
             border-radius: 10px;
+            
+            
         }
         
         .step.completed::after {
-            border-right-color: #4caf50;
+            border-right-color: #877c8f;
         }
         
         .step-number {

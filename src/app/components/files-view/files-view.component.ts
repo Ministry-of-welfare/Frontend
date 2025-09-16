@@ -1,5 +1,3 @@
-
-
 import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { NgClass, CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -23,7 +21,7 @@ export class FilesViewComponent implements OnChanges {
   systemsMap: { [key: string]: string } = {}; 
   DataSourceTypeMap: { [key: string]: string } = {}; 
   @Input() systems: any[] = [];
-   @Input() DataSourceType: any[] = [];
+  @Input() DataSourceType: any[] = [];
   @Input() searchCriteria: any = null;
   @Output() clearSearchEvent = new EventEmitter<void>();
   hasActiveSearch = false;
@@ -38,7 +36,7 @@ export class FilesViewComponent implements OnChanges {
   ngOnInit(): void {
     this.loadProcesses();
     this.loadSystems();
-    this.lloadDataSourceType()
+    this.lloadDataSourceType();
   }
 
   ngOnChanges(): void {
@@ -56,7 +54,6 @@ export class FilesViewComponent implements OnChanges {
 
     if (this.DataSourceType && this.DataSourceType.length > 0) {
       this.DataSourceTypeMap = this.DataSourceType.reduce((acc: any, item: any) => {
-        // תמיכה בשני סוגי שמות שדות
         const typeId = item.dataSourceTypeId || item.DataSourceTypeId;
         const typeDesc = item.dataSourceTypeDesc || item.DataSourceTypeDesc;
         if (typeId && typeDesc) {
@@ -74,7 +71,6 @@ export class FilesViewComponent implements OnChanges {
         id: 1,
         importDataSourceDesc: 'קליטת נתוני עובדים',
         tableName: 'BULK_EMPLOYEE_DATA',
-        
         jobName: 'ImportEmployeeJob',
         systemId: 1,
         dataSourceTypeId: 'טעינה ועיבוד',
@@ -110,6 +106,7 @@ export class FilesViewComponent implements OnChanges {
       }
     });
   }
+
 
   filterProcesses(): void {
     if (!this.searchCriteria || 
@@ -229,8 +226,11 @@ export class FilesViewComponent implements OnChanges {
   }
 
   openDeleteDialog(process: any) {
+    console.log('openDeleteDialog called with:', process);
     this.selectedProcessToDelete = process;
     this.deleteDialogVisible = true;
+    console.log('deleteDialogVisible set to:', this.deleteDialogVisible);
+    console.log('selectedProcessToDelete:', this.selectedProcessToDelete);
   }
 
   closeDeleteDialog() {
@@ -255,7 +255,7 @@ export class FilesViewComponent implements OnChanges {
       startDate: this.selectedProcessToDelete.startDate,
       status: 'inactive'
     };
-    this.importDS.updateTheEndDate(updated.importDataSourceId, updated).subscribe({
+    this.importDS.updateTheEndDate(updated.importDataSourceId).subscribe({
       next: () => {
         this.importDS.getAll().subscribe({
           next: (data) => {
@@ -310,43 +310,42 @@ export class FilesViewComponent implements OnChanges {
     }
   }
   loadSystems(): void {
-  this.systemsService.getAll().subscribe({
-    next: (data) => {
-      this.systems = data;
-      // בניית מיפוי עם כל השדות האפשריים
-      this.systemsMap = {};
-      this.systems.forEach(item => {
-        const systemId = item.SystemId || item.systemId;
-        const systemName = item.systemName || item.SystemName;
-        if (systemId !== undefined && systemName) {
-          this.systemsMap[systemId] = systemName;
-        }
-      });
+    this.systemsService.getAll().subscribe({
+      next: (data) => {
+        this.systems = data;
+        this.systemsMap = {};
+        this.systems.forEach(item => {
+          const systemId = item.SystemId || item.systemId;
+          const systemName = item.systemName || item.SystemName;
+          if (systemId !== undefined && systemName) {
+            this.systemsMap[systemId] = systemName;
+          }
+        });
+      },
+      error: (err) => {
+        console.error('שגיאה בטעינת מערכות:', err);
+      }
+    });
+  }
 
-    },
-    error: (err) => {
-      console.error('שגיאה בטעינת מערכות:', err);
-    }
-  });
-}
-
-lloadDataSourceType(): void {
-  this.DataTypeService.getAll().subscribe({
-    next: (data) => {
-      this.DataSourceType = data;
-      this.DataSourceTypeMap = data.reduce((acc: any, item: any) => {
-        const typeId = item.dataSourceTypeId || item.DataSourceTypeId;
-        const typeDesc = item.dataSourceTypeDesc || item.DataSourceTypeDesc;
-        if (typeId && typeDesc) {
-          acc[typeId] = typeDesc;
-        }
-        return acc;
-      }, {});
-    },
-    error: (err) => {
-      console.error('שגיאה בטעינת סוגי מקורות נתונים:', err);
-    }
-  });
-}
+  lloadDataSourceType(): void {
+    this.DataTypeService.getAll().subscribe({
+      next: (data) => {
+        this.DataSourceType = data;
+        this.DataSourceTypeMap = data.reduce((acc: any, item: any) => {
+          const typeId = item.dataSourceTypeId || item.DataSourceTypeId;
+          const typeDesc = item.dataSourceTypeDesc || item.DataSourceTypeDesc;
+          if (typeId && typeDesc) {
+            acc[typeId] = typeDesc;
+          }
+          return acc;
+        }, {});
+      },
+      error: (err) => {
+        console.error('שגיאה בטעינת סוגי מקורות נתונים:', err);
+      }
+    });
+  }
 
 }
+

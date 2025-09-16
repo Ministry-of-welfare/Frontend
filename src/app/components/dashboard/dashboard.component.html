@@ -1,0 +1,290 @@
+<div class="header">
+  <h1>🗂️ דשבורד מערכת קליטת קבצים מכספות</h1>
+  <div class="filters">
+    <div class="filter-group">
+      <label>טווח תאריכים</label>
+      <input type="date" value="2025-09-02">
+    </div>
+    <div class="filter-group">
+      <label>עד תאריך</label>
+      <input type="date" value="2025-09-02">
+    </div>
+    <div class="filter-group">
+      <label>מערכת</label>
+      <select>
+        <option value="">כל המערכות</option>
+        <option value="1">מערכת כספות ראשית</option>
+        <option value="2">מערכת גיבוי</option>
+        <option value="3">מערכת דיווחים</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>מקור קליטה</label>
+      <select>
+        <option value="">כל המקורות</option>
+        <option value="1">קבצי משכורות</option>
+        <option value="2">דוחות כספיים</option>
+        <option value="3">נתוני לקוחות</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>סטטוס</label>
+      <select>
+        <option value="">כל הסטטוסים</option>
+        <option value="0">ממתין לקליטה</option>
+        <option value="1">בתהליך קליטה</option>
+        <option value="2">הסתיים בהצלחה</option>
+        <option value="3">הסתיים בכשלון</option>
+      </select>
+    </div>
+    <button class="refresh-btn" (click)="refreshDashboard()">🔄 רענן</button>
+  </div>
+</div>
+
+<div class="dashboard">
+  <div class="dashboard-grid">
+    <!-- סטטוס יומי חי -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">📊</span> סטטוס יומי חי
+      </div>
+      <div class="status-grid">
+        <div class="status-item status-waiting">
+          <span class="status-number">5</span>
+          <div class="status-label">ממתין לקליטה</div>
+        </div>
+        <div class="status-item status-processing">
+          <span class="status-number">3</span>
+          <div class="status-label">בתהליך קליטה</div>
+        </div>
+        <div class="status-item status-success">
+          <span class="status-number">47</span>
+          <div class="status-label">הצלחה</div>
+        </div>
+        <div class="status-item status-error">
+          <span class="status-number">2</span>
+          <div class="status-label">כישלון</div>
+        </div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-item">
+          <div class="kpi-value">57</div>
+          <div class="kpi-label">הרצות היום</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value">96%</div>
+          <div class="kpi-label">אחוז הצלחות</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value">4.2 דק'</div>
+          <div class="kpi-label">זמן קליטה ממוצע</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value">3.1 דק'</div>
+          <div class="kpi-label">זמן קליטה חציוני</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- תור קבצים ממתינים -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">⏳</span> תור קבצים ממתינים
+      </div>
+      <div class="queue-list">
+        <div class="queue-item">
+          <div>
+            <div class="queue-source">קבצי משכורות - בנק הפועלים</div>
+            <div class="queue-eta">ETA: 5 דקות | SLA: 10 דקות</div>
+          </div>
+          <span class="queue-status on-time">בזמן</span>
+        </div>
+        <div class="queue-item">
+          <div>
+            <div class="queue-source">דוחות יומיים - בנק לאומי</div>
+            <div class="queue-eta">ETA: 15 דקות | SLA: 10 דקות</div>
+          </div>
+          <span class="queue-status delayed">מתעכב</span>
+        </div>
+        <div class="queue-item">
+          <div>
+            <div class="queue-source">נתוני לקוחות - מזרחי טפחות</div>
+            <div class="queue-eta">ETA: 3 דקות | SLA: 15 דקות</div>
+          </div>
+          <span class="queue-status on-time">בזמן</span>
+        </div>
+        <div class="queue-item">
+          <div>
+            <div class="queue-source">תנועות חשבון - בנק דיסקונט</div>
+            <div class="queue-eta">ETA: 8 דקות | SLA: 12 דקות</div>
+          </div>
+          <span class="queue-status on-time">בזמן</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- שגיאות מובילות -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">⚠️</span> שגיאות מובילות (TOP 10)
+      </div>
+      <div class="error-list">
+        <div class="error-item" (click)="showErrorDetails(4)">
+          <div>
+            <div class="error-code">שדה אינו מספרי ייחודי</div>
+            <div style="font-size: 11px; color: #666;">עמודה: מספר זהות</div>
+          </div>
+          <span class="error-count">23</span>
+        </div>
+        <div class="error-item" (click)="showErrorDetails(20)">
+          <div>
+            <div class="error-code">שדה חובה אינו מלא</div>
+            <div style="font-size: 11px; color: #666;">עמודה: תאריך לידה</div>
+          </div>
+          <span class="error-count">18</span>
+        </div>
+        <div class="error-item" (click)="showErrorDetails(10)">
+          <div>
+            <div class="error-code">פורמט תאריך לא תקין</div>
+            <div style="font-size: 11px; color: #666;">עמודה: תאריך התחלה</div>
+          </div>
+          <span class="error-count">15</span>
+        </div>
+        <div class="error-item" (click)="showErrorDetails(31)">
+          <div>
+            <div class="error-code">ת.ז. לא קיימת במרשם</div>
+            <div style="font-size: 11px; color: #666;">עמודה: תעודת זהות</div>
+          </div>
+          <span class="error-count">12</span>
+        </div>
+        <div class="error-item" (click)="showErrorDetails(29)">
+          <div>
+            <div class="error-code">מייל אינו בפורמט תקין</div>
+            <div style="font-size: 11px; color: #666;">עמודה: כתובת מייל</div>
+          </div>
+          <span class="error-count">8</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- מקורות בעייתיים -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">🚨</span> מקורות בעייתיים
+      </div>
+      <div class="source-list">
+        <div class="source-item" (click)="goToSource(101)">
+          <div>
+            <div class="source-name">קבצי משכורות - חברה א'</div>
+            <div style="font-size: 11px; color: #666;">זמן קליטה: 15.2 דק' (ממוצע: 4.2 דק')</div>
+          </div>
+          <span class="failure-rate high-risk">25%</span>
+        </div>
+        <div class="source-item" (click)="goToSource(102)">
+          <div>
+            <div class="source-name">דוחות יומיים - מוסד ב'</div>
+            <div style="font-size: 11px; color: #666;">שורות פגומות: 18% מכלל השורות</div>
+          </div>
+          <span class="failure-rate high-risk">18%</span>
+        </div>
+        <div class="source-item" (click)="goToSource(103)">
+          <div>
+            <div class="source-name">נתוני תלמידים - מכללה ג'</div>
+            <div style="font-size: 11px; color: #666;">סטיית מספר רשומות: +/-15%</div>
+          </div>
+          <span class="failure-rate medium-risk">12%</span>
+        </div>
+        <div class="source-item" (click)="goToSource(104)">
+          <div>
+            <div class="source-name">קבצי חשבוניות - ספק ד'</div>
+            <div style="font-size: 11px; color: #666;">אחוז כישלון שבועי</div>
+          </div>
+          <span class="failure-rate medium-risk">8%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- הזרמה/תפוקה -->
+    <div class="card wide-card">
+      <div class="card-title">
+        <span class="icon">📈</span> הזרמה ותפוקה יומית
+      </div>
+      <div class="chart-container">
+        <div class="chart-placeholder">📊</div>
+        <div>גרף קצב קליטות לאורך היום</div>
+        <div style="font-size: 14px; margin-top: 10px; font-weight: 600; color: #333;">
+          1,247 קבצים | 245,891 רשומות
+        </div>
+      </div>
+    </div>
+
+    <!-- איכות נתונים -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">🎯</span> איכות נתונים (KPIs)
+      </div>
+      <div class="kpi-grid" style="grid-template-columns: 1fr;">
+        <div class="kpi-item">
+          <div class="kpi-value" style="background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">94.2%</div>
+          <div class="kpi-label">איכות נתונים כללית</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value" style="background: linear-gradient(135deg, #f44336 0%, #e91e63 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">5.8%</div>
+          <div class="kpi-label">שורות פגומות</div>
+        </div>
+      </div>
+      <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%); border-radius: 12px;">
+        <div style="margin-bottom: 12px; color: #666; font-weight: 600; font-size: 13px;">עמודות עם הכי הרבה הפרות:</div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 8px;">
+          <span style="font-weight: 500;">מספר זהות</span>
+          <span style="background: linear-gradient(135deg, #f44336 0%, #e91e63 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">34 הפרות</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 8px;">
+          <span style="font-weight: 500;">תאריך לידה</span>
+          <span style="background: linear-gradient(135deg, #f44336 0%, #e91e63 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">21 הפרות</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 8px;">
+          <span style="font-weight: 500;">כתובת מייל</span>
+          <span style="background: linear-gradient(135deg, #f44336 0%, #e91e63 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">18 הפרות</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- התראות אחרונות -->
+    <div class="card">
+      <div class="card-title">
+        <span class="icon">🔔</span> התראות אחרונות
+      </div>
+      <div class="alert-list">
+        <div class="alert-item">
+          <div class="alert-time">09:34</div>
+          <div class="alert-content">
+            <div class="alert-message">כישלון בקליטת קובץ משכורות - בנק הפועלים</div>
+            <div class="alert-recipient">נשלח ל: admin&#64;company.com, it&#64;company.com</div>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-time">08:15</div>
+          <div class="alert-content">
+            <div class="alert-message">עיכוב בעיבוד קבצי דוחות יומיים</div>
+            <div class="alert-recipient">נשלח ל: operations&#64;company.com</div>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-time">07:42</div>
+          <div class="alert-content">
+            <div class="alert-message">שיעור שגיאות גבוה במקור נתוני תלמידים</div>
+            <div class="alert-recipient">נשלח ל: datamanager&#64;company.com</div>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-time">06:30</div>
+          <div class="alert-content">
+            <div class="alert-message">התחלת תהליך קליטה יומי - כל המערכות</div>
+            <div class="alert-recipient">נשלח ל: monitoring&#64;company.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

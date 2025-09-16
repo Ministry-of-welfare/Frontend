@@ -1,9 +1,7 @@
-<div class="wizard-container fade-in">
-  <div class="wizard-steps">
-    <div class="step active">
-      <div class="step-number">🔍</div>
-      <div class="step-title">חיפוש וסינון</div>
-    </div>
+<div class="page" dir="rtl">
+  <div class="header">
+    <h1>📁 רשימת סוגי קבצים לקליטה</h1>
+    <div class="user-info">🔒 אופיר עצמון דוד — מנהל מערכת</div>
   </div>
   <div class="wizard-content">
     <form [formGroup]="form" (ngSubmit)="onSearch()">
@@ -28,6 +26,7 @@
             <option value="כל המערכות">כל המערכות</option>
             <option *ngFor="let sys of systems" [value]="sys.name">{{ sys.name }}</option>
           </select>
+
         </div>
         <div class="form-field full-width">
           <label class="form-label">חיפוש חופשי</label>
@@ -40,4 +39,6 @@
       </div>
     </form>
   </div>
+
+
 </div>

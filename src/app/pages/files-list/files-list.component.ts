@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SearchFileComponent } from '../../components/search-file/search-file.component';
 import { FilesViewComponent } from '../../components/files-view/files-view.component';
 import { SystemsService } from '../../services/systems/systems.service';
+import { SearchFileComponent } from '../../components/search-file/search-file.component';
 
 @Component({
   selector: 'app-files-list',
