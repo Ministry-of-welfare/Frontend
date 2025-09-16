@@ -1,20 +1,15 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SearchFileComponent } from '../../components/search-file/search-file.component';
 import { FilesViewComponent } from '../../components/files-view/files-view.component';
 
 @Component({
   selector: 'app-files-list',
   standalone: true,
-  imports: [RouterLink, SearchFileComponent, FilesViewComponent],
+  imports: [RouterLink, FilesViewComponent],
   template: `
     <div class="page-container">
-      <div class="page-header">
-        <h1>רשימת קבצים</h1>
-        <a routerLink="/add-file" class="add-btn">הוסף קובץ חדש</a>
-      </div>
-      <app-search-file (searchEvent)="onSearch($event)"></app-search-file>
-      <app-files-view [searchCriteria]="searchCriteria" (clearSearchEvent)="onClearSearch()"></app-files-view>
+
+      <app-files-view></app-files-view>
     </div>
   `,
   styles: [`
@@ -45,13 +40,4 @@ import { FilesViewComponent } from '../../components/files-view/files-view.compo
   `]
 })
 export class FilesListComponent {
-  searchCriteria: any = null;
-
-  onSearch(criteria: any) {
-    this.searchCriteria = { ...criteria };
-  }
-
-  onClearSearch() {
-    this.searchCriteria = null;
-  }
 }

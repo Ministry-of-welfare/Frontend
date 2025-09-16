@@ -1,222 +1,39 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  loading = false;
-  error: string | null = null;
   private refreshSubscription?: Subscription;
-  
-  // פילטרים
-  filters = {
-    fromDate: '',
-    toDate: '',
-    system: '',
-    source: '',
-    status: ''
-  };
-  
-  // נתונים דמי מפורטים
-  dummyFilters = {
-    systems: [
-      { id: 'crm', name: '🏢 מערכת CRM' },
-      { id: 'erp', name: '📊 מערכת ERP' },
-      { id: 'hr', name: '👥 מערכת HR' },
-      { id: 'finance', name: '💰 מערכת כספים' }
-    ],
-    sources: [
-      { id: 'api', name: '🔗 API חיצוני' },
-      { id: 'file', name: '📁 קבצים' },
-      { id: 'db', name: '🗄️ מסד נתונים' },
-      { id: 'stream', name: '🌊 זרם נתונים' }
-    ]
-  };
-  
-  dummyData = {
-    dailyStatus: {
-      pending: 12,
-      processing: 8,
-      success: 156,
-      failed: 3
-    },
-    kpis: {
-      totalRuns: 179,
-      successRate: 87.2,
-      avgTime: '2.3 דק',
-      medianTime: '1.8 דק',
-      slaCompliance: 94.5
-    },
-    queue: [
-      {
-        sourceName: 'מערכת CRM - לקוחות',
-        fileCount: 15,
-        totalSize: '2.3 GB',
-        eta: '10 דקות',
-        slaWindow: '15 דקות',
-        urgency: 'normal',
-        slaStatus: 'ok',
-        priority: 'medium',
-        icon: '🏢'
-      },
-      {
-        sourceName: 'API תשלומים חיצוני',
-        fileCount: 8,
-        totalSize: '890 MB',
-        eta: '25 דקות',
-        slaWindow: '20 דקות',
-        urgency: 'urgent',
-        slaStatus: 'risk',
-        priority: 'high',
-        icon: '💳'
-      },
-      {
-        sourceName: 'מערכת HR - נוכחות',
-        fileCount: 23,
-        totalSize: '1.1 GB',
-        eta: '8 דקות',
-        slaWindow: '30 דקות',
-        urgency: 'normal',
-        slaStatus: 'ok',
-        priority: 'low',
-        icon: '👥'
-      }
-    ],
-    topErrors: [
-      {
-        code: 'DB_CONNECTION_TIMEOUT',
-        description: 'תם הזמן לחיבור למסד הנתונים',
-        count: 12,
-        affectedFields: ['customer_id', 'transaction_date'],
-        trend: 'up',
-        trendIcon: '📈',
-        trendText: '+3 מהשעה'
-      },
-      {
-        code: 'INVALID_FILE_FORMAT',
-        description: 'פורמט קובץ לא תקין - CSV פגום',
-        count: 8,
-        affectedFields: ['email', 'phone_number'],
-        trend: 'down',
-        trendIcon: '📉',
-        trendText: '-2 מהשעה'
-      },
-      {
-        code: 'MEMORY_OVERFLOW',
-        description: 'חריגה בזיכרון במהלך עיבוד',
-        count: 5,
-        affectedFields: ['large_text_field'],
-        trend: 'stable',
-        trendIcon: '➡️',
-        trendText: 'יציב'
-      }
-    ],
-    problematicSources: [
-      {
-        id: 'old_crm',
-        name: 'מערכת לקוחות ישנה',
-        failureRate: 15.2,
-        avgTime: '8.5 דק',
-        riskLevel: 'high',
-        riskIcon: '🔴',
-        issues: ['זמן איטי', 'שגיאות רבות']
-      },
-      {
-        id: 'external_api',
-        name: 'API ספק חיצוני',
-        failureRate: 8.7,
-        avgTime: '12.1 דק',
-        riskLevel: 'medium',
-        riskIcon: '🟡',
-        issues: ['זמן חריג', 'סטיות נתונים']
-      },
-      {
-        id: 'reports_system',
-        name: 'מערכת דוחות פיננסיים',
-        failureRate: 12.1,
-        avgTime: '6.8 דק',
-        riskLevel: 'medium',
-        riskIcon: '🟠',
-        issues: ['שגיאות ולידציה']
-      }
-    ],
-    throughput: {
-      files: 1247,
-      records: 89653,
-      dataVolume: '15.2 GB'
-    },
-    dataQuality: {
-      overallScore: 87,
-      corruptedRowsPercent: 0.3,
-      corruptedRows: 267,
-      totalRows: 89653,
-      violationColumns: [
-        { name: 'customer_email', violations: 45 },
-        { name: 'phone_number', violations: 23 },
-        { name: 'birth_date', violations: 12 }
-      ],
-      sourceQuality: [
-        { sourceName: 'CRM', qualityScore: 92 },
-        { sourceName: 'ERP', qualityScore: 88 },
-        { sourceName: 'HR', qualityScore: 85 }
-      ]
-    },
-    recentAlerts: [
-      {
-        time: '14:32',
-        message: 'עומס גבוה במערכת CRM - זמן תגובה חורג',
-        severity: 'high',
-        severityText: 'גבוהה',
-        sentTo: 'צוות תפעול',
-        about: 'ביצועים',
-        handlingStatus: 'active',
-        handlingStatusText: 'בטיפול'
-      },
-      {
-        time: '13:15',
-        message: 'כשל זמני בחיבור למסד נתונים ראשי',
-        severity: 'medium',
-        severityText: 'בינונית',
-        sentTo: 'מנהל מערכת',
-        about: 'תשתית',
-        handlingStatus: 'resolved',
-        handlingStatusText: 'נפתר'
-      },
-      {
-        time: '12:45',
-        message: 'עדכון מערכת הושלם בהצלחה - כל השירותים פעילים',
-        severity: 'low',
-        severityText: 'נמוכה',
-        sentTo: 'כל הצוות',
-        about: 'עדכון מערכת',
-        handlingStatus: 'completed',
-        handlingStatusText: 'הושלם'
-      }
-    ]
-  };
 
-  constructor() {
-    // אתחול תאריכים ברירת מחדל
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    this.filters.fromDate = yesterday.toISOString().split('T')[0];
-    this.filters.toDate = today.toISOString().split('T')[0];
-  }
+  constructor() {}
 
   ngOnInit(): void {
     // רענון אוטומטי כל 30 שניות
     this.refreshSubscription = interval(30000).subscribe(() => {
       console.log('רענון אוטומטי של נתונים...');
+      this.simulateLiveData();
     });
+
+    // סימולציה של נתונים חיים כל 10 שניות
+    setInterval(() => this.simulateLiveData(), 10000);
+
+    // אנימציית טעינה ראשונית
+    setTimeout(() => {
+      this.initializeCards();
+    }, 100);
+
+    // הוספת אפקט Ripple לכפתורים
+    this.addRippleEffect();
+
+    // הוספת CSS לאנימציית Ripple
+    this.addRippleCSS();
   }
 
   ngOnDestroy(): void {
@@ -225,46 +42,140 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  onFiltersChange(): void {
-    console.log('פילטרים השתנו:', this.filters);
-    // כאן תוכל להוסיף לוגיקה לסינון הנתונים
+  refreshDashboard(): void {
+    const btn = document.querySelector('.refresh-btn') as HTMLElement;
+    if (btn) {
+      btn.style.background = 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)';
+      btn.innerHTML = '⏳ מרענן...';
+      
+      setTimeout(() => {
+        btn.style.background = 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)';
+        btn.innerHTML = '✅ עודכן';
+        
+        setTimeout(() => {
+          btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+          btn.innerHTML = '🔄 רענן';
+        }, 2000);
+      }, 1500);
+      
+      console.log('רענון דשבורד...');
+    }
   }
 
-  clearFilters(): void {
-    this.filters = {
-      fromDate: '',
-      toDate: '',
-      system: '',
-      source: '',
-      status: ''
-    };
-    this.onFiltersChange();
+  showErrorDetails(errorId: number): void {
+    const errorItems = document.querySelectorAll('.error-item');
+    errorItems.forEach(item => {
+      (item as HTMLElement).style.transform = 'scale(0.95)';
+      (item as HTMLElement).style.opacity = '0.7';
+    });
+    
+    setTimeout(() => {
+      errorItems.forEach(item => {
+        (item as HTMLElement).style.transform = 'scale(1)';
+        (item as HTMLElement).style.opacity = '1';
+      });
+      alert(`הצגת פרטי שגיאה מספר: ${errorId}\nכאן יוצג חלון עם דוגמאות ופירוט השגיאה`);
+    }, 200);
   }
 
-  onRefreshClick(): void {
-    console.log('רענון ידני של הנתונים');
-    // כאן תוכל להוסיף לוגיקה לרענון
+  goToSource(sourceId: number): void {
+    const sourceItems = document.querySelectorAll('.source-item');
+    sourceItems.forEach(item => {
+      (item as HTMLElement).style.transform = 'translateX(-10px)';
+      (item as HTMLElement).style.opacity = '0.7';
+    });
+    
+    setTimeout(() => {
+      sourceItems.forEach(item => {
+        (item as HTMLElement).style.transform = 'translateX(0)';
+        (item as HTMLElement).style.opacity = '1';
+      });
+      alert(`מעבר למסך ניהול מקור מספר: ${sourceId}`);
+    }, 200);
   }
 
-  onErrorClick(errorCode: string): void {
-    console.log('פרטי שגיאה:', errorCode);
-    // כאן תוכל להציג פופאפ או לנווט לעמוד פרטים
+  private simulateLiveData(): void {
+    const statusNumbers = document.querySelectorAll('.status-number');
+    statusNumbers.forEach(element => {
+      const currentValue = parseInt(element.textContent || '0');
+      const newValue = currentValue + (Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0);
+      
+      if (newValue >= 0) {
+        (element as HTMLElement).style.transform = 'scale(1.2)';
+        (element as HTMLElement).style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+          element.textContent = newValue.toString();
+          (element as HTMLElement).style.transform = 'scale(1)';
+        }, 150);
+      }
+    });
+    
+    const kpiValues = document.querySelectorAll('.kpi-value');
+    kpiValues.forEach(element => {
+      (element as HTMLElement).style.transform = 'translateY(-2px)';
+      setTimeout(() => {
+        (element as HTMLElement).style.transform = 'translateY(0)';
+      }, 300);
+    });
   }
 
-  navigateToSource(sourceId: string): void {
-    console.log('ניווט למקור:', sourceId);
-    // כאן תוכל לנווט לעמוד פרטי המקור
+  private initializeCards(): void {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+      (card as HTMLElement).style.opacity = '0';
+      (card as HTMLElement).style.transform = 'translateY(30px)';
+      
+      setTimeout(() => {
+        (card as HTMLElement).style.transition = 'all 0.6s ease';
+        (card as HTMLElement).style.opacity = '1';
+        (card as HTMLElement).style.transform = 'translateY(0)';
+      }, index * 100);
+    });
   }
 
-  getLastUpdateTime(): string {
-    return new Date().toLocaleTimeString('he-IL');
+  private addRippleEffect(): void {
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.matches('.error-item, .source-item, .queue-item, .refresh-btn')) {
+        this.createRippleEffect(e);
+      }
+    });
   }
 
-  getQualityScoreClass(): string {
-    const score = this.dummyData.dataQuality.overallScore;
-    if (score >= 90) return 'excellent';
-    if (score >= 80) return 'good';
-    if (score >= 70) return 'fair';
-    return 'poor';
+  private createRippleEffect(event: MouseEvent): void {
+    const element = event.currentTarget as HTMLElement;
+    const rect = element.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    
+    ripple.style.position = 'absolute';
+    ripple.style.borderRadius = '50%';
+    ripple.style.background = 'rgba(102, 126, 234, 0.3)';
+    ripple.style.transform = 'scale(0)';
+    ripple.style.animation = 'ripple 0.6s linear';
+    ripple.style.left = (event.clientX - rect.left - 10) + 'px';
+    ripple.style.top = (event.clientY - rect.top - 10) + 'px';
+    ripple.style.width = '20px';
+    ripple.style.height = '20px';
+    
+    element.style.position = 'relative';
+    element.appendChild(ripple);
+    
+    setTimeout(() => {
+      ripple.remove();
+    }, 600);
+  }
+
+  private addRippleCSS(): void {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes ripple {
+        to {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
   }
 }

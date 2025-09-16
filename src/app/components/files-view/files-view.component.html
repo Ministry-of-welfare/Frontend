@@ -1,121 +1,147 @@
-<div class="container">
-  <!-- כותרת + מתגי תצוגה -->
+<div class="page">
   <div class="header">
-    <h2>רשימת קבצים</h2>
-    <div class="view-toggle">
-      <button [class.active]="viewMode === 'cards'" (click)="setView('cards')">כרטיסיות</button>
-      <button [class.active]="viewMode === 'table'" (click)="setView('table')">טבלה</button>
+    <div class="header-content">
+      <div>
+        <h1>📁 רשימת סוגי קבצים לקליטה</h1>
+        <div class="breadcrumb">
+          <a href="#dashboard">דשבורד</a> 
+          <span>→</span> 
+          <a href="#files">ניהול קבצים</a> 
+          <span>→</span> 
+          <span>רשימת קבצים</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- מצב טעינה -->
-  <div *ngIf="loading" class="loading">טוען נתונים...</div>
+  <section class="panel">
+    <div class="search-row">
+      <div class="form-group">
+        <label>סטטוס</label>
+        <select [(ngModel)]="filters.status" (change)="onFiltersChange()">
+          <option value="">כל הסטטוסים</option>
+          <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>סוג קליטה</label>
+        <select [(ngModel)]="filters.type" (change)="onFiltersChange()">
+          <option value="">כל הסוגים</option>
+          <option *ngFor="let type of typeOptions" [value]="type.value">{{ type.label }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>מערכת</label>
+        <select [(ngModel)]="filters.system" (change)="onFiltersChange()">
+          <option value="">כל המערכות</option>
+          <option *ngFor="let system of systemOptions" [value]="system.value">{{ system.label }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>חיפוש חופשי</label>
+        <input type="text" [(ngModel)]="filters.search" placeholder="הזנה חיפוש של שם עבודה או טלפון או אימייל..."/>
+      </div>
+      <button class="search-btn" (click)="performSearch()">🔍 חיפוש</button>
+    </div>
+  </section>
 
-  <!-- אין תוצאות -->
-  <div *ngIf="!loading && displayedProcesses.length === 0" class="no-results">
-    <h3>לא נמצאו תוצאות</h3>
-    <p>נסה לשנות את קריטריוני החיפוש</p>
-  </div>
+  <section class="panel">
+    <div class="controls-row">
+      <div class="right">
+        <button [class.active]="viewMode === 'table'" class="toggle-btn" (click)="setView('table')">📊 טבלה</button>
+        <button [class.active]="viewMode === 'cards'" class="toggle-btn" (click)="setView('cards')">🃏 כרטיסים</button>
+      </div>
 
-  <!-- כרטיסיות -->
-  <!-- Table View -->
-  <div *ngIf="viewMode === 'table' && !loading" class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>פעולות</th><th>עדכון אחרון</th><th>תאריך יצירה</th><th>סטטוס</th>
-          <th>סוג קליטה</th><th>מערכת</th><th>שם עבודה</th><th>תיאור</th><th>מזהה</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of displayedProcesses; let i = index">
-          <td>
-            <div class="actions">
-              <button class="action-btn delete-btn" (click)="openDeleteDialog(p)">🗑️</button>
-              <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
-              <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
-            </div>
-          </td>
-          <td>{{ p.endDate || '—' }}</td>
-          <td>{{ p.createdDate || p.startDate || '—' }}</td>
-          <td><span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ formatStatus(p.status) }}</span></td>
-          <td>{{ p.dataSourceTypeId || '—' }}</td>
-          <td>{{ p.systemId || '—' }}</td>
-          <td>{{ p.jobName || p.tableName || '—' }}</td>
-          <td>{{ p.importDataSourceDesc || '—' }}</td>
-          <td>{{ i + 1 }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    </div>
+  </section>
 
-  <!-- Cards View -->
-  <div *ngIf="viewMode === 'cards' && !loading" class="cards">
-    <article class="job-card" *ngFor="let p of displayedProcesses">
-      <div class="card-header">
-        <div>
-          <div class="card-title">{{ p.importDataSourceDesc || 'ללא תיאור' }}</div>
-          <div class="card-subtitle">{{ p.jobName || p.tableName || '—' }}</div>
+  <section class="panel">
+    <!-- מצב טעינה -->
+    <div *ngIf="loading" class="loading">טוען נתונים...</div>
+
+    <!-- אין תוצאות -->
+    <div *ngIf="!loading && displayedProcesses.length === 0" class="no-results-search">
+      <div class="no-results-icon">🔍</div>
+      <h3>לא נמצאו תוצאות לחיפוש</h3>
+      <p>נסה לשנות את קריטריוני החיפוש או לנסות חיפוש אחר</p>
+    </div>
+    <!-- CARDS VIEW -->
+    <div *ngIf="viewMode === 'cards' && !loading" class="cards-view">
+      <article class="job-card" *ngFor="let p of displayedProcesses">
+        <div class="card-header">
+          <div>
+            <div class="card-title">{{ p.importDataSourceDesc || 'ללא תיאור' }}</div>
+            <div class="card-subtitle">{{ p.jobName || p.tableName || '—' }}</div>
+          </div>
+          <span class="status-badge" [ngClass]="getStatusClass(p.status)">
+            {{ formatStatus(p.status) }}
+          </span>
         </div>
-        <span class="status-badge" [ngClass]="getStatusClass(p.status)">
-          {{ formatStatus(p.status) }}
-        </span>
-      </div>
 
-      <div class="card-details">
-        <div class="row"><span class="label">מערכת:</span><span class="value">{{ p.systemId || '—' }}</span></div>
-        <div class="row"><span class="label">סוג קליטה:</span><span class="value">{{ p.dataSourceTypeId || '—' }}</span></div>
-        <div class="row"><span class="label">תאריך יצירה:</span><span class="value">{{ p.createdDate || p.startDate || '—' }}</span></div>
-        <div class="row"><span class="label">עדכון אחרון:</span><span class="value">{{ p.endDate || '—' }}</span></div>
-        <div class="row"><span class="label">קוד עבודה:</span><span class="value">{{ p.jobName || '—' }}</span></div>
-      </div>
+        <div class="card-details">
+          <div class="row"><span class="label">מערכת:</span><span class="value">{{ p.systemId || '—' }}</span></div>
+          <div class="row"><span class="label">סוג קליטה:</span><span class="value">{{ p.dataSourceTypeId || '—' }}</span></div>
+          <div class="row"><span class="label">תאריך יצירה:</span><span class="value">{{ p.createdDate || p.startDate || '—' }}</span></div>
+          <div class="row"><span class="label">עדכון אחרון:</span><span class="value">{{ p.endDate || '—' }}</span></div>
+          <div class="row"><span class="label">קוד עבודה:</span><span class="value">{{ p.jobName || '—' }}</span></div>
+        </div>
 
-      <div class="card-actions">
-        <button class="action-btn delete-btn" (click)="openDeleteDialog(p)">🗑️</button>
-        <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
-        <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
-      </div>
-    </article>
-  </div>
+        <div class="card-actions">
+          <button class="action-btn delete-btn" (click)="openDeleteDialog(p)">🗑️</button>
+          <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
+          <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
+        </div>
+      </article>
+    </div>
 
-  <!-- טבלה -->
-  <div *ngIf="viewMode === 'table' && !loading" class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>תיאור</th>
-          <th>שם טבלה</th>
-          <th>שם עבודה</th>
-          <th>מערכת</th>
-          <th>סוג קליטה</th>
-          <th>סטטוס</th>
-          <th>תאריך יצירה</th>
-          <th>עדכון אחרון</th>
-          <th>פעולות</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of displayedProcesses; let i = index">
-          <td>{{ i + 1 }}</td>
-          <td>{{ p.importDataSourceDesc || '—' }}</td>
-          <td>{{ p.tableName || '—' }}</td>
-          <td>{{ p.jobName || '—' }}</td>
-          <td>{{ p.systemId || '—' }}</td>
-          <td>{{ p.dataSourceTypeId || '—' }}</td>
-          <td><span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ formatStatus(p.status) }}</span></td>
-          <td>{{ p.createdDate || p.startDate || '—' }}</td>
-          <td>{{ p.endDate || '—' }}</td>
-          <td>
-            <div class="actions">
-              <button class="action-btn delete-btn" (click)="openDeleteDialog(p)">🗑️</button>
-              <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
-              <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- TABLE VIEW -->
+    <div *ngIf="viewMode === 'table' && !loading">
+      <table>
+        <thead>
+          <tr>
+            <th>פעולות</th>
+            <th>עדכון אחרון</th>
+            <th>תאריך יצירה</th>
+            <th>סטטוס</th>
+            <th>סוג קליטה</th>
+            <th>מערכת</th>
+            <th>שם עבודה</th>
+            <th>תיאור</th>
+            <th>מזהה</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of displayedProcesses; let i = index">
+            <td>
+              <div class="actions">
+                <button class="action-btn delete-btn" (click)="openDeleteDialog(p)">🗑️</button>
+                <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
+                <button class="action-btn view-btn" (click)="openViewDialog(p)">👁️</button>
+              </div>
+            </td>
+            <td>{{ p.endDate || '—' }}</td>
+            <td>{{ p.createdDate || p.startDate || '—' }}</td>
+            <td><span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ formatStatus(p.status) }}</span></td>
+            <td>{{ p.dataSourceTypeId || '—' }}</td>
+            <td>{{ p.systemId || '—' }}</td>
+            <td>{{ p.jobName || '—' }}</td>
+            <td>{{ p.importDataSourceDesc || '—' }}</td>
+            <td>{{ i + 1 }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="pagination">
+    <button (click)="goToPage(1)" [disabled]="currentPage === 1">❮❮</button>
+    <button (click)="previousPage()" [disabled]="currentPage === 1">❮</button>
+    <span>עמוד {{ currentPage }} מתוך {{ totalPages }} דפים</span>
+    <button *ngFor="let page of getVisiblePages()" 
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)">{{ page }}</button>
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages">❯</button>
+    <button (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">❯❯</button>
   </div>
 
   <!-- דיאלוג עריכה -->
@@ -129,18 +155,21 @@
   ></app-edit-process-dialog>
 
   <!-- דיאלוג מחיקה -->
-  <div class="backdrop" *ngIf="deleteDialogVisible" (click)="onBackdropClick($event)">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <button class="close-x" (click)="closeDeleteDialog()" aria-label="סגור">
-        ✖
-      </button>
-      <div class="modal-head">
-        <p class="modal-title">מחיקה</p>
-      </div>
-      <p class="modal-text">האם אתה בטוח שברצונך למחוק?</p>
-      <div class="modal-actions">
-        <button class="btn btn-danger" (click)="confirmDelete()">אישור</button>
-        <button class="btn btn-outline" (click)="closeDeleteDialog()">ביטול</button>
+  <div *ngIf="deleteDialogVisible" class="delete-backdrop" (click)="closeDeleteDialog()">
+    <div class="delete-modal" (click)="$event.stopPropagation()">
+      <div class="delete-icon">🗑️</div>
+      <h3 class="delete-title">מחיקת פריט</h3>
+      <p class="delete-message">
+        האם אתה בטוח שברצונך למחוק את<br>
+        <strong>"{{ selectedProcessToDelete?.importDataSourceDesc || selectedProcessToDelete?.jobName || 'הפריט הנבחר' }}"</strong>?
+      </p>
+      <div class="delete-actions">
+        <button class="delete-confirm-btn" (click)="confirmDelete()">
+          ✓ אישור מחיקה
+        </button>
+        <button class="delete-cancel-btn" (click)="closeDeleteDialog()">
+          ✕ ביטול
+        </button>
       </div>
     </div>
   </div>
