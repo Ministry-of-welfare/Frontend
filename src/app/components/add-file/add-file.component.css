@@ -142,11 +142,13 @@
         .step:last-child::after {
             display: none;
         }
-        .step-check {
-  font-size: 2rem;
-  /* color: #43a047; */
+        
+  .step-check {
+  font-size: 1.2rem;
+  color: #43a047;
   font-weight: bold;
-  margin-right: 8px;
+  margin-right: 4px;
+  vertical-align: middle;
 }
         .step.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
