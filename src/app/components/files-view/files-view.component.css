@@ -24,40 +24,65 @@ body{
 
 .page{
   width:100%; 
-  padding:20px 24px; 
-  margin-inline:0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
 }
 
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:25px;
-  padding: 20px 0;
+.header {
+  direction: rtl;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  color: #333;
+  padding: 25px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin-bottom: 20px;
 }
 
-.header h1{
+.header-content {
+  direction: rtl;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 28px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -1px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  position: relative;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 0;
 }
 
-.header h1::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 60px;
-  height: 4px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 2px;
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #666;
 }
+
+.breadcrumb a {
+  color: #667eea;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.breadcrumb a:hover {
+  color: #764ba2;
+}
+
+
 
 .user-info{
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
@@ -94,7 +119,7 @@ body{
   padding:18px; 
   box-shadow:var(--shadow); 
   border:1px solid var(--stroke); 
-  margin-bottom:12px;
+  margin: 0 20px 20px 20px;
 }
 
 .search-row{
@@ -439,7 +464,7 @@ tbody tr:hover{
   justify-content:center; 
   align-items:center; 
   gap:10px; 
-  margin-top:18px; 
+  margin: 20px;
   padding:14px;
 }
 

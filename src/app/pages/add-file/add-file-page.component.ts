@@ -9,8 +9,8 @@ import { AddFileComponent } from '../../components/add-file/add-file.component';
   template: `
     <div class="page-container">
       <div class="page-header">
-        <h1>הוספת קובץ חדש</h1>
-        <a routerLink="/files" class="back-btn">חזרה לרשימה</a>
+        <!-- <h1>הוספת קובץ חדש</h1>
+        <a routerLink="/files" class="back-btn">חזרה לרשימה</a> -->
       </div>
       <app-add-file></app-add-file>
     </div>

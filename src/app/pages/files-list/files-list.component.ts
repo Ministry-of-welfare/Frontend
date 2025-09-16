@@ -8,10 +8,7 @@ import { FilesViewComponent } from '../../components/files-view/files-view.compo
   imports: [RouterLink, FilesViewComponent],
   template: `
     <div class="page-container">
-      <div class="page-header">
-        <h1>רשימת קבצים</h1>
-        <a routerLink="/add-file" class="add-btn">הוסף קובץ חדש</a>
-      </div>
+
       <app-files-view></app-files-view>
     </div>
   `,
