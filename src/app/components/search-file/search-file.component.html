@@ -3,42 +3,39 @@
     <h1>📁 רשימת סוגי קבצים לקליטה</h1>
     <div class="user-info">🔒 אופיר עצמון דוד — מנהל מערכת</div>
   </div>
-  <div class="wizard-content">
+  <section class="panel">
     <form [formGroup]="form" (ngSubmit)="onSearch()">
-      <div class="form-grid">
-        <div class="form-field">
-          <label class="form-label">סטטוס</label>
-          <select formControlName="status" class="form-select">
+      <div class="search-row">
+        <div class="form-group">
+          <label>סטטוס</label>
+          <select formControlName="status">
             <option value="כל הסטטוסים">כל הסטטוסים</option>
             <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
           </select>
         </div>
-        <div class="form-field">
-          <label class="form-label">סוג קליטה</label>
-          <select formControlName="type" class="form-select">
+        <div class="form-group">
+          <label>סוג קליטה</label>
+          <select formControlName="type">
             <option value="כל הסוגים">כל הסוגים</option>
             <option *ngFor="let t of types" [value]="t.name">{{ t.name }}</option>
           </select>
         </div>
-        <div class="form-field">
-          <label class="form-label">מערכת</label>
-          <select formControlName="system" class="form-select">
+        <div class="form-group">
+          <label>מערכת</label>
+          <select formControlName="system">
             <option value="כל המערכות">כל המערכות</option>
             <option *ngFor="let sys of systems" [value]="sys.name">{{ sys.name }}</option>
           </select>
-
         </div>
-        <div class="form-field full-width">
-          <label class="form-label">חיפוש חופשי</label>
-          <input type="text" formControlName="query" class="form-input" placeholder="הזנה חיפוש של שם עבודה או טלפון או אימייל..."/>
+        <div class="form-group">
+          <label>חיפוש חופשי</label>
+          <input type="text" formControlName="query" placeholder="הזנה חיפוש של שם עבודה או טלפון או אימייל..."/>
         </div>
-      </div>
-      <div class="actions-section">
         <button type="button" class="btn btn-secondary" (click)="onClear()">🗑️ נקה סינון</button>
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid">🔍 חיפוש</button>
+        <button type="submit" class="search-btn">🔍 חיפוש</button>
       </div>
     </form>
-  </div>
+  </section>
 
 
 </div>
