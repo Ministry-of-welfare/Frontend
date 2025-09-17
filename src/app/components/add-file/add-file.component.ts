@@ -3,6 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { ImportDataSources } from '../../models/importDataSources.model';
+import { SystemsService } from '../../services/systems/systems.service';
+import { DataSourceTypeService } from '../../services/dataSuorceType/data-source-type.service';
+import { Systems } from '../../models/systems.model';
+import { DataSourceType } from '../../models/dataSourceType.model';
 
 interface Column {
   order: number;
@@ -39,7 +43,13 @@ export class AddFileComponent implements OnInit {
     return true;
   }
   columnErrors: { nameEng?: string; nameHeb?: string }[] = [];
-  constructor(private importDS: ImportDataSourceService) {}
+  dataSourceOptions: DataSourceType[] = [];
+  systemOptions: Systems[] = [];
+  constructor(
+    private importDS: ImportDataSourceService,
+    private systemsService: SystemsService,
+    private dataSourceTypeService: DataSourceTypeService
+  ) {}
   tableName = '';
 
   submitGeneralDetails() {
@@ -87,25 +97,31 @@ currentStep = 1;
   successMessageVisible = false;
   errorMessageVisible = false;
   creatingFile = false;
-
-  dataSourceOptions = [
-    { value: '1', label: 'טעינה בלבד' },
-    { value: '2', label: 'טעינה ובדיקת פורמט' },
-    { value: '3', label: 'טעינה ועיבוד (טעינה + בדיקת פורמט + בדיקות דאטה)' },
-  ];
-
-  systemOptions = [
-    { value: '1', label: 'מערכת כספות ראשית' },
-    { value: '2', label: 'מערכת גיבוי' },
-    { value: '3', label: 'מערכת דיווחים' },
-    { value: '4', label: 'מערכת משאבי אנוש' },
-  ];
-
-
+  // ...existing code...
 
   ngOnInit(): void {
-  this.initColumns();
-  this.loadDraft();
+    this.initColumns();
+    this.loadDraft();
+    this.loadOptionsFromServer();
+  }
+
+  loadOptionsFromServer() {
+    this.systemsService.getAll().subscribe({
+      next: (data: Systems[]) => {
+        this.systemOptions = data;
+      },
+      error: (err: any) => {
+        console.error('שגיאה בטעינת מערכות:', err);
+      }
+    });
+    this.dataSourceTypeService.getAll().subscribe({
+      next: (data: DataSourceType[]) => {
+        this.dataSourceOptions = data;
+      },
+      error: (err: any) => {
+        console.error('שגיאה בטעינת סוגי קליטה:', err);
+      }
+    });
   }
 
   initColumns() {
@@ -284,7 +300,12 @@ currentStep = 1;
     }
   }
   getDataSourceLabel(): string {
-  const opt = this.dataSourceOptions?.find(opt => opt.value === this.dataSourceType);
-  return opt ? opt.label : '';
-}
+    const opt = this.dataSourceOptions?.find(opt => String(opt.DataSourceTypeId) === this.dataSourceType);
+    return opt ? (opt.dataSourceTypeDesc || String(opt.DataSourceTypeId)) : '';
+  }
+
+  getSystemLabel(): string {
+    const opt = this.systemOptions?.find(opt => String(opt.SystemId) === this.systemType);
+    return opt ? (opt.systemName || String(opt.SystemId)) : '';
+  }
 }
