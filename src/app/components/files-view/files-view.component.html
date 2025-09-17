@@ -1,17 +1,6 @@
 <div class="page">
   <div class="header">
-    <div class="header-content">
-      <div>
-        <h1>📁 רשימת סוגי קבצים לקליטה</h1>
-        <div class="breadcrumb">
-          <a href="#dashboard">דשבורד</a> 
-          <span>→</span> 
-          <a href="#files">ניהול קבצים</a> 
-          <span>→</span> 
-          <span>רשימת קבצים</span>
-        </div>
-      </div>
-    </div>
+    <h1>📁 רשימת סוגי קבצים לקליטה</h1>
   </div>
 
   <section class="panel">
@@ -79,8 +68,8 @@
         </div>
 
         <div class="card-details">
-          <div class="row"><span class="label">מערכת:</span><span class="value">{{ p.systemId || '—' }}</span></div>
-          <div class="row"><span class="label">סוג קליטה:</span><span class="value">{{ p.dataSourceTypeId || '—' }}</span></div>
+          <div class="row"><span class="label">מערכת:</span><span class="value">{{ getSystemName(p.systemId) }}</span></div>
+          <div class="row"><span class="label">סוג קליטה:</span><span class="value">{{ getTypeName(p.dataSourceTypeId) }}</span></div>
           <div class="row"><span class="label">תאריך יצירה:</span><span class="value">{{ p.createdDate || p.startDate || '—' }}</span></div>
           <div class="row"><span class="label">עדכון אחרון:</span><span class="value">{{ p.endDate || '—' }}</span></div>
           <div class="row"><span class="label">קוד עבודה:</span><span class="value">{{ p.jobName || '—' }}</span></div>

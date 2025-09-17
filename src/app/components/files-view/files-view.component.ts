@@ -47,6 +47,49 @@ export class FilesViewComponent implements OnInit, OnChanges {
   itemsPerPage = 10;
   totalPages = 1;
 
+  // נתוני פאנל צד ימין
+  liveStats = {
+    processedToday: 0,
+    activeJobs: 0,
+    successRate: 0
+  };
+
+  pendingFiles = [
+    { name: 'קובץ לקוחות.csv', waitTime: '5 דק\'', position: 1 },
+    { name: 'נתוני מכירות.xlsx', waitTime: '12 דק\'', position: 2 },
+    { name: 'דוח חודשי.pdf', waitTime: '18 דק\'', position: 3 }
+  ];
+
+  topErrors = [
+    { type: 'שגיאת פורמט CSV', count: 15 },
+    { type: 'קובץ לא נמצא', count: 8 },
+    { type: 'שגיאת הרשאות', count: 5 }
+  ];
+
+  throughputStats = {
+    currentRate: 45,
+    dailyVolume: 2.3,
+    avgProcessTime: 3.2
+  };
+
+  dataQuality = {
+    completeness: 94,
+    accuracy: 87,
+    consistency: 91
+  };
+
+  recentAlerts = [
+    { message: 'עומס גבוה במערכת', time: 'לפני 5 דק\'', severity: 'warning' },
+    { message: 'שגיאה בעיבוד קובץ', time: 'לפני 12 דק\'', severity: 'error' },
+    { message: 'עדכון מערכת הושלם', time: 'לפני 25 דק\'', severity: 'info' }
+  ];
+
+  problematicAreas = [
+    { location: 'שרת עיבוד #2', description: 'ביצועים איטיים', severity: 'medium' },
+    { location: 'מסד נתונים ראשי', description: 'שימוש גבוה בזיכרון', severity: 'high' },
+    { location: 'רשת פנימית', description: 'חיבור לא יציב', severity: 'low' }
+  ];
+
   constructor(
     private importDS: ImportDataSourceService, 
     private router: Router,
@@ -56,8 +99,10 @@ export class FilesViewComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
-    this.loadProcesses();
     this.loadFilterOptionsFromServices();
+    this.loadProcesses();
+    this.loadLiveStats();
+    this.startLiveUpdates();
     console.log('Component initialized');
   }
 
@@ -68,19 +113,22 @@ export class FilesViewComponent implements OnInit, OnChanges {
   loadProcesses(): void {
     this.loading = true;
     
-    this.importDS.getAll().subscribe({
-      next: (data) => {
-        this.processes = data || [];
-        console.log('Loaded processes:', this.processes.length);
-        this.applyFilters();
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('שגיאה בקבלת נתונים מהשרת:', err);
-        this.processes = [];
-        this.loading = false;
-      }
-    });
+    // המתנה קצרה לטעינת אפשרויות הפילטר
+    setTimeout(() => {
+      this.importDS.getAll().subscribe({
+        next: (data) => {
+          this.processes = data || [];
+          console.log('Loaded processes:', this.processes.length);
+          this.applyFilters();
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('שגיאה בקבלת נתונים מהשרת:', err);
+          this.processes = [];
+          this.loading = false;
+        }
+      });
+    }, 500);
   }
   
 
@@ -247,6 +295,18 @@ export class FilesViewComponent implements OnInit, OnChanges {
     }
   }
 
+  getSystemName(systemId: string): string {
+    if (!systemId) return '—';
+    const system = this.systemOptions.find(s => s.value == systemId);
+    return system ? system.label : systemId;
+  }
+
+  getTypeName(typeId: string): string {
+    if (!typeId) return '—';
+    const type = this.typeOptions.find(t => t.value == typeId);
+    return type ? type.label : typeId;
+  }
+
   openEditDialog(process: any) {
     this.dialogIsEdit = true;
     this.dialogIsView = false;
@@ -363,6 +423,47 @@ export class FilesViewComponent implements OnInit, OnChanges {
     if (event.target === event.currentTarget) {
       this.closeDeleteDialog();
     }
+  }
+
+  // מתודות לפאנל הנתונים
+  loadLiveStats(): void {
+    // חישוב סטטיסטיקות מהנתונים הקיימים
+    const today = new Date().toISOString().split('T')[0];
+    const todayProcesses = this.processes.filter(p => 
+      p.createdDate && p.createdDate.toString().split('T')[0] === today
+    );
+    
+    this.liveStats.processedToday = todayProcesses.length;
+    this.liveStats.activeJobs = this.processes.filter(p => p.status === 'active').length;
+    
+    const successfulProcesses = this.processes.filter(p => p.status === 'active' || p.endDate);
+    this.liveStats.successRate = this.processes.length > 0 ? 
+      Math.round((successfulProcesses.length / this.processes.length) * 100) : 0;
+  }
+
+  startLiveUpdates(): void {
+    // עדכון נתונים כל 30 שניות
+    setInterval(() => {
+      this.updateLiveData();
+    }, 30000);
+  }
+
+  updateLiveData(): void {
+    // סימולציה של עדכון נתונים חיים
+    this.liveStats.processedToday += Math.floor(Math.random() * 3);
+    this.liveStats.activeJobs = Math.max(0, this.liveStats.activeJobs + Math.floor(Math.random() * 3) - 1);
+    
+    // עדכון תור קבצים
+    this.pendingFiles.forEach(file => {
+      const currentWait = parseInt(file.waitTime);
+      if (currentWait > 1) {
+        file.waitTime = (currentWait - 1) + ' דק\'';
+      }
+    });
+    
+    // עדכון throughput
+    this.throughputStats.currentRate = 40 + Math.floor(Math.random() * 20);
+    this.throughputStats.dailyVolume = Math.round((2 + Math.random() * 2) * 10) / 10;
   }
 
 }
