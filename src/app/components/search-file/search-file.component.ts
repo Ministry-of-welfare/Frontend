@@ -95,8 +95,13 @@ import { Systems } from '../../models/systems.model';
   }
 
   ngOnInit() {
+  //   this.ImportStatusService.getAll().subscribe(data => {
+  //     this.statuses= data.map(item => item.importStatusDesc)
+  // .filter((t): t is string => t !== undefined);
+  // console.log(data)
+  //   });
     // השארת הקוד המקורי כהערה למקרה שתרצי לחזור אליו
-    /*
+    
     this.ImportStatusService.getAll().subscribe(data => {
       this.statuses= data.map(item => item.importStatusDesc)
   .filter((t): t is string => t !== undefined);
@@ -110,11 +115,10 @@ import { Systems } from '../../models/systems.model';
     this.DataSourceTypeService.getAll().subscribe(data => {
       this.types = data.map(item => ({ id: item.DataSourceTypeId, name: item.dataSourceTypeDesc }));
     });
-    */
+  
   }
 
   onSearch() {
-    console.log('Search data:', this.form.value);
      this.searchEvent.emit(this.form.value);
   }
 

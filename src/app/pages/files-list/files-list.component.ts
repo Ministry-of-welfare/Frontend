@@ -1,43 +1,49 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FilesViewComponent } from '../../components/files-view/files-view.component';
+import { SystemsService } from '../../services/systems/systems.service';
+import { SearchFileComponent } from '../../components/search-file/search-file.component';
 
 @Component({
   selector: 'app-files-list',
   standalone: true,
-  imports: [RouterLink, FilesViewComponent],
-  template: `
-    <div class="page-container">
-
-      <app-files-view></app-files-view>
-    </div>
-  `,
-  styles: [`
-    .page-container {
-      padding: 20px;
-    }
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    h1 {
-      margin: 0;
-      color: #333;
-    }
-    .add-btn {
-      background: #007bff;
-      color: white;
-      padding: 10px 20px;
-      text-decoration: none;
-      border-radius: 4px;
-      font-weight: bold;
-    }
-    .add-btn:hover {
-      background: #0056b3;
-    }
-  `]
+  imports: [RouterLink, SearchFileComponent, FilesViewComponent],
+  templateUrl: './files-list.component.html',
+  styleUrls: ['./files-list.component.css']
 })
 export class FilesListComponent {
+  searchCriteria: any = null;
+systems: any[] = [];
+
+
+constructor(private systemsService: SystemsService) {}
+
+ngOnInit() {
+  this.systemsService.getAll().subscribe({
+    
+    next: (data) => this.systems = data,
+
+    error: (err) => console.error('שגיאה בטעינת מערכות', err)
+  });
+}
+  getSystemNameById = (id: number | string): string => {
+    if (!id || !this.systems || this.systems.length === 0) return '—';
+    const system = this.systems.find(s =>
+      String(s.SystemId) === String(id) ||
+      String(s.systemId) === String(id)
+     
+      
+    );
+    return system ? (system.systemName || system.SystemName) : String(id);
+  }
+onSystemsLoaded(systems: any[]) {
+  this.systems = systems;
+}
+  onSearch(criteria: any) {
+    this.searchCriteria = { ...criteria };
+  }
+
+  onClearSearch() {
+    this.searchCriteria = null;
+  }
 }
