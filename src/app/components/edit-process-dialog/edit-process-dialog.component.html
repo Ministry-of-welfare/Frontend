@@ -71,7 +71,7 @@
         <div class="form-row">
           <div class="field-group">
             <label class="field-label">תאריך הוספה</label>
-            <input type="text" class="field-input current-date" [value]="data.createdDate || ''" disabled>
+            <input type="text" class="field-input current-date" [value]="formattedCreatedDate" disabled style="text-align:right">
             <div class="validation-hint" *ngIf="!isView">תאריך נוכחי</div>
           </div>
           <div class="field-group">

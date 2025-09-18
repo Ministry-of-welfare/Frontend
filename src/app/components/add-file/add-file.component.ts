@@ -68,7 +68,7 @@ export class AddFileComponent implements OnInit {
       urlFileAfterProcess: this.urlFileAfter,
       errorRecipients: this.errorRecipients,
       insertDate: new Date().toISOString(),
-      startDate: undefined,
+      startDate: new Date().toISOString(),
       endDate: undefined
     };
     this.importDS.addImportDataSource(newFile).subscribe({

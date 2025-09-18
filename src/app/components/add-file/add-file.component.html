@@ -101,7 +101,6 @@
         <div class="actions-section">
           <div></div>
           <button type="button" class="btn btn-primary" (click)="nextStep()">המשך לשלב הבא ➡️</button>
-          <button type="button" class="btn btn-secondary" style="margin-right:10px" (click)="submitGeneralDetails()">שלח פרטים לשרת (בדיקה)</button>
         </div>
       </div>
 
@@ -218,7 +217,7 @@
             <div class="preview-info">
               <div class="preview-item">
                 <div class="preview-label">שם טבלה:</div>
-                <div class="preview-value"></div>
+             <div class="preview-value">{{tableName}}</div>
               </div>
               <div class="preview-item">
                 <div class="preview-label">מספר עמודות:</div>

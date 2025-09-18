@@ -188,6 +188,7 @@ export class FilesViewComponent implements OnChanges {
   openEditDialog(process: any) {
     this.dialogIsEdit = true;
     this.dialogIsView = false;
+    console.log('openEditDialog: raw process:', process);
     this.dialogData = {
       importDataSourceId: process.importDataSourceId || process.dataSourceId || process.id || '',
       importDataSourceDesc: process.importDataSourceDesc || process.name || '',
@@ -198,16 +199,18 @@ export class FilesViewComponent implements OnChanges {
       urlFile: process.urlFile || '',
       urlFileAfterProcess: process.urlFileAfterProcess || process.urlFileAfter || '',
       errorRecipients: process.errorRecipients || '',
-      endDate: process.endDate || '',
-      createdDate: process.createdDate || process.created || '',
-      startDate: process.startDate || ''
+      endDate: this.formatDateForInput(process.endDate),
+      createdDate: this.formatDateForInput(process.insertDate || process.createdDate || process.created),
+      startDate: this.formatDateForInput(process.startDate)
     };
+    console.log('openEditDialog: dialogData:', this.dialogData);
     this.dialogVisible = true;
   }
 
   openViewDialog(process: any) {
     this.dialogIsEdit = false;
     this.dialogIsView = true;
+    console.log('openViewDialog: raw process:', process);
     this.dialogData = {
       dataSourceId: process.dataSourceId || process.id || '',
       importDataSourceDesc: process.importDataSourceDesc || process.name || '',
@@ -218,11 +221,40 @@ export class FilesViewComponent implements OnChanges {
       urlFile: process.urlFile || '',
       urlFileAfterProcess: process.urlFileAfterProcess || process.urlFileAfter || '',
       errorRecipients: process.errorRecipients || '',
-      endDate: process.endDate || '',
-      createdDate: process.createdDate || process.created || '',
-      startDate: process.startDate || ''
+      endDate: this.formatDateForInput(process.endDate),
+      createdDate: this.formatDateForInput(process.insertDate || process.createdDate || process.created),
+      startDate: this.formatDateForInput(process.startDate)
     };
+    console.log('openViewDialog: dialogData:', this.dialogData);
     this.dialogVisible = true;
+  }
+  // Helper function to format date for input type="date"
+  formatDateForInput(date: any): string {
+    if (!date) return '';
+    // Accepts ISO, 'YYYY-MM-DD', or 'YYYY-MM-DDTHH:mm:ssZ'
+    try {
+      if (typeof date === 'string') {
+        // If already in 'YYYY-MM-DD' format
+        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          return date;
+        }
+        // If ISO format with time
+        const d = new Date(date);
+        if (!isNaN(d.getTime())) {
+          // Pad month and day
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${d.getFullYear()}-${month}-${day}`;
+        }
+      } else if (date instanceof Date) {
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${date.getFullYear()}-${month}-${day}`;
+      }
+    } catch (e) {
+      console.warn('formatDateForInput: failed to parse date', date, e);
+    }
+    return '';
   }
 
   openDeleteDialog(process: any) {
