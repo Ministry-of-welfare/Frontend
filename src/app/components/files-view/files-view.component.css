@@ -66,6 +66,7 @@ body {
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-top: 3px solid #e5e7eb; /* קו עדין למעלה */
 }
 
 .job-card:hover {
@@ -119,12 +120,14 @@ body {
 .card-details .label {
   font-weight: 500;
   color: #555;
+  margin-left: 6px;
 }
 
 .card-details .value {
   color: #222;
 }
 
+/* === פעולות כרטיס === */
 .card-actions {
   margin-top: 16px;
   display: flex;
