@@ -2,6 +2,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+                direction: rtl;
+
 }
 
 body {
@@ -9,7 +11,6 @@ body {
     background: linear-gradient(135deg, #f8faff 0%, #e8f2ff 50%, #f0f8ff 100%);
     color: #333;
     min-height: 100vh;
-    direction: rtl;
 }
 
 .header {
@@ -29,13 +30,15 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-weight: 700;
+    text-align: right;
 }
 
 .filters {
     display: flex;
-    gap: 20px;
+    gap: 12px;
     flex-wrap: wrap;
     align-items: center;
+    direction: rtl;
 }
 
 .filter-group {
@@ -51,15 +54,19 @@ body {
 }
 
 .filter-group select,
-.filter-group input {
-    padding: 12px 16px;
-    border: 2px solid rgba(102, 126, 234, 0.2);
-    border-radius: 12px;
+.filter-group input,
+.filters input[type="date"] {
+  padding: 8px 12px;
+    height: 40px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: 8px;
     background: rgba(255,255,255,0.9);
     color: #333;
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
     font-size: 14px;
+      box-sizing: border-box;
+
 }
 
 .filter-group select:focus,
@@ -76,21 +83,50 @@ body {
 }
 
 .refresh-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
     color: white;
+     height: 40px;
     border: none;
-    padding: 12px 24px;
-    border-radius: 12px;
+  padding: 8px 12px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
     transition: all 0.3s ease;
     box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center; 
+      justify-content: center;
+        box-sizing: border-box; */
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  height: 40px; /* בדיוק כמו השדות */
+  border: none;
+  padding: 0 16px; /* ריווח אופקי בלבד */
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+
+  display: inline-flex;     /* שורה, לא עמודה */
+  align-items: center;      /* ממרכז ורטיקלית */
+  justify-content: center;  /* ממרכז אופקית */
+  gap: 6px;                 /* אם יש אייקון לצד טקסט */
+  box-sizing: border-box;
+  margin-top: 25px; /* שחק עם הערך 1–3px עד שזה מיושר */
+
+
 }
 
 .refresh-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+    /* transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4); */
+     transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
 }
 
 .dashboard {
@@ -101,8 +137,8 @@ body {
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-    gap: 25px;
+ grid-template-columns: repeat(3, 1fr);  
+   gap: 25px;
     margin-bottom: 30px;
 }
 
@@ -229,7 +265,8 @@ body {
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    gap: 40px;
+    
 }
 
 .kpi-item {
@@ -426,6 +463,77 @@ body {
     background-clip: text;
 }
 
+.mini-chart {
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 12px;
+    margin-top: 15px;
+    border: 1px solid rgba(102, 126, 234, 0.1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: end;
+    justify-content: space-around;
+    padding: 10px;
+}
+
+.bar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px 4px 0 0;
+    width: 15px;
+    margin: 0 2px;
+    position: relative;
+    animation: growBar 1s ease-out forwards;
+    transform-origin: bottom;
+    transform: scaleY(0);
+}
+
+@keyframes growBar {
+    to {
+        transform: scaleY(1);
+    }
+}
+
+.bar:nth-child(1) { height: 60%; animation-delay: 0.1s; }
+.bar:nth-child(2) { height: 85%; animation-delay: 0.2s; background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%); }
+.bar:nth-child(3) { height: 40%; animation-delay: 0.3s; }
+.bar:nth-child(4) { height: 95%; animation-delay: 0.4s; background: linear-gradient(135deg, #2196f3 0%, #03a9f4 100%); }
+.bar:nth-child(5) { height: 70%; animation-delay: 0.5s; }
+.bar:nth-child(6) { height: 55%; animation-delay: 0.6s; }
+.bar:nth-child(7) { height: 80%; animation-delay: 0.7s; background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); }
+.bar:nth-child(8) { height: 90%; animation-delay: 0.8s; background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%); }
+
+.donut-chart {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(
+        #4caf50 0deg 338deg,
+        #f44336 338deg 360deg
+    );
+    position: relative;
+    margin: 10px auto;
+}
+
+.donut-chart::after {
+    content: '94.2%';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    color: #4caf50;
+}
+
 .alert-list {
     max-height: 180px;
     overflow-y: auto;
@@ -497,12 +605,13 @@ body {
     }
 }
 
-.card:nth-child(1) { animation-delay: 0.1s; }
-.card:nth-child(2) { animation-delay: 0.2s; }
-.card:nth-child(3) { animation-delay: 0.3s; }
-.card:nth-child(4) { animation-delay: 0.4s; }
-.card:nth-child(5) { animation-delay: 0.5s; }
-.card:nth-child(6) { animation-delay: 0.6s; }
+.card:nth-child(1) { animation-delay: 0.1s; order: 1; }
+.card:nth-child(2) { animation-delay: 0.2s; order: 3; }
+.card:nth-child(3) { animation-delay: 0.3s; order: 2; }
+.card:nth-child(4) { animation-delay: 0.4s; order: 4; }
+.card:nth-child(5) { animation-delay: 0.5s; order: 5; }
+.card:nth-child(6) { animation-delay: 0.6s; order: 7; }
+.card:nth-child(7) { animation-delay: 0.7s; order: 6; }
 
 ::-webkit-scrollbar {
     width: 6px;
@@ -547,5 +656,6 @@ body {
     
     .kpi-grid {
         grid-template-columns: 1fr;
+        
     }
 }
