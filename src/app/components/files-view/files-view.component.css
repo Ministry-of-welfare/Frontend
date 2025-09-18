@@ -66,7 +66,7 @@ body {
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border-top: 3px solid #e5e7eb; /* קו עדין למעלה */
+  border-top: 3px solid #e5e7eb;
 }
 
 .job-card:hover {
@@ -106,30 +106,50 @@ body {
   color: #047857;
 }
 
+.card-divider {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 10px 0;
+}
+
+/* === פרטי כרטיס === */
 .card-details {
-  margin-top: 12px;
-  font-size: 14px;
+  margin-top: 8px;
+  font-size: 13px;
 }
 
-.card-details .row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
 }
 
-.card-details .label {
-  font-weight: 500;
-  color: #555;
-  margin-left: 6px;
+.details-table tr {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  margin-bottom: 2px;
 }
 
-.card-details .value {
+.details-table .label {
+  font-weight: 600;
+  color: #444;
+  text-align: right;
+  padding-left: 4px;
+  line-height: 1.2;
+}
+
+.details-table .value {
   color: #222;
+  text-align: right;
+  word-break: break-word;
+  padding-right: 4px;
+  line-height: 1.2;
 }
 
 /* === פעולות כרטיס === */
 .card-actions {
-  margin-top: 16px;
+  margin-top: 12px;
   display: flex;
   gap: 12px;
 }
@@ -165,7 +185,7 @@ body {
 
 .table-wrapper thead th {
   text-align: right;
-  padding: 12px 16px;
+  padding: 10px 14px;
   background: #f9fafc;
   font-weight: 600;
   color: #444;
@@ -183,7 +203,7 @@ body {
 }
 
 .table-wrapper td {
-  padding: 12px 16px;
+  padding: 8px 14px;
   border-bottom: 1px solid #f0f0f0;
   vertical-align: middle;
 }
