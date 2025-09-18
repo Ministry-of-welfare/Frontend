@@ -1,24 +1,4 @@
 <div class="page">
-  <!-- <div class="header">
-    <div class="header-content">
-      <div>
-        <h1>📁 רשימת סוגי קבצים לקליטה</h1>
-        <div class="breadcrumb">
-          <a href="#dashboard">דשבורד</a> 
-          <span>→</span> 
-          <a href="#files">ניהול קבצים</a> 
-          <span>→</span> 
-          <span>רשימת קבצים</span>
-        </div>
-      </div>
-    </div>
-  </div> -->
-  <!-- <div class="view-toggle">
-    <button [class.active]="viewMode === 'cards'" (click)="setView('cards')">תצוגת כרטיסיות</button>
-    <button [class.active]="viewMode === 'table'" (click)="setView('table')">תצוגת טבלה</button>
-  </div> -->
-
-
   <div *ngIf="loading" class="loading">טוען נתונים...</div>
 
   <div *ngIf="!loading && displayedProcesses.length === 0" class="no-results">
@@ -33,7 +13,6 @@
         <button [class.active]="viewMode === 'table'" class="toggle-btn" (click)="setView('table')">📊 טבלה</button>
         <button [class.active]="viewMode === 'cards'" class="toggle-btn" (click)="setView('cards')">🃏 כרטיסים</button>
       </div>
-
     </div>
   </section>
 
@@ -106,8 +85,6 @@
       </table>
     </div>
   </section>
-
-
 
   <!-- דיאלוג עריכה -->
   <app-edit-process-dialog
