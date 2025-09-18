@@ -1,4 +1,5 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0;             direction: rtl;
+}
 
 :root{
   --bg:#f3f6fb;
@@ -24,9 +25,376 @@ body{
 
 .page{
   width:100%; 
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0;
+}
+
+/* פריסת דשבורד */
+.dashboard-grid {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.dashboard-row:nth-child(2) {
+  grid-template-columns: 1fr 1fr;
+}
+
+.dashboard-row:nth-child(3) {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.panel-section {
+  background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: 1px solid rgba(99,102,241,0.1);
+  transition: all 0.3s ease;
+}
+
+.panel-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.panel-section.double-height {
+  min-height: 280px;
+}
+
+.quality-panel {
+  grid-row: span 1;
+}
+
+.quality-continuation {
+  background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%);
+}
+
+.quality-additional {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.quality-trend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 10px;
+}
+
+.trend-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #234e52;
+}
+
+.trend-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a202c;
+}
+
+.trend-value.positive {
+  color: #38a169;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(99,102,241,0.1);
+}
+
+.section-icon {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 4px rgba(102,126,234,0.3));
+}
+
+.section-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+/* סטטוס יומי חי */
+.live-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.stat-label {
+  font-size: 12px;
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+/* תור קבצים */
+.queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.queue-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+  border-radius: 10px;
+  border-left: 4px solid #667eea;
+}
+
+.queue-info {
+  flex: 1;
+}
+
+.queue-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 2px;
+}
+
+.queue-time {
+  font-size: 11px;
+  color: #718096;
+}
+
+.queue-status {
+  background: #667eea;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* שגיאות */
+.error-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.error-item {
+  padding: 10px;
+  background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+  border-radius: 8px;
+  border-left: 4px solid #e53e3e;
+}
+
+.error-type {
+  font-size: 12px;
+  font-weight: 600;
+  color: #742a2a;
+  margin-bottom: 2px;
+}
+
+.error-count {
+  font-size: 11px;
+  color: #9c4221;
+}
+
+/* throughput */
+.throughput-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.throughput-item {
+  padding: 12px;
+  background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%);
+  border-radius: 10px;
+  border-left: 4px solid #38b2ac;
+}
+
+.throughput-label {
+  font-size: 11px;
+  color: #234e52;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.throughput-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a202c;
+}
+
+/* איכות נתונים */
+.quality-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quality-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quality-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.quality-bar {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.quality-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.quality-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2d3748;
+  text-align: right;
+}
+
+/* התראות */
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alert-item {
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 4px solid;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fefcbf 0%, #faf089 100%);
+  border-left-color: #d69e2e;
+}
+
+.alert-error {
+  background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+  border-left-color: #e53e3e;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #bee3f8 0%, #90cdf4 100%);
+  border-left-color: #3182ce;
+}
+
+.alert-message {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.alert-warning .alert-message { color: #744210; }
+.alert-error .alert-message { color: #742a2a; }
+.alert-info .alert-message { color: #2a4365; }
+
+.alert-time {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* מקומות בעייתיים */
+.issues-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.issue-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: linear-gradient(135dash, #f7fafc 0%, #edf2f7 100%);
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.issue-info {
+  flex: 1;
+}
+
+.issue-location {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 2px;
+}
+
+.issue-description {
+  font-size: 11px;
+  color: #718096;
+}
+
+.issue-severity {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.severity-high {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.severity-medium {
+  background: #fefcbf;
+  color: #744210;
+}
+
+.severity-low {
+  background: #c6f6d5;
+  color: #22543d;
 }
 
 .header {
@@ -732,14 +1100,41 @@ tbody tr:hover{
 }
 
 /* עדכון הכותרת */
-.page > .header {
+.header {
   padding: 25px 30px 0;
 }
 
-.page > section {
+section {
   margin: 0 30px 12px;
 }
 
-.page > .pagination {
+.pagination {
   margin: 0 30px;
+}
+
+/* רספונסיביות */
+@media (max-width: 1200px) {
+  .dashboard-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .dashboard-row:nth-child(2),
+  .dashboard-row:nth-child(3) {
+    grid-template-columns: 1fr;
+  }
+  
+  .panel-section.double-height {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    margin: 10px;
+  }
+  
+  .dashboard-row {
+    gap: 12px;
+  }
 }
