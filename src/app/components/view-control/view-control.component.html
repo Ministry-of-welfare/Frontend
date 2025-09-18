@@ -1,0 +1,50 @@
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h2 class="title">קליטת רשומת עובדים סוציאליים – קבוצת #1001</h2>
+    <button class="add-btn">הוספת רשומה</button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <input type="date" />
+    <input type="date" />
+    <input placeholder="חפש..." />
+    <button class="search-btn">חיפוש</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>סטטוס</th>
+          <th>תאריך הרשומה</th>
+          <th>מחלקה</th>
+          <th>תפקיד</th>
+          <th>מזהה עובד</th>
+          <th>שם עובד</th>
+          <th>הערות</th>
+          <th>פעולות</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let it of items">
+          <td [ngClass]="statusClass(it.status)">
+            <span *ngIf="it.status === 'ok'">✔</span>
+            <span *ngIf="it.status === 'error'">✖</span>
+            <span *ngIf="it.status === 'pending'">●</span>
+          </td>
+          <td>{{ it.date }}</td>
+          <td>{{ it.department }}</td>
+          <td>{{ it.role }}</td>
+          <td>{{ it.employeeId }}</td>
+          <td>{{ it.name }}</td>
+          <td>{{ it.notes || '-' }}</td>
+          <td><button class="edit-btn">עריכה</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
