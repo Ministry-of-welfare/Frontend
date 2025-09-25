@@ -8,12 +8,20 @@
       </div>
     </div>
     <div class="nav-links">
-               
-      <a routerLink="/environments" routerLinkActive="active" class="nav-link">
+
+      <!-- <a routerLink="/environments" routerLinkActive="active" class="nav-link">
         <span class="nav-icon">⚙️</span>
         <span>סביבות</span>
+      </a> -->
+      <a routerLink="/capture" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">📸</span>
+        <span>רשימת קליטות קבצים</span>
       </a>
-            <a routerLink="/add-file" routerLinkActive="active" class="nav-link">
+      <a routerLink="/view-control" routerLinkActive="active" class="nav-link">
+  <span class="nav-icon">🖥️</span>
+  <span>ניהול תצוגה</span>
+</a>
+      <a routerLink="/add-file" routerLinkActive="active" class="nav-link">
         <span class="nav-icon">➕</span>
         <span>הוסף קובץ</span>
       </a>
@@ -26,12 +34,12 @@
         <span>דשבורד</span>
       </a>
     </div>
-    
+
     <div class="nav-brand">
       <span class="brand-icon">🏢</span>
       <span class="brand-text">מערכת ניהול קבצים</span>
     </div>
   </nav>
-  
+
   <router-outlet></router-outlet>
 </app-layout>
