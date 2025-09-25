@@ -1,12 +1,18 @@
 .container {
-  padding: 1.5rem;
-  background-color: white;
+  /* padding: 1.5rem; */
+  /* background-color: white; */
   border-radius: 1rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   width: 100%;
+  padding: 20px;
+  background: #f1f5f9;
+  font-family: "Segoe UI", Arial, sans-serif;
+  direction: rtl;
+
+
 }
 
-.container > * + * {
+.container>*+* {
   margin-top: 1.5rem;
 }
 
@@ -14,6 +20,8 @@
   padding: 1rem !important;
   background: white !important;
   border-radius: 1rem !important;
+    direction: ltr;
+
 }
 
 /* Header */
@@ -41,12 +49,56 @@
   font-size: 0.875rem;
 }
 
-.actions {
+.checkbox {
+  /* direction: ltr; */
+  /* לצד ימין */
   display: flex;
-  gap: 0.5rem;
+  justify-content: flex-start;
+  grid-column: 1 / -1;
+  margin-top: 8px;
 }
 
-.search-btn {
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  /* לצד ימין */
+  gap: 1rem;
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+.search-btn,
+.reset-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 10px 24px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  letter-spacing: -0.2px;
+}
+
+.search-btn:hover,
+.reset-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.search-btn:active,
+.reset-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* .search-btn {
   background-color: #9333ea;
   color: white;
   padding: 0.5rem 1rem;
@@ -58,7 +110,7 @@
 
 .search-btn:hover {
   background-color: #7c3aed;
-}
+} */
 
 .reset-btn {
   background-color: #e5e7eb;
@@ -92,7 +144,8 @@
   font-size: 0.875rem;
 }
 
-.table th, .table td {
+.table th,
+.table td {
   padding: 0.75rem;
   border-bottom: 1px solid #e5e7eb;
   text-align: center;
@@ -173,6 +226,7 @@
 .input.small {
   width: 5rem;
 }
+
 table th {
   font-weight: 600;
   text-align: right;
@@ -185,12 +239,14 @@ table td {
 button {
   transition: background 0.2s;
 }
+
 button:hover {
-  background: #e5e7eb; /* hover אפור בהיר */
+  background: #e5e7eb;
+  /* hover אפור בהיר */
 }
+
 table th,
 table td {
   text-align: center;
   vertical-align: middle;
 }
-
