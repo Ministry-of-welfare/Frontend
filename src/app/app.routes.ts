@@ -3,11 +3,15 @@ import { FilesListComponent } from './pages/files-list/files-list.component';
 import { AddFilePageComponent } from './pages/add-file/add-file-page.component';
 import { EnvironmentsComponent } from './components/environments/environments.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { CaptureComponent } from './components/capture/capture.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
   { path: 'files', component: FilesListComponent },
   { path: 'add-file', component: AddFilePageComponent },
   { path: 'environments', component: EnvironmentsComponent },
+  { path: 'captures', component: CaptureComponent },
+
+
   { path: '**', redirectTo: '' }
 ];

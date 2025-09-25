@@ -1,0 +1,152 @@
+.page-container {
+  font-family: "Segoe UI", Arial, sans-serif;
+  direction: rtl;
+  padding: 20px;
+  background: #f1f5f9;
+}
+
+.page-title {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.status-cards {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.card {
+  flex: 1;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card .value {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.card .label {
+  font-size: 14px;
+}
+
+
+.border-blue {
+  border-left: 4px solid #3b82f6;
+}
+
+.border-green {
+  border-left: 4px solid #22c55e;
+}
+
+.border-yellow {
+  border-left: 4px solid #ca8a04;
+}
+
+.border-red {
+  border-left: 4px solid #ef4444;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+  background: #fff;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.filters input,
+.filters select {
+  border: 1px solid #d1d5db;
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+
+.btn-search {
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  padding: 6px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-reset {
+  background: #e5e7eb;
+  border: none;
+  padding: 6px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.data-table th,
+.data-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.status-tag {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.status-tag.success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-tag.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-tag.yellow {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.status-tag.gray {
+  background: #e5e7eb;
+  color: #374151;
+}
+.status-card {
+  background: #fff;
+  padding: 16px;
+  margin: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+table.mat-table tr.mat-row td {
+  padding: 12px 16px;
+}
+
+
