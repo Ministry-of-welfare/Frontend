@@ -46,28 +46,28 @@
         <div class="card-details">
           <table class="details-table">
             <tr>
+              <td class="label">מערכת</td>
               <td class="value">{{ getSystemName(p.systemId) || '—' }}</td>
 
-              <td class="label">מערכת</td>
             </tr>
             <tr>
-              <td class="value">{{ getDataSourceTypeName(p.dataSourceTypeId) || '—' }}</td>
               <td class="label">סוג קליטה</td>
+              <td class="value">{{ getDataSourceTypeName(p.dataSourceTypeId) || '—' }}</td>
 
             </tr>
             <tr>
-              <td class="value">{{ p.createdDate || p.startDate || '—' }}</td>
               <td class="label">תאריך יצירה</td>
+              <td class="value">{{ p.createdDate || p.startDate || '—' }}</td>
 
             </tr>
             <tr>
-              <td class="value">{{ p.endDate || '—' }}</td>
               <td class="label">עדכון אחרון</td>
+              <td class="value">{{ p.endDate || '—' }}</td>
 
             </tr>
             <tr>
-              <td class="value">{{ p.jobName || '—' }}</td>
               <td class="label">קוד עבודה</td>
+              <td class="value">{{ p.jobName || '—' }}</td>
 
             </tr>
           </table>
