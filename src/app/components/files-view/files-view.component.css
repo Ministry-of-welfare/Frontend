@@ -152,7 +152,8 @@ body {
   margin-bottom: 0;
 }
 .details-table td {
-  padding: 2px 4px;      /* צמצום הריווח הפנימי */
+  /* padding: 2px 4px;     */
+    /* צמצום הריווח הפנימי */
   vertical-align: middle;
 }
 
