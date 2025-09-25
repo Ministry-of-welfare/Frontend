@@ -7,54 +7,58 @@
       <div class="value">12</div>
       <div class="label">ממתין</div>
     </div>
- <div class="card border-yellow">
+    <div class="card border-yellow">
       <div class="value">3</div>
       <div class="label">בתהליך</div>
     </div>
-    
+
     <div class="card border-green">
       <div class="value">145</div>
       <div class="label">הצלחה</div>
     </div>
-   
+
     <div class="card border-red">
       <div class="value">8</div>
       <div class="label">כישלון</div>
     </div>
   </div>
-<div class="card filters-card">
-  <!-- כאן הפילטרים -->
+  <div class="card filters-card">
+    <!-- כאן הפילטרים -->
 
-  <!-- פילטרים -->
-  <div class="filters">
-    <input type="date" [(ngModel)]="startDate" />
-    <input type="date" [(ngModel)]="endDate" />
-    <select [(ngModel)]="selectedSystem">
-      <option value="">כל המערכות</option>
-      <option value="מערכת עובדים">מערכת עובדים</option>
-      <option value="מערכת חירום">מערכת חירום</option>
-      <option value="מערכת תיירות">מערכת תיירות</option>
-    </select>
-    <select [(ngModel)]="selectedSource">
-      <option value="">כל המקורות</option>
-      <option value="קליטת עובדים סוציאליים">קליטת עובדים סוציאליים</option>
-      <option value="קליטת משמרות">קליטת משמרות</option>
-      <option value="קליטת בתי מלון">קליטת בתי מלון</option>
-    </select>
-    <select [(ngModel)]="selectedStatus">
-      <option value="">כל הסטטוסים</option>
-      <option value="success">הצלחה</option>
-      <option value="in-progress">בתהליך</option>
-      <option value="error">כישלון</option>
-      <option value="pending">מוכן</option>
-    </select>
-    <input type="text" [(ngModel)]="searchTerm" placeholder="שם קובץ..." />
-    <button class="btn-search">חפש</button>
-    <button class="btn-reset">איפוס פילטרים</button>
-    <label>
+    <!-- פילטרים -->
+    <div class="filters">
+      <input type="date" [(ngModel)]="startDate" />
+      <input type="date" [(ngModel)]="endDate" />
+      <select [(ngModel)]="selectedSystem">
+        <option value="">כל המערכות</option>
+        <option value="מערכת עובדים">מערכת עובדים</option>
+        <option value="מערכת חירום">מערכת חירום</option>
+        <option value="מערכת תיירות">מערכת תיירות</option>
+      </select>
+      <select [(ngModel)]="selectedSource">
+        <option value="">כל המקורות</option>
+        <option value="קליטת עובדים סוציאליים">קליטת עובדים סוציאליים</option>
+        <option value="קליטת משמרות">קליטת משמרות</option>
+        <option value="קליטת בתי מלון">קליטת בתי מלון</option>
+      </select>
+      <select [(ngModel)]="selectedStatus">
+        <option value="">כל הסטטוסים</option>
+        <option value="success">הצלחה</option>
+        <option value="in-progress">בתהליך</option>
+        <option value="error">כישלון</option>
+        <option value="pending">מוכן</option>
+      </select>
+      <input type="text" [(ngModel)]="searchTerm" placeholder="שם קובץ..." />
+
+    </div>
+    <label class="checkbox">
       <input type="checkbox" [(ngModel)]="onlyErrors" />
       הצג רק קליטות עם שגיאות
     </label>
+    <div class="actions">
+      <button class="btn-reset">🔄 איפוס פילטרים</button>
+      <button class="btn-search">🔍 חיפוש</button>
+    </div>
   </div>
 </div>
 <div class="card table-card">
@@ -65,88 +69,84 @@
     </button>
   </div>
 
-<div class="card table-card">
-  <!-- טבלה -->
-  <table  class="data-table">
-    <thead>
-      <tr>
-        <th>מ"ז קליטה</th>
-        <th>תיאור מקור</th>
-        <th>מערכת</th>
-        <th>שם קובץ</th>
-        <th>תחילת קליטה</th>
-        <th> סיום קליטה </th>
-        <th>שורות בקובץ</th>
-        <th> שורות שנקלטו</th>
-        <th>שורות פגומות </th>
-        <th>סטטוס</th>
-        <th>פעולות</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of filteredData"
-          (contextmenu)="onContextMenu($event, item)"
+  <div class="card table-card">
+    <!-- טבלה -->
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>מ"ז קליטה</th>
+          <th>תיאור מקור</th>
+          <th>מערכת</th>
+          <th>שם קובץ</th>
+          <th>תחילת קליטה</th>
+          <th> סיום קליטה </th>
+          <th>שורות בקובץ</th>
+          <th> שורות שנקלטו</th>
+          <th>שורות פגומות </th>
+          <th>סטטוס</th>
+          <th>פעולות</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filteredData" (contextmenu)="onContextMenu($event, item)"
           (dblclick)="onRowDoubleClick(item)">
-        <td>{{ item.id }}</td>
-        <td>{{ item.source }}</td>
-        <td>{{ item.system }}</td>
-        <td>{{ item.fileName }}</td>
-        <td>{{ item.startDate }}</td>
-        <td>{{ item.endDate }}</td>
-        <td>{{ item.total }}</td>
-        <td>{{ item.loaded }}</td>
-        <td>{{ item.failed }}</td>
-        <td>
-          <span class="status-tag"
-                [ngClass]="{
+          <td>{{ item.id }}</td>
+          <td>{{ item.source }}</td>
+          <td>{{ item.system }}</td>
+          <td>{{ item.fileName }}</td>
+          <td>{{ item.startDate }}</td>
+          <td>{{ item.endDate }}</td>
+          <td>{{ item.total }}</td>
+          <td>{{ item.loaded }}</td>
+          <td>{{ item.failed }}</td>
+          <td>
+            <span class="status-tag" [ngClass]="{
                   'success': item.status === 'success',
                   'error': item.status === 'error',
                   'yellow': item.status === 'in-progress',
                   'gray': item.status === 'pending'
                 }">
-            {{ item.statusLabel }}
-          </span>
-        </td>
-        <td>קובץ שגיאות</td>
-      </tr>
-<!-- תפריט קונטקסט -->
-<div *ngIf="contextMenuVisible"
-     class="context-menu"
-     [ngStyle]="{ top: contextMenuY + 'px', left: contextMenuX + 'px', position: 'fixed', 'z-index': 1000 }"
-     (click)="$event.stopPropagation()">
-  <div class="context-menu-list">
-    <div class="context-menu-item" (click)="viewDetails()">
-      <span class="icon">📊</span>
-      צפייה בפרטי הקליטה
-    </div>
-    <div class="context-menu-item" (click)="viewRows()">
-      <span class="icon">📋</span>
-      צפיה בפרוט שורות הקליטה
-    </div>
-    <div class="context-menu-item" (click)="viewErrors()">
-      <span class="icon">⚠️</span>
-      צפיה בשגיאות
-    </div>
-    <div class="context-menu-item" (click)="downloadErrorReport()">
-      <span class="icon">🧹</span>
-      הורדת דוח שגיאות
-    </div>
-    <div class="context-menu-item" (click)="openFilePath()">
-      <span class="icon">📁</span>
-      פתיחת נתיב הקובץ לאחר עיבוד
-    </div>
-    <div class="context-menu-item" (click)="showLogs()">
-      <span class="icon">📝</span>
-      הצגת לוגים
-    </div>
-  </div>
-</div>
-<!-- סקריפט לסגירת תפריט בלחיצה מחוץ -->
-<div (click)="onDocumentClick($event)" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999" *ngIf="contextMenuVisible"></div>
-    </tbody>
-  </table>
+              {{ item.statusLabel }}
+            </span>
+          </td>
+          <td>קובץ שגיאות</td>
+        </tr>
+        <!-- תפריט קונטקסט -->
+        <div *ngIf="contextMenuVisible" class="context-menu"
+          [ngStyle]="{ top: contextMenuY + 'px', left: contextMenuX + 'px', position: 'fixed', 'z-index': 1000 }"
+          (click)="$event.stopPropagation()">
+          <div class="context-menu-list">
+            <div class="context-menu-item" (click)="viewDetails()">
+              <span class="icon">📊</span>
+              צפייה בפרטי הקליטה
+            </div>
+            <div class="context-menu-item" (click)="viewRows()">
+              <span class="icon">📋</span>
+              צפיה בפרוט שורות הקליטה
+            </div>
+            <div class="context-menu-item" (click)="viewErrors()">
+              <span class="icon">⚠️</span>
+              צפיה בשגיאות
+            </div>
+            <div class="context-menu-item" (click)="downloadErrorReport()">
+              <span class="icon">🧹</span>
+              הורדת דוח שגיאות
+            </div>
+            <div class="context-menu-item" (click)="openFilePath()">
+              <span class="icon">📁</span>
+              פתיחת נתיב הקובץ לאחר עיבוד
+            </div>
+            <div class="context-menu-item" (click)="showLogs()">
+              <span class="icon">📝</span>
+              הצגת לוגים
+            </div>
+          </div>
+        </div>
+        <!-- סקריפט לסגירת תפריט בלחיצה מחוץ -->
+        <div (click)="onDocumentClick($event)" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999"
+          *ngIf="contextMenuVisible"></div>
+      </tbody>
+    </table>
   </div>
 
 </div>
-</div>
-
