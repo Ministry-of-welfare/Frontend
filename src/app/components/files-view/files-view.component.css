@@ -52,13 +52,15 @@ body {
 }
 
 /* === כרטיסים === */
-.cards-view {
+/* .cards-view {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
-}
+} */
 
-.job-card {
+/* .job-card {
+  direction: ltr;
+
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -67,7 +69,25 @@ body {
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border-top: 3px solid #9aacd1;
+} */
+ .cards-view {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  direction: rtl;  /* כרטיסים מימין לשמאל */
 }
+ .job-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-top: 3px solid #9aacd1;
+  /* direction: rtl;  // אם צריך גם תוכן בתוך הכרטיס */
+}
+
 
 .job-card:hover {
   transform: translateY(-4px);
