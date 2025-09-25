@@ -4,13 +4,15 @@ import { AddFilePageComponent } from './pages/add-file/add-file-page.component';
 import { EnvironmentsComponent } from './components/environments/environments.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { CaptureComponent } from './components/capture/capture.component';
+import { ViewControlComponent } from './components/view-control/view-control.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
   { path: 'files', component: FilesListComponent },
   { path: 'add-file', component: AddFilePageComponent },
   { path: 'environments', component: EnvironmentsComponent },
-  { path: 'capture', component: CaptureComponent },
+    { path: 'viewcontrol', component: ViewControlComponent },
+    { path: 'capture', component: CaptureComponent },
 
 
   { path: '**', redirectTo: '' }
