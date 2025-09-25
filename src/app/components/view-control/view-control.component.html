@@ -1,50 +1,110 @@
 <div class="container">
-  <!-- Header -->
-  <div class="header">
-    <h2 class="title">קליטת רשומת עובדים סוציאליים – קבוצת #1001</h2>
-    <button class="add-btn">הוספת רשומה</button>
+  <!-- כותרת -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h2 class="title">קליטת עובדים סוציאליים – קבוצת #1001</h2>
+    <button style="color: #2563eb; text-decoration: underline; background: none; border: none; cursor: pointer;">חזרה לרשימה ←</button>
   </div>
 
-  <!-- Filters -->
+  <!-- סינון -->
   <div class="filters">
-    <input type="date" />
-    <input type="date" />
-    <input placeholder="חפש..." />
-    <button class="search-btn">חיפוש</button>
+    <div>
+      <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">מספר שורה</label>
+      <input [(ngModel)]="filters.rowNumber" placeholder="מספר שורה" class="input" />
+    </div>
+    <div>
+      <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">עמודה</label>
+      <select [(ngModel)]="filters.column" class="input">
+        <option value="">כל העמודות</option>
+        <option value="tz">ת.ז</option>
+        <option value="firstName">שם פרטי</option>
+        <option value="lastName">שם משפחה</option>
+        <option value="email">כתובת מייל</option>
+        <option value="phone">טלפון</option>
+      </select>
+    </div>
+    <div>
+      <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">סוג שגיאה</label>
+      <select [(ngModel)]="filters.errorType" class="input">
+        <option value="">כל סוגי השגיאות</option>
+        <option value="phone">טלפון לא תקין</option>
+        <option value="email">אימייל לא תקין</option>
+        <option value="tz">ת.ז לא תקינה</option>
+      </select>
+    </div>
+    <div>
+      <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">חיפוש טקסט חופשי</label>
+      <div style="position: relative;">
+        <input [(ngModel)]="filters.freeText" placeholder="חיפוש טקסט חופשי" class="input" style="padding-left: 2.5rem;" />
+        <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></span>
+      </div>
+    </div>
+    <div></div>
+    <div class="actions">
+      <button class="search-btn" (click)="search()">חיפוש 🔍 </button>
+      <button class="reset-btn" (click)="reset()">איפוס </button>
+    </div>
+  </div>
+  
+  <div style="margin-top: 1rem; margin-bottom: 1rem;">
+    <input type="checkbox" [(ngModel)]="filters.showErrorsOnly" id="showErrors" style="margin-left: 0.5rem;">
+    <label for="showErrors" style="font-size: 0.875rem; color: #374151;">הצג רק שורות עם שגיאות</label>
   </div>
 
-  <!-- Table -->
+  <!-- טבלה -->
   <div class="table-container">
     <table class="table">
       <thead>
         <tr>
-          <th>סטטוס</th>
-          <th>תאריך הרשומה</th>
-          <th>מחלקה</th>
-          <th>תפקיד</th>
-          <th>מזהה עובד</th>
-          <th>שם עובד</th>
-          <th>הערות</th>
           <th>פעולות</th>
+          <th>סטטוס</th>
+          <th>סטטוס עובד</th>
+          <th>תאריך התחלה</th>
+          <th>תפקיד</th>
+          <th>מחלקה מקור</th>
+          <th>טלפון</th>
+          <th>כתובת מייל</th>
+          <th>שם משפחה</th>
+          <th>שם פרטי</th>
+          <th>ת.ז</th>
+          <th>שורה</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let it of items">
-          <td [ngClass]="statusClass(it.status)">
-            <span *ngIf="it.status === 'ok'">✔</span>
-            <span *ngIf="it.status === 'error'">✖</span>
-            <span *ngIf="it.status === 'pending'">●</span>
+        <tr *ngFor="let row of filteredRows">
+          <td style="text-align: center;">
+            <button class="action-btn">פעולות</button>
           </td>
-          <td>{{ it.date }}</td>
-          <td>{{ it.department }}</td>
-          <td>{{ it.role }}</td>
-          <td>{{ it.employeeId }}</td>
-          <td>{{ it.name }}</td>
-          <td>{{ it.notes || '-' }}</td>
-          <td><button class="edit-btn">עריכה</button></td>
+          <td style="text-align: center;">
+            <span [ngClass]="{
+              'status-ok': row.status === 'ok',
+              'status-error': row.status === 'error'
+            }">
+              {{ row.status === 'ok' ? 'תקין' : 'שגיאה' }}
+            </span>
+          </td>
+          <td style="text-align: center;">{{ row.employeeStatus }}</td>
+          <td style="text-align: center;">{{ row.startDate }}</td>
+          <td style="text-align: center;">{{ row.role }}</td>
+          <td style="text-align: center;">{{ row.department }}</td>
+          <td style="text-align: center;" [class.error-cell]="hasError(row, 'phone')">{{ row.phone }}</td>
+          <td style="text-align: center;" [class.error-cell]="hasError(row, 'email')">{{ row.email }}</td>
+          <td style="text-align: center;">{{ row.lastName }}</td>
+          <td style="text-align: center;">{{ row.firstName }}</td>
+          <td style="text-align: center;" [class.error-cell]="hasError(row, 'tz')">{{ row.tz }}</td>
+          <td style="text-align: center;">{{ row.id }}</td>
         </tr>
       </tbody>
     </table>
   </div>
-</div>
 
+  <!-- פאג'ינציה -->
+  <div style="display: flex; justify-content: center; align-items: center; margin-top: 2rem;">
+    <div class="pages">
+      <button (click)="previousPage()" [disabled]="currentPage === 1">&laquo;</button>
+      <button *ngFor="let page of getPages()" 
+              (click)="goToPage(page)" 
+              [class.active]="page === currentPage">{{ page }}</button>
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages">&raquo;</button>
+    </div>
+  </div>
+</div>
