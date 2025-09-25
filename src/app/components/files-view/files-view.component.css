@@ -147,12 +147,12 @@ body {
 
 .details-table tr {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 100px 1fr;
   align-items: center;
   margin-bottom: 0;
 }
 .details-table td {
-  /* padding: 2px 4px;     */
+  padding: 2px 4px;    
     /* צמצום הריווח הפנימי */
   vertical-align: middle;
 }
