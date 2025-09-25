@@ -49,12 +49,9 @@
   font-weight: 800;
 } */
 
-
+/* 
 .header {
-  /* display: flex; */
-  /* justify-content: space-between; */
-  /* align-items: center; */
-  /* margin-bottom: 18px; */
+ 
   direction: rtl;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -62,7 +59,7 @@
   padding: 25px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  /* position: sticky; */
+
   top: 0;
   z-index: 100;
 }
@@ -86,7 +83,60 @@
   display: flex;
   align-items: center;
   gap: 15px;
-}
+} */
+
+
+        .header {
+            direction: rtl;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            color: #333;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+           
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            direction: rtl;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+          .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: #764ba2;
+        }
+
 
 /* 🟦 פאנל עדין */
 .soft-panel {

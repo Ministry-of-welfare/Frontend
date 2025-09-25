@@ -1,6 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,173 +8,181 @@ import { Subscription, interval } from 'rxjs';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit, OnDestroy {
-  private refreshSubscription?: Subscription;
+export class DashboardComponent implements OnInit {
 
-  constructor() {}
+  // מערכת בחירה
+  selectedItems: Set<string> = new Set();
+  selectAll = false;
+
+  // נתוני פאנל צד ימין
+  liveStats = {
+    processedToday: 127,
+    activeJobs: 8,
+    successRate: 94
+  };
+
+  pendingFiles = [
+    { id: 'file1', name: 'קובץ לקוחות.csv', waitTime: '5 דק\'', position: 1, selected: false },
+    { id: 'file2', name: 'נתוני מכירות.xlsx', waitTime: '12 דק\'', position: 2, selected: false },
+    { id: 'file3', name: 'דוח חודשי.pdf', waitTime: '18 דק\'', position: 3, selected: false }
+  ];
+
+  topErrors = [
+    { id: 'error1', type: 'שגיאת פורמט CSV', count: 15, selected: false },
+    { id: 'error2', type: 'קובץ לא נמצא', count: 8, selected: false },
+    { id: 'error3', type: 'שגיאת הרשאות', count: 5, selected: false }
+  ];
+
+  throughputStats = {
+    currentRate: 45,
+    dailyVolume: 2.3,
+    avgProcessTime: 3.2
+  };
+
+  dataQuality = {
+    completeness: 94,
+    accuracy: 87,
+    consistency: 91
+  };
+
+  recentAlerts = [
+    { id: 'alert1', message: 'עומס גבוה במערכת', time: 'לפני 5 דק\'', severity: 'warning', selected: false },
+    { id: 'alert2', message: 'שגיאה בעיבוד קובץ', time: 'לפני 12 דק\'', severity: 'error', selected: false },
+    { id: 'alert3', message: 'עדכון מערכת הושלם', time: 'לפני 25 דק\'', severity: 'info', selected: false }
+  ];
+
+  problematicAreas = [
+    { id: 'area1', location: 'שרת עיבוד #2', description: 'ביצועים איטיים', severity: 'medium', selected: false },
+    { id: 'area2', location: 'מסד נתונים ראשי', description: 'שימוש גבוה בזיכרון', severity: 'high', selected: false },
+    { id: 'area3', location: 'רשת פנימית', description: 'חיבור לא יציב', severity: 'low', selected: false }
+  ];
 
   ngOnInit(): void {
-    // רענון אוטומטי כל 30 שניות
-    this.refreshSubscription = interval(30000).subscribe(() => {
-      console.log('רענון אוטומטי של נתונים...');
-      this.simulateLiveData();
-    });
-
-    // סימולציה של נתונים חיים כל 10 שניות
-    setInterval(() => this.simulateLiveData(), 10000);
-
-    // אנימציית טעינה ראשונית
-    setTimeout(() => {
-      this.initializeCards();
-    }, 100);
-
-    // הוספת אפקט Ripple לכפתורים
-    this.addRippleEffect();
-
-    // הוספת CSS לאנימציית Ripple
-    this.addRippleCSS();
+    this.startLiveUpdates();
   }
 
-  ngOnDestroy(): void {
-    if (this.refreshSubscription) {
-      this.refreshSubscription.unsubscribe();
-    }
+  startLiveUpdates(): void {
+    // עדכון נתונים כל 30 שניות
+    setInterval(() => {
+      this.updateLiveData();
+    }, 30000);
+  }
+
+  updateLiveData(): void {
+    // סימולציה של עדכון נתונים חיים
+    this.liveStats.processedToday += Math.floor(Math.random() * 3);
+    this.liveStats.activeJobs = Math.max(0, this.liveStats.activeJobs + Math.floor(Math.random() * 3) - 1);
+    
+    // עדכון תור קבצים
+    this.pendingFiles.forEach(file => {
+      const currentWait = parseInt(file.waitTime);
+      if (currentWait > 1) {
+        file.waitTime = (currentWait - 1) + ' דק\'';
+      }
+    });
+    
+    // עדכון throughput
+    this.throughputStats.currentRate = 40 + Math.floor(Math.random() * 20);
+    this.throughputStats.dailyVolume = Math.round((2 + Math.random() * 2) * 10) / 10;
   }
 
   refreshDashboard(): void {
-    const btn = document.querySelector('.refresh-btn') as HTMLElement;
-    if (btn) {
-      btn.style.background = 'linear-gradient(135deg, #ff9800 0%, #ff5722 100%)';
-      btn.innerHTML = '⏳ מרענן...';
-      
-      setTimeout(() => {
-        btn.style.background = 'linear-gradient(135deg, #4caf50 0%, #8bc34a 100%)';
-        btn.innerHTML = '✅ עודכן';
-        
-        setTimeout(() => {
-          btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-          btn.innerHTML = '🔄 רענן';
-        }, 2000);
-      }, 1500);
-      
-      console.log('רענון דשבורד...');
-    }
+    console.log('רענון דשבורד...');
+    this.updateLiveData();
   }
 
   showErrorDetails(errorId: number): void {
-    const errorItems = document.querySelectorAll('.error-item');
-    errorItems.forEach(item => {
-      (item as HTMLElement).style.transform = 'scale(0.95)';
-      (item as HTMLElement).style.opacity = '0.7';
-    });
-    
-    setTimeout(() => {
-      errorItems.forEach(item => {
-        (item as HTMLElement).style.transform = 'scale(1)';
-        (item as HTMLElement).style.opacity = '1';
-      });
-      alert(`הצגת פרטי שגיאה מספר: ${errorId}\nכאן יוצג חלון עם דוגמאות ופירוט השגיאה`);
-    }, 200);
+    console.log(`הצגת פרטי שגיאה מספר: ${errorId}`);
+    // כאן יוצג חלון עם דוגמאות ופירוט השגיאה
   }
 
   goToSource(sourceId: number): void {
-    const sourceItems = document.querySelectorAll('.source-item');
-    sourceItems.forEach(item => {
-      (item as HTMLElement).style.transform = 'translateX(-10px)';
-      (item as HTMLElement).style.opacity = '0.7';
-    });
-    
-    setTimeout(() => {
-      sourceItems.forEach(item => {
-        (item as HTMLElement).style.transform = 'translateX(0)';
-        (item as HTMLElement).style.opacity = '1';
-      });
-      alert(`מעבר למסך ניהול מקור מספר: ${sourceId}`);
-    }, 200);
+    console.log(`מעבר למסך ניהול מקור מספר: ${sourceId}`);
+    // כאן יתבצע ניווט למסך ניהול המקור
   }
 
-  private simulateLiveData(): void {
-    const statusNumbers = document.querySelectorAll('.status-number');
-    statusNumbers.forEach(element => {
-      const currentValue = parseInt(element.textContent || '0');
-      const newValue = currentValue + (Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0);
+  // פונקציות בחירה
+  toggleSelectAll(): void {
+    this.selectAll = !this.selectAll;
+    this.selectedItems.clear();
+    
+    if (this.selectAll) {
+      [...this.pendingFiles, ...this.topErrors, ...this.recentAlerts, ...this.problematicAreas]
+        .forEach(item => {
+          item.selected = true;
+          this.selectedItems.add(item.id);
+        });
+    } else {
+      [...this.pendingFiles, ...this.topErrors, ...this.recentAlerts, ...this.problematicAreas]
+        .forEach(item => item.selected = false);
+    }
+  }
+
+  toggleItemSelection(item: any): void {
+    item.selected = !item.selected;
+    
+    if (item.selected) {
+      this.selectedItems.add(item.id);
+    } else {
+      this.selectedItems.delete(item.id);
+      this.selectAll = false;
+    }
+    
+    // בדיקה אם כל הפריטים נבחרו
+    const allItems = [...this.pendingFiles, ...this.topErrors, ...this.recentAlerts, ...this.problematicAreas];
+    this.selectAll = allItems.every(i => i.selected);
+  }
+
+  getSelectedCount(): number {
+    return this.selectedItems.size;
+  }
+
+  hasSelectedItems(): boolean {
+    return this.selectedItems.size > 0;
+  }
+
+  // פעולות על פריטים נבחרים
+  deleteSelected(): void {
+    if (this.selectedItems.size === 0) {
+      alert('לא נבחר אף פריט');
+      return;
+    }
+    
+    if (confirm(`האם אתה בטוח שברצונך למחוק ${this.selectedItems.size} פריטים?`)) {
+      this.pendingFiles = this.pendingFiles.filter(item => !item.selected);
+      this.topErrors = this.topErrors.filter(item => !item.selected);
+      this.recentAlerts = this.recentAlerts.filter(item => !item.selected);
+      this.problematicAreas = this.problematicAreas.filter(item => !item.selected);
       
-      if (newValue >= 0) {
-        (element as HTMLElement).style.transform = 'scale(1.2)';
-        (element as HTMLElement).style.transition = 'all 0.3s ease';
-        
-        setTimeout(() => {
-          element.textContent = newValue.toString();
-          (element as HTMLElement).style.transform = 'scale(1)';
-        }, 150);
-      }
-    });
-    
-    const kpiValues = document.querySelectorAll('.kpi-value');
-    kpiValues.forEach(element => {
-      (element as HTMLElement).style.transform = 'translateY(-2px)';
-      setTimeout(() => {
-        (element as HTMLElement).style.transform = 'translateY(0)';
-      }, 300);
-    });
+      this.selectedItems.clear();
+      this.selectAll = false;
+    }
   }
 
-  private initializeCards(): void {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach((card, index) => {
-      (card as HTMLElement).style.opacity = '0';
-      (card as HTMLElement).style.transform = 'translateY(30px)';
-      
-      setTimeout(() => {
-        (card as HTMLElement).style.transition = 'all 0.6s ease';
-        (card as HTMLElement).style.opacity = '1';
-        (card as HTMLElement).style.transform = 'translateY(0)';
-      }, index * 100);
-    });
+  exportSelected(): void {
+    if (this.selectedItems.size === 0) {
+      alert('לא נבחר אף פריט');
+      return;
+    }
+    
+    console.log(`ייצוא ${this.selectedItems.size} פריטים נבחרים`);
+    alert(`ייצוא ${this.selectedItems.size} פריטים הושלם`);
   }
 
-  private addRippleEffect(): void {
-    document.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      if (target.matches('.error-item, .source-item, .queue-item, .refresh-btn')) {
-        this.createRippleEffect(e);
-      }
-    });
+  archiveSelected(): void {
+    if (this.selectedItems.size === 0) {
+      alert('לא נבחר אף פריט');
+      return;
+    }
+    
+    console.log(`העברה לארכיון של ${this.selectedItems.size} פריטים`);
+    alert(`${this.selectedItems.size} פריטים הועברו לארכיון`);
   }
 
-  private createRippleEffect(event: MouseEvent): void {
-    const element = event.currentTarget as HTMLElement;
-    const rect = element.getBoundingClientRect();
-    const ripple = document.createElement('span');
-    
-    ripple.style.position = 'absolute';
-    ripple.style.borderRadius = '50%';
-    ripple.style.background = 'rgba(102, 126, 234, 0.3)';
-    ripple.style.transform = 'scale(0)';
-    ripple.style.animation = 'ripple 0.6s linear';
-    ripple.style.left = (event.clientX - rect.left - 10) + 'px';
-    ripple.style.top = (event.clientY - rect.top - 10) + 'px';
-    ripple.style.width = '20px';
-    ripple.style.height = '20px';
-    
-    element.style.position = 'relative';
-    element.appendChild(ripple);
-    
-    setTimeout(() => {
-      ripple.remove();
-    }, 600);
-  }
-
-  private addRippleCSS(): void {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes ripple {
-        to {
-          transform: scale(4);
-          opacity: 0;
-        }
-      }
-    `;
-    document.head.appendChild(style);
+  clearSelection(): void {
+    this.selectedItems.clear();
+    this.selectAll = false;
+    [...this.pendingFiles, ...this.topErrors, ...this.recentAlerts, ...this.problematicAreas]
+      .forEach(item => item.selected = false);
   }
 }

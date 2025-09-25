@@ -26,6 +26,49 @@ export class FilesViewComponent implements OnChanges {
   @Output() clearSearchEvent = new EventEmitter<void>();
   hasActiveSearch = false;
 
+  // נתוני פאנל צד ימין
+  liveStats = {
+    processedToday: 0,
+    activeJobs: 0,
+    successRate: 0
+  };
+
+  pendingFiles = [
+    { name: 'קובץ לקוחות.csv', waitTime: '5 דק\'', position: 1 },
+    { name: 'נתוני מכירות.xlsx', waitTime: '12 דק\'', position: 2 },
+    { name: 'דוח חודשי.pdf', waitTime: '18 דק\'', position: 3 }
+  ];
+
+  topErrors = [
+    { type: 'שגיאת פורמט CSV', count: 15 },
+    { type: 'קובץ לא נמצא', count: 8 },
+    { type: 'שגיאת הרשאות', count: 5 }
+  ];
+
+  throughputStats = {
+    currentRate: 45,
+    dailyVolume: 2.3,
+    avgProcessTime: 3.2
+  };
+
+  dataQuality = {
+    completeness: 94,
+    accuracy: 87,
+    consistency: 91
+  };
+
+  recentAlerts = [
+    { message: 'עומס גבוה במערכת', time: 'לפני 5 דק\'', severity: 'warning' },
+    { message: 'שגיאה בעיבוד קובץ', time: 'לפני 12 דק\'', severity: 'error' },
+    { message: 'עדכון מערכת הושלם', time: 'לפני 25 דק\'', severity: 'info' }
+  ];
+
+  problematicAreas = [
+    { location: 'שרת עיבוד #2', description: 'ביצועים איטיים', severity: 'medium' },
+    { location: 'מסד נתונים ראשי', description: 'שימוש גבוה בזיכרון', severity: 'high' },
+    { location: 'רשת פנימית', description: 'חיבור לא יציב', severity: 'low' }
+  ];
+
   constructor(
     private importDS: ImportDataSourceService,
     private router: Router,
@@ -184,6 +227,18 @@ export class FilesViewComponent implements OnChanges {
       default: return 'status-success';
     }
   }
+
+  // getSystemName(systemId: string): string {
+  //   if (!systemId) return '—';
+  //   const system = this.systemOptions.find(s => s.value == systemId);
+  //   return system ? system.label : systemId;
+  // }
+
+  // getTypeName(typeId: string): string {
+  //   if (!typeId) return '—';
+  //   const type = this.typeOptions.find(t => t.value == typeId);
+  //   return type ? type.label : typeId;
+  // }
 
   openEditDialog(process: any) {
     this.dialogIsEdit = true;
