@@ -11,7 +11,7 @@ export const routes: Routes = [
   { path: 'files', component: FilesListComponent },
   { path: 'add-file', component: AddFilePageComponent },
   { path: 'environments', component: EnvironmentsComponent },
-    { path: 'viewcontrol', component: ViewControlComponent },
+    { path: 'view-control', component: ViewControlComponent },
     { path: 'capture', component: CaptureComponent },
 
 
