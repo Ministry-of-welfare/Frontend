@@ -14,10 +14,10 @@ export const routes: Routes = [
   { path: 'files', component: FilesListComponent },
   { path: 'add-file', component: AddFilePageComponent },
   { path: 'environments', component: EnvironmentsComponent },
-  //למחוק בהמשך...
-   { path: 'viewcontrol', component: ViewControlComponent },
+     { path: 'viewcontrol', component: ViewControlComponent },
+    { path: 'capture', component: CaptureComponent },
 
-  { path: 'captures', component: CaptureComponent },
+
 
 
 
