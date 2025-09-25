@@ -10,7 +10,7 @@ export const routes: Routes = [
   { path: 'files', component: FilesListComponent },
   { path: 'add-file', component: AddFilePageComponent },
   { path: 'environments', component: EnvironmentsComponent },
-  { path: 'captures', component: CaptureComponent },
+  { path: 'capture', component: CaptureComponent },
 
 
   { path: '**', redirectTo: '' }
