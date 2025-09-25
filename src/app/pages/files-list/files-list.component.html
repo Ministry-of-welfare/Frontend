@@ -1,8 +1,8 @@
 <div class="page-container">
-      <!-- <div class="page-header">
+      <div class="page-header">
         <h1>רשימת קבצים</h1>
         <a routerLink="/add-file" class="add-btn">הוסף קובץ חדש</a>
-      </div> -->
+      </div>
       <app-search-file (searchEvent)="onSearch($event)"></app-search-file>
      <app-files-view 
   [systems]="systems" 
