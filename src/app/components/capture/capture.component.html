@@ -53,35 +53,35 @@
     </div>
     <label class="checkbox">
       <input type="checkbox" [(ngModel)]="onlyErrors" />
-        הצג רק קליטות עם שגיאות  
+      הצג רק קליטות עם שגיאות
     </label>
- 
 
-  <div class="actions">
-    <button class="btn-reset">🔄 איפוס פילטרים</button>
-    <button class="btn-search">🔍 חיפוש</button>
+
+    <div class="actions">
+      <button class="btn-reset">🔄 איפוס פילטרים</button>
+      <button class="btn-search">🔍 חיפוש</button>
+    </div>
   </div>
- </div>
   <section class="panel">
     <!-- <div class="card table-card"> -->
 
-      <div class="section-title">🗒️ תוצאות הקליטות </div>
+    <div class="section-title">🗒️ תוצאות הקליטות </div>
 
-      <div class="actions">
+    <div class="actions">
 
-        <button class="btn-search" (click)="exportToExcel()">
-          <!-- <mat-icon>download</mat-icon> -->
-          📄 יצוא לאקסל
-        </button>
-      </div>
+      <button class="btn-search" (click)="exportToExcel()">
+        <!-- <mat-icon>download</mat-icon> -->
+        📄 יצוא לאקסל
+      </button>
+    </div>
     <!-- </div> -->
   </section>
 
   <div class="card table-card">
     <!-- טבלה -->
     <table class="data-table">
-      <thead >
-        <tr >
+      <thead>
+        <tr>
           <th class="label">מ"ז קליטה</th>
           <th class="label">תיאור מקור</th>
           <th class="label">מערכת</th>
@@ -102,7 +102,7 @@
           <td class="label">{{ item.source }}</td>
           <td class="label">{{ item.system }}</td>
           <td class="label">{{ item.fileName }}</td>
-          <td  class="label">{{ item.startDate }}</td>
+          <td class="label">{{ item.startDate }}</td>
           <td>{{ item.endDate }}</td>
           <td>{{ item.total }}</td>
           <td>{{ item.loaded }}</td>
