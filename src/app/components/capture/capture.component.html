@@ -53,48 +53,56 @@
     </div>
     <label class="checkbox">
       <input type="checkbox" [(ngModel)]="onlyErrors" />
-      הצג רק קליטות עם שגיאות
+        הצג רק קליטות עם שגיאות  
     </label>
-    <div class="actions">
-      <button class="btn-reset">🔄 איפוס פילטרים</button>
-      <button class="btn-search">🔍 חיפוש</button>
-    </div>
+ 
+
+  <div class="actions">
+    <button class="btn-reset">🔄 איפוס פילטרים</button>
+    <button class="btn-search">🔍 חיפוש</button>
   </div>
-</div>
-<div class="card table-card">
-  <div class="table-header">
-    <button mat-raised-button color="primary" (click)="exportToExcel()">
-      <!-- <mat-icon>download</mat-icon> -->
-      יצוא לאקסל
-    </button>
-  </div>
+ </div>
+  <section class="panel">
+    <!-- <div class="card table-card"> -->
+
+      <div class="section-title">🗒️ תוצאות הקליטות </div>
+
+      <div class="actions">
+
+        <button class="btn-search" (click)="exportToExcel()">
+          <!-- <mat-icon>download</mat-icon> -->
+          📄 יצוא לאקסל
+        </button>
+      </div>
+    <!-- </div> -->
+  </section>
 
   <div class="card table-card">
     <!-- טבלה -->
     <table class="data-table">
-      <thead>
-        <tr>
-          <th>מ"ז קליטה</th>
-          <th>תיאור מקור</th>
-          <th>מערכת</th>
-          <th>שם קובץ</th>
-          <th>תחילת קליטה</th>
-          <th> סיום קליטה </th>
-          <th>שורות בקובץ</th>
-          <th> שורות שנקלטו</th>
-          <th>שורות פגומות </th>
-          <th>סטטוס</th>
-          <th>פעולות</th>
+      <thead >
+        <tr >
+          <th class="label">מ"ז קליטה</th>
+          <th class="label">תיאור מקור</th>
+          <th class="label">מערכת</th>
+          <th class="label">שם קובץ</th>
+          <th class="label">תחילת קליטה</th>
+          <th class="label"> סיום קליטה </th>
+          <th class="label">שורות בקובץ</th>
+          <th class="label"> שורות שנקלטו</th>
+          <th class="label">שורות פגומות </th>
+          <th class="label">סטטוס</th>
+          <th class="label">פעולות</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let item of filteredData" (contextmenu)="onContextMenu($event, item)"
           (dblclick)="onRowDoubleClick(item)">
-          <td>{{ item.id }}</td>
-          <td>{{ item.source }}</td>
-          <td>{{ item.system }}</td>
-          <td>{{ item.fileName }}</td>
-          <td>{{ item.startDate }}</td>
+          <td class="label">{{ item.id }}</td>
+          <td class="label">{{ item.source }}</td>
+          <td class="label">{{ item.system }}</td>
+          <td class="label">{{ item.fileName }}</td>
+          <td  class="label">{{ item.startDate }}</td>
           <td>{{ item.endDate }}</td>
           <td>{{ item.total }}</td>
           <td>{{ item.loaded }}</td>
