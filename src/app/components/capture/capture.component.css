@@ -114,23 +114,62 @@
   padding: 5px 8px;
   border-radius: 4px;
 }
-
-.btn-search {
-  background: #7c3aed;
-  color: #fff;
-  border: none;
-  padding: 6px 15px;
-  border-radius: 4px;
-  cursor: pointer;
+.checkbox{
+ /* direction: ltr; */
+  /* לצד ימין */
+  display: flex;
+  justify-content: flex-start;
+  grid-column: 1 / -1;
+  margin-top: 8px;
 }
 
-.btn-reset {
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  /* לצד ימין */
+  gap: 1rem;
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+.btn-search,
+ .btn-reset{
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 10px 24px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  letter-spacing: -0.2px;
+}
+.btn-search:hover,
+.btn-reset:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.btn-search:active,
+.btn-reset:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+
+/* .btn-reset {
   background: #e5e7eb;
   border: none;
   padding: 6px 15px;
   border-radius: 4px;
   cursor: pointer;
-}
+} */
 
 .data-table {
   width: 100%;
@@ -194,5 +233,17 @@
 table.mat-table tr.mat-row td {
   padding: 12px 16px;
 }
+/* 📱 רספונסיביות */
+@media (max-width: 768px) {
+  .search-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  }
 
 
