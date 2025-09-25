@@ -1,3 +1,49 @@
+/* עיצוב תפריט קונטקסט */
+
+.context-menu {
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  min-width: 260px;
+  max-width: 320px;
+  padding: 0;
+  font-family: inherit;
+  font-size: 14px;
+}
+.context-menu-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+.context-menu-list .context-menu-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f3f3;
+  font-size: 14px;
+  transition: background 0.15s;
+  direction: rtl;
+  min-width: 0;
+  white-space: nowrap;
+}
+.context-menu-list .context-menu-item:last-child {
+  border-bottom: none;
+}
+.context-menu-list .context-menu-item:hover {
+  background: #f7f9fa;
+}
+.context-menu-list .icon {
+  font-size: 18px;
+  margin-right: 8px;
+  margin-left: 0;
+  display: flex;
+  align-items: center;
+}
 .page-container {
   font-family: "Segoe UI", Arial, sans-serif;
   direction: rtl;

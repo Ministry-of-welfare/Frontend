@@ -84,7 +84,9 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let item of filteredData">
+      <tr *ngFor="let item of filteredData"
+          (contextmenu)="onContextMenu($event, item)"
+          (dblclick)="onRowDoubleClick(item)">
         <td>{{ item.id }}</td>
         <td>{{ item.source }}</td>
         <td>{{ item.system }}</td>
@@ -107,6 +109,40 @@
         </td>
         <td>קובץ שגיאות</td>
       </tr>
+<!-- תפריט קונטקסט -->
+<div *ngIf="contextMenuVisible"
+     class="context-menu"
+     [ngStyle]="{ top: contextMenuY + 'px', left: contextMenuX + 'px', position: 'fixed', 'z-index': 1000 }"
+     (click)="$event.stopPropagation()">
+  <div class="context-menu-list">
+    <div class="context-menu-item" (click)="viewDetails()">
+      <span class="icon">📊</span>
+      צפייה בפרטי הקליטה
+    </div>
+    <div class="context-menu-item" (click)="viewRows()">
+      <span class="icon">📋</span>
+      צפיה בפרוט שורות הקליטה
+    </div>
+    <div class="context-menu-item" (click)="viewErrors()">
+      <span class="icon">⚠️</span>
+      צפיה בשגיאות
+    </div>
+    <div class="context-menu-item" (click)="downloadErrorReport()">
+      <span class="icon">🧹</span>
+      הורדת דוח שגיאות
+    </div>
+    <div class="context-menu-item" (click)="openFilePath()">
+      <span class="icon">📁</span>
+      פתיחת נתיב הקובץ לאחר עיבוד
+    </div>
+    <div class="context-menu-item" (click)="showLogs()">
+      <span class="icon">📝</span>
+      הצגת לוגים
+    </div>
+  </div>
+</div>
+<!-- סקריפט לסגירת תפריט בלחיצה מחוץ -->
+<div (click)="onDocumentClick($event)" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999" *ngIf="contextMenuVisible"></div>
     </tbody>
   </table>
   </div>
