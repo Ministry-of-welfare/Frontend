@@ -39,6 +39,29 @@ export class EditProcessDialogComponent {
   // שדות שגיאה
   errors: any = {};
 
+  // Getter for formatted created date for template binding
+  get formattedCreatedDate(): string {
+    const date = this.data?.createdDate;
+    if (!date) return '';
+    let d: Date | null = null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      d = new Date(date);
+    } else if (date.includes('T')) {
+      d = new Date(date);
+    }
+    if (d && !isNaN(d.getTime())) {
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+    const parts = date.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return date;
+  }
+
   // מערכות לדוגמה
   systems = [
     { value: 'HR_SYSTEM', label: 'מערכת משאבי אנוש' },

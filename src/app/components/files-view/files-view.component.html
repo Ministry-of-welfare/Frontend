@@ -1,47 +1,35 @@
 <div class="page">
-  <div class="header">
-    <div class="header-content">
-      <div>
-        <h1>📁 רשימת סוגי קבצים לקליטה</h1>
-        <div class="breadcrumb">
-          <a href="#dashboard">דשבורד</a> 
-          <span>→</span> 
-          <a href="#files">ניהול קבצים</a> 
-          <span>→</span> 
-          <span>רשימת קבצים</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="view-toggle">
-    <button [class.active]="viewMode === 'cards'" (click)="setView('cards')">תצוגת כרטיסיות</button>
-    <button [class.active]="viewMode === 'table'" (click)="setView('table')">תצוגת טבלה</button>
-  </div>
-
-
+  <!-- טעינת נתונים -->
   <div *ngIf="loading" class="loading">טוען נתונים...</div>
 
+  <!-- ללא תוצאות -->
   <div *ngIf="!loading && displayedProcesses.length === 0" class="no-results">
     <h3>לא נמצאו תוצאות תואמות</h3>
     <p>נסה לשנות את קריטריוני החיפוש</p>
   </div>
 
-  <!-- Controls Panel -->
+  <!-- פאנל שליטה -->
   <section class="panel">
     <div class="controls-row">
       <div class="right">
-        <button [class.active]="viewMode === 'table'" class="toggle-btn" (click)="setView('table')">📊 טבלה</button>
-        <button [class.active]="viewMode === 'cards'" class="toggle-btn" (click)="setView('cards')">🃏 כרטיסים</button>
-      </div>
+        <button class="toggle-btn" [class.active]="viewMode === 'table'" (click)="setView('table')">
+          📊 טבלה
+        </button>
 
+        <button class="toggle-btn" [class.active]="viewMode === 'cards'" (click)="setView('cards')">
+          🃏 כרטיסים
+        </button>
+      </div>
     </div>
   </section>
 
-  <!-- Results Panel -->
+  <!-- תוצאות -->
   <section class="panel">
-    <!-- Cards View -->
+    <!-- כרטיסים -->
     <div *ngIf="viewMode === 'cards' && !loading" class="cards-view">
       <article class="job-card" *ngFor="let p of displayedProcesses">
+
+        <!-- כותרת כרטיס -->
         <div class="card-header">
           <div>
             <div class="card-title">{{ p.importDataSourceDesc || 'ללא תיאור' }}</div>
@@ -52,14 +40,40 @@
           </span>
         </div>
 
+        <hr class="card-divider" />
+
+        <!-- פרטי כרטיס כטבלה -->
         <div class="card-details">
-          <div class="row"><span class="label">מערכת:</span><span class="value">{{ getSystemName(p.systemId) || '—' }}</span></div>
-          <div class="row"><span class="label">סוג קליטה:</span><span class="value">{{ getDataSourceTypeName(p.dataSourceTypeId) || '—' }}</span></div>
-          <div class="row"><span class="label">תאריך יצירה:</span><span class="value">{{ p.createdDate || p.startDate || '—' }}</span></div>
-          <div class="row"><span class="label">עדכון אחרון:</span><span class="value">{{ p.endDate || '—' }}</span></div>
-          <div class="row"><span class="label">קוד עבודה:</span><span class="value">{{ p.jobName || '—' }}</span></div>
+          <table class="details-table">
+            <tr>
+              <td class="label">מערכת</td>
+              <td class="value">{{ getSystemName(p.systemId) || '—' }}</td>
+
+            </tr>
+            <tr>
+              <td class="label">סוג קליטה</td>
+              <td class="value">{{ getDataSourceTypeName(p.dataSourceTypeId) || '—' }}</td>
+
+            </tr>
+            <tr>
+              <td class="label">תאריך יצירה</td>
+              <td class="value">{{ p.createdDate || p.startDate || '—' }}</td>
+
+            </tr>
+            <tr>
+              <td class="label">עדכון אחרון</td>
+              <td class="value">{{ p.endDate || '—' }}</td>
+
+            </tr>
+            <tr>
+              <td class="label">קוד עבודה</td>
+              <td class="value">{{ p.jobName || '—' }}</td>
+
+            </tr>
+          </table>
         </div>
 
+        <!-- כפתורי פעולה -->
         <div class="card-actions">
           <button class="action-btn delete-btn" (click)="openDeleteDialog(p)">🗑️</button>
           <button class="action-btn edit-btn" (click)="openEditDialog(p)">✏️</button>
@@ -68,7 +82,7 @@
       </article>
     </div>
 
-    <!-- Table View -->
+    <!-- טבלה -->
     <div *ngIf="viewMode === 'table' && !loading" class="table-wrapper">
       <table>
         <thead>
@@ -95,7 +109,11 @@
             </td>
             <td>{{ p.endDate || '—' }}</td>
             <td>{{ p.createdDate || p.startDate || '—' }}</td>
-            <td><span class="status-badge" [ngClass]="getStatusClass(p.status)">{{ formatStatus(p.status) }}</span></td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(p.status)">
+                {{ formatStatus(p.status) }}
+              </span>
+            </td>
             <td>{{ getDataSourceTypeName(p.dataSourceTypeId) || '—' }}</td>
             <td>{{ getSystemName(p.systemId) || '—' }}</td>
             <td>{{ p.jobName || p.tableName || '—' }}</td>
@@ -107,17 +125,9 @@
     </div>
   </section>
 
-
-
   <!-- דיאלוג עריכה -->
-  <app-edit-process-dialog
-    [visible]="dialogVisible"
-    [data]="dialogData"
-    [isEdit]="dialogIsEdit"
-    [isView]="dialogIsView"
-    (confirm)="onDialogConfirm($event)"
-    (cancel)="onDialogCancel()"
-  ></app-edit-process-dialog>
+  <app-edit-process-dialog [visible]="dialogVisible" [data]="dialogData" [isEdit]="dialogIsEdit" [isView]="dialogIsView"
+    (confirm)="onDialogConfirm($event)" (cancel)="onDialogCancel()"></app-edit-process-dialog>
 
   <!-- דיאלוג מחיקה -->
   <div *ngIf="deleteDialogVisible" class="delete-backdrop" (click)="closeDeleteDialog()">
@@ -126,15 +136,12 @@
       <h3 class="delete-title">מחיקת פריט</h3>
       <p class="delete-message">
         האם אתה בטוח שברצונך למחוק את<br>
-        <strong>"{{ selectedProcessToDelete?.importDataSourceDesc || selectedProcessToDelete?.jobName || 'הפריט הנבחר' }}"</strong>?
+        <strong>"{{ selectedProcessToDelete?.importDataSourceDesc || selectedProcessToDelete?.jobName || 'הפריט הנבחר'
+          }}"</strong>?
       </p>
       <div class="delete-actions">
-        <button class="delete-confirm-btn" (click)="confirmDelete()">
-          ✓ אישור מחיקה
-        </button>
-        <button class="delete-cancel-btn" (click)="closeDeleteDialog()">
-          ✕ ביטול
-        </button>
+        <button class="delete-confirm-btn" (click)="confirmDelete()">✓ אישור מחיקה</button>
+        <button class="delete-cancel-btn" (click)="closeDeleteDialog()">✕ ביטול</button>
       </div>
     </div>
   </div>
