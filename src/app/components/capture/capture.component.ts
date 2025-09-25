@@ -119,13 +119,58 @@ export class CaptureComponent {
 //   XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
 //   XLSX.writeFile(wb, 'table-data.xlsx');
 // }
+  /**
+   * הפונקציה תמשיך לעבוד גם עם נתונים אמיתיים מהשרת,
+   * כל עוד הנתונים נשמרים במשתנה data והפונקציה filteredData מחזירה את השורות הרלוונטיות.
+   */
   exportToExcel(): void {
-    const element = document.getElementById('dataTable');
-    if (!element) return;
-    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
+    const headers = [
+      'מ"ז קליטה',
+      'תיאור מקור',
+      'מערכת',
+      'שם קובץ',
+      'תחילת קליטה',
+      'סיום קליטה',
+      'שורות בקובץ',
+      'שורות שנקלטו',
+      'שורות פגומות',
+      'סטטוס',
+      'סטטוס בעברית'
+    ];
+
+    const dataToExport = this.filteredData.map(item => [
+      item.id,
+      item.source,
+      item.system,
+      item.fileName,
+      item.startDate,
+      item.endDate,
+      item.total,
+      item.loaded,
+      item.failed,
+      item.status,
+      item.statusLabel
+    ]);
+
+    const worksheetData = [headers, ...dataToExport];
+    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // הדגשת כותרת (שורה ראשונה) ב-bold
+    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!ws[cellAddress]) continue;
+      ws[cellAddress].s = {
+        font: { bold: true }
+      };
+    }
+
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-    XLSX.writeFile(wb, 'table-data.xlsx');
+
+    const now = new Date();
+    const fileName = `קליטות-קבצים-${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}.xlsx`;
+    XLSX.writeFile(wb, fileName);
   }
 }
 
