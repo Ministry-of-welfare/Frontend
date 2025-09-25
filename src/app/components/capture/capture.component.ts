@@ -26,6 +26,74 @@ export interface GroupImport {
   styleUrl: './capture.component.css'
 })
 export class CaptureComponent {
+  // משתנים לתפריט קונטקסט
+  contextMenuVisible = false;
+  contextMenuX = 0;
+  contextMenuY = 0;
+  contextMenuRow: any = null;
+
+  // פתיחת תפריט קונטקסט
+  onContextMenu(event: MouseEvent, row: any) {
+    event.preventDefault();
+    this.contextMenuVisible = true;
+    this.contextMenuX = event.clientX;
+    this.contextMenuY = event.clientY;
+    this.contextMenuRow = row;
+  }
+
+  // סגירת תפריט קונטקסט
+  closeContextMenu() {
+    this.contextMenuVisible = false;
+    this.contextMenuRow = null;
+  }
+
+  // פעולות בתפריט
+  viewDetails() {
+    // צפייה בפרטי הקליטה
+    alert('צפייה בפרטי הקליטה: ' + this.contextMenuRow.fileName);
+    this.closeContextMenu();
+  }
+  viewRows() {
+    // צפיה בפרוט שורות הקליטה
+    alert('צפיה בפרוט שורות: ' + this.contextMenuRow.fileName);
+    this.closeContextMenu();
+  }
+  viewErrors() {
+    // צפיה בשגיאות
+    alert('צפיה בשגיאות: ' + this.contextMenuRow.fileName);
+    this.closeContextMenu();
+  }
+  downloadErrorReport() {
+    // הורדת דוח שגיאות
+    if (this.contextMenuRow.failed > 0) {
+      alert('הורדת דוח שגיאות: ' + this.contextMenuRow.fileName);
+    } else {
+      alert('אין דוח שגיאות לשורה זו');
+    }
+    this.closeContextMenu();
+  }
+  openFilePath() {
+    // פתיחת נתיב הקובץ לאחר עיבוד
+    alert('פתיחת נתיב קובץ: ' + this.contextMenuRow.fileName);
+    this.closeContextMenu();
+  }
+  showLogs() {
+    // הצגת לוגים
+    alert('הצגת לוגים: ' + this.contextMenuRow.fileName);
+    this.closeContextMenu();
+  }
+
+  // לחיצה כפולה על שורת אב
+  onRowDoubleClick(row: any) {
+    this.viewRows();
+  }
+
+  // סגירת תפריט בלחיצה מחוץ
+  onDocumentClick(event: MouseEvent) {
+    if (this.contextMenuVisible) {
+      this.closeContextMenu();
+    }
+  }
 
 // ngOnInit(): void {
 //   this.ImportControlService.getAll().subscribe(data => {
