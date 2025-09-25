@@ -13,6 +13,5 @@ export const routes: Routes = [
   { path: 'capture', component: CaptureComponent },
 
 
-
   { path: '**', redirectTo: '' }
 ];
