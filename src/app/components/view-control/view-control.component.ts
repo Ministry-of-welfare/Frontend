@@ -18,6 +18,7 @@ interface EmployeeRow {
   errors?: { field: string; message: string }[];
 }
 
+
 @Component({
   selector: 'app-view-control',
   standalone: true,
