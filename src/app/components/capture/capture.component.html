@@ -1,6 +1,8 @@
 <div class="page-container">
+<div class ="header-content">
   <h2 class="page-title">📊 רשימת קליטות קבצים</h2>
-
+<label >🔘 אדכון אוטומטי</label>
+</div>
   <!-- כרטיסי סטטוס -->
   <div class="status-cards">
     <div class="card border-blue">
@@ -51,11 +53,20 @@
       <input type="text" [(ngModel)]="searchTerm" placeholder="שם קובץ..." />
 
     </div>
-    <label class="checkbox"><br>
+
+    <!-- <label class="checkbox">
+
       <input type="checkbox" [(ngModel)]="onlyErrors" />
                  הצג רק קליטות עם שגיאות      
-    </label>
-
+    </label> -->
+<label class="checkbox">
+  <input 
+    type="checkbox" 
+    [(ngModel)]="onlyErrors" 
+    (change)="0" 
+  />
+  הצג רק קליטות עם שגיאות
+</label>
 
     <div class="actions">
       <button class="btn-reset" (click)="resetFilters()">🔄 איפוס פילטרים</button>
