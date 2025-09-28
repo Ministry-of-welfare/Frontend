@@ -1,8 +1,9 @@
 <div class="container">
   <!-- כותרת -->
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-    <h2 class="title">קליטת עובדים סוציאליים – קבוצת #1001</h2>
-    <button style="color: #2563eb; text-decoration: underline; background: none; border: none; cursor: pointer;">חזרה לרשימה ←</button>
+    <h2 class="title">📄 קליטת עובדים סוציאליים – קבוצת #1001 </h2>
+    <button class="reset-btn"> ← חזרה
+      לרשימה </button>
   </div>
 
   <!-- סינון -->
@@ -32,23 +33,35 @@
       </select>
     </div>
     <div>
-      <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">חיפוש טקסט חופשי</label>
+      <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">חיפוש טקסט
+        חופשי</label>
       <div style="position: relative;">
-        <input [(ngModel)]="filters.freeText" placeholder="חיפוש טקסט חופשי" class="input" style="padding-left: 2.5rem;" />
+        <input [(ngModel)]="filters.freeText" placeholder="חיפוש טקסט חופשי" class="input"
+          style="padding-left: 2.5rem;" />
         <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></span>
       </div>
     </div>
-    <div></div>
-    <div class="actions">
-      <button class="search-btn" (click)="search()">חיפוש 🔍 </button>
-      <button class="reset-btn" (click)="reset()">איפוס </button>
-    </div>
-  </div>
+
+<label class="checkbox">
+      <input type="checkbox" [(ngModel)]="filters.showErrorsOnly" id="showErrors"/>
+      הצג רק קליטות עם שגיאות
+    </label>
+
+
   
-  <div style="margin-top: 1rem; margin-bottom: 1rem;">
-    <input type="checkbox" [(ngModel)]="filters.showErrorsOnly" id="showErrors" style="margin-left: 0.5rem;">
-    <label for="showErrors" style="font-size: 0.875rem; color: #374151;">הצג רק שורות עם שגיאות</label>
+
+
+  <!-- <div style="margin-top: 1rem; margin-bottom: 1rem;">
+    <input type="checkbox" [(ngModel)]="filters.showErrorsOnly" id="showErrors" >
+    <label for="showErrors" class="checkbox"> הצג רק שורות עם שגיאות</label>
+  </div> -->
+  <div class="actions">
+    <button class="search-btn" (click)="search()">🔍 חיפוש </button>
+    <button class="reset-btn" (click)="reset()">🔄 איפוס </button>
   </div>
+  </div>
+
+
 
   <!-- טבלה -->
   <div class="table-container">
@@ -101,10 +114,14 @@
   <div style="display: flex; justify-content: center; align-items: center; margin-top: 2rem;">
     <div class="pages">
       <button (click)="previousPage()" [disabled]="currentPage === 1">&laquo;</button>
-      <button *ngFor="let page of getPages()" 
-              (click)="goToPage(page)" 
-              [class.active]="page === currentPage">{{ page }}</button>
+      <button *ngFor="let page of getPages()" (click)="goToPage(page)" [class.active]="page === currentPage">{{ page
+        }}</button>
       <button (click)="nextPage()" [disabled]="currentPage === totalPages">&raquo;</button>
     </div>
+  </div>
+  <!-- צריך להחליץ את שמות הפונקציות ולבנות אותן -->
+   <div class="actionsexportToExcel">
+    <button class="exportToExcel" (click)="search()">📄 ייצוא השרות המסומנות</button>
+    <button class="exportToExcel" (click)="reset()">📄 ייצוא רק שגיעות </button>
   </div>
 </div>

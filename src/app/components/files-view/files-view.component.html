@@ -9,9 +9,14 @@
   </div>
 
   <!-- פאנל שליטה -->
-  <section class="panel">
+  <section class="panel">   
+       <div class="section-title">🗒️ רשימת הקבצים  </div>
+          
+
     <div class="controls-row">
+      
       <div class="right">
+
         <button class="toggle-btn" [class.active]="viewMode === 'table'" (click)="setView('table')">
           📊 טבלה
         </button>
