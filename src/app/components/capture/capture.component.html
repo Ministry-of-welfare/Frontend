@@ -51,7 +51,7 @@
       <input type="text" [(ngModel)]="searchTerm" placeholder="שם קובץ..." />
 
     </div>
-    <label class="checkbox">
+    <label class="checkbox"><br>
       <input type="checkbox" [(ngModel)]="onlyErrors" />
       הצג רק קליטות עם שגיאות
     </label>
@@ -62,20 +62,6 @@
       <button class="btn-search" (click)="applyFilters()">🔍 חיפוש</button>
     </div>
   </div>
-  <section class="panel">
-    <!-- <div class="card table-card"> -->
-
-    <div class="section-title">🗒️ תוצאות הקליטות </div>
-
-    <div class="actions">
-
-      <button class="btn-reset" (click)="exportToExcel()">
-        <!-- <mat-icon>download</mat-icon> -->
-        📄 יצוא לאקסל
-      </button>
-    </div>
-    <!-- </div> -->
-  </section>
 
   <!-- <div *ngIf="viewMode === 'table' && !loading" class="table-wrapper">
       <table>
@@ -94,6 +80,23 @@
         </thead> -->
 
   <div class="card table-card">
+
+
+      <section class="panel">
+    <!-- <div class="card table-card"> -->
+
+
+    <div class="actions">
+    <div class="section-title">🗒️ תוצאות הקליטות </div>
+
+      <button class="btn-reset" (click)="exportToExcel()">
+        <!-- <mat-icon>download</mat-icon> -->
+        📄 יצוא לאקסל
+      </button>
+    </div>
+    <!-- </div> -->
+  </section>
+
     <!-- טבלה -->
     <table class="data-table">
       <thead>

@@ -134,7 +134,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 15px;
+  /* margin-bottom: 5px; */
   align-items: center;
   background: #fff;
   padding: 10px;
@@ -151,14 +151,16 @@
 .section-title {
   font-size: 20px;
   font-weight: 700;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
   color: #333;
   display: flex;
   align-items: center;
   gap: 12px;
   padding-bottom: 10px;
-  border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+  margin-left:700px ;
   text-align: right;
+    line-height: 1.1;
+
 }
 
 .checkbox {
