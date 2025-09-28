@@ -121,7 +121,7 @@
   </div>
   <!-- צריך להחליץ את שמות הפונקציות ולבנות אותן -->
    <div class="actionsexportToExcel">
-    <button class="exportToExcel" (click)="search()">📄 ייצוא השרות המסומנות</button>
-    <button class="exportToExcel" (click)="reset()">📄 ייצוא רק שגיאות </button>
+    <button class="exportToExcel" (click)="search()" (click)="exportAllToExcel()">📄 ייצוא השרות המסומנות</button>
+    <button class="exportToExcel" (click)="reset()"(click)="exportErrorsToExcel()">📄 ייצוא רק שגיאות </button>
   </div>
 </div>
