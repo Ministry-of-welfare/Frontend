@@ -2,8 +2,13 @@
   <!-- כותרת -->
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
     <h2 class="title">📄 קליטת עובדים סוציאליים – קבוצת #1001 </h2>
-    <button class="reset-btn"> ← חזרה
-      לרשימה </button>
+      <!-- <a href="#capture" class="reset-btn"> חזרה לרשימה</a> 
+        <span>→</span>  -->
+        <a [routerLink]="['/capture']" fragment="top" class="reset-btn"> ← חזרה לרשימה</a>
+
+<!-- 
+    <button class="reset-btn" > ← חזרה
+      לרשימה </button> -->
   </div>
 
   <!-- סינון -->
