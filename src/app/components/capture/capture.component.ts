@@ -122,7 +122,7 @@ export class CaptureComponent {
       endDate: '15.01.2025 09:45',
       total: 250,
       loaded: 248,
-      failed: 2,
+      failed: 0,
       status: 'success',
       statusLabel: 'הצלחה'
     },
@@ -166,19 +166,61 @@ export class CaptureComponent {
       statusLabel: 'כישלון'
     }
   ];
+get filteredData() {
+  return this.data.filter(item => {
+    let ok = true;
 
-  get filteredData() {
-    return this.data.filter(item => {
-      const matchStatus =
-        !this.selectedStatus || item.status === this.selectedStatus;
-      const matchErrors = !this.onlyErrors || item.failed > 0;
-      const matchSearch =
-        !this.searchTerm ||
-        item.fileName.includes(this.searchTerm) ||
-        item.source.includes(this.searchTerm);
-      return matchStatus && matchErrors && matchSearch;
-    });
-  }
+    // טווח תאריכים
+    if (this.startDate && item.startDate) {
+      const itemStart = new Date(item.startDate.split(' ')[0].split('.').reverse().join('-'));
+      const filterStart = new Date(this.startDate);
+      if (itemStart < filterStart) ok = false;
+    }
+
+    if (this.endDate && item.endDate && item.endDate !== '-') {
+      const itemEnd = new Date(item.endDate.split(' ')[0].split('.').reverse().join('-'));
+      const filterEnd = new Date(this.endDate);
+      if (itemEnd > filterEnd) ok = false;
+    }
+
+    // מערכת
+    if (this.selectedSystem && item.system !== this.selectedSystem) ok = false;
+
+    // מקור
+    if (this.selectedSource && item.source !== this.selectedSource) ok = false;
+
+    // סטטוס
+    if (this.selectedStatus && item.status !== this.selectedStatus) ok = false;
+
+    // שגיאות בלבד
+    if (this.onlyErrors && item.failed <= 0) ok = false;
+
+    // חיפוש טקסט
+    if (this.searchTerm &&
+        !item.fileName.includes(this.searchTerm) &&
+        !item.source.includes(this.searchTerm)) {
+      ok = false;
+    }
+
+    return ok;
+  });
+}
+
+  // get filteredData() {
+  //   return this.data.filter(item => {
+  //     const matchStatus =
+  //       !this.selectedStatus || item.status === this.selectedStatus;
+  //     const matchErrors = !this.onlyErrors || item.failed > 0;
+  //     const matchSearch =
+  //       !this.searchTerm ||
+  //       item.fileName.includes(this.searchTerm) ||
+  //       item.source.includes(this.searchTerm);
+  //     return matchStatus && matchErrors && matchSearch;
+  //   });
+
+
+    
+  // }
 
 //   exportToExcel(): void {
 //   const element = document.getElementById('dataTable'); // ה-id של הטבלה שלך
@@ -239,6 +281,22 @@ export class CaptureComponent {
     const now = new Date();
     const fileName = `קליטות-קבצים-${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}.xlsx`;
     XLSX.writeFile(wb, fileName);
+  }
+
+   applyFilters(): void {
+    // קריאה מחדש ל־getter filteredData (שומר State)
+    console.log('פילטרים הופעלו');
+  }
+
+  resetFilters(): void {
+    this.startDate = '';
+    this.endDate = '';
+    this.selectedSystem = '';
+    this.selectedSource = '';
+    this.selectedStatus = '';
+    this.searchTerm = '';
+    this.onlyErrors = false;
+    console.log('הפילטרים אופסו');
   }
 }
 
