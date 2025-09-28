@@ -83,23 +83,7 @@ body {
 }
 
 .refresh-btn {
-    /* background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    color: white;
-     height: 40px;
-    border: none;
-  padding: 8px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    align-items: center; 
-      justify-content: center;
-        box-sizing: border-box; */
+        /* ...existing code... */
   background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
   color: white;
   height: 40px; /* בדיוק כמו השדות */
@@ -613,23 +597,7 @@ body {
 .card:nth-child(6) { animation-delay: 0.6s; order: 7; }
 .card:nth-child(7) { animation-delay: 0.7s; order: 6; }
 
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(102, 126, 234, 0.1);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-}
+/* Custom scrollbars removed to reduce file size. */
 
 @media (max-width: 768px) {
     .dashboard-grid {

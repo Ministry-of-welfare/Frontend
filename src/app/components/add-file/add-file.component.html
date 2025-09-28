@@ -80,20 +80,23 @@
 
             <div class="form-field full-width">
               <label class="form-label">נתיב קבצי מקור <span class="required">*</span></label>
-              <input type="text" class="form-input" [(ngModel)]="urlFile" placeholder="\\server\shared\import\">
+              <input type="text" class="form-input" [(ngModel)]="urlFile" (input)="checkPath('urlFile')" placeholder="\\server\shared\import\">
               <div class="help-text">הנתיב בו קיימים הקבצים המיועדים לקליטה</div>
+              <div *ngIf="urlFileWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">אזהרה: נתיב לא תקין! יש להכניס נתיב תקני.</div>
             </div>
 
             <div class="form-field full-width">
               <label class="form-label">נתיב קבצים מעובדים <span class="required">*</span></label>
-              <input type="text" class="form-input" [(ngModel)]="urlFileAfter" placeholder="\\server\shared\processed\">
+              <input type="text" class="form-input" [(ngModel)]="urlFileAfter" (input)="checkPath('urlFileAfter')" placeholder="\\server\shared\processed\">
               <div class="help-text">הנתיב אליו יועברו הקבצים לאחר עיבוד</div>
+              <div *ngIf="urlFileAfterWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">אזהרה: נתיב לא תקין! יש להכניס נתיב תקני.</div>
             </div>
 
             <div class="form-field full-width">
               <label class="form-label">כתובות מייל לשגיאות</label>
-              <textarea class="form-textarea" [(ngModel)]="errorRecipients" placeholder="admin@company.com, it@company.com"></textarea>
+              <textarea class="form-textarea" [(ngModel)]="errorRecipients" (input)="checkHebrewEmail($event)" placeholder="admin@company.com, it@company.com"></textarea>
               <div class="help-text">כתובות מייל המופרדות בפסיק, שיקבלו התראות על שגיאות</div>
+              <div *ngIf="hebrewEmailWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">אזהרה: כתובת מייל מכילה אותיות בעברית!</div>
             </div>
           </div>
         </div>
