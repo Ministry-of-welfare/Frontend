@@ -2,6 +2,7 @@ import { NgClass, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import * as XLSX from 'xlsx';
+import { RouterLink } from "@angular/router";
 
 interface EmployeeRow {
   id: number;
@@ -21,7 +22,7 @@ interface EmployeeRow {
 @Component({
   selector: 'app-view-control',
   standalone: true,
-  imports: [NgClass, NgFor, FormsModule],
+  imports: [NgClass, NgFor, FormsModule, RouterLink],
   templateUrl: './view-control.component.html',
   styleUrls: ['./view-control.component.css'],
 })
