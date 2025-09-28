@@ -344,16 +344,9 @@ export class FilesViewComponent implements OnChanges {
     };
     this.importDS.updateTheEndDate(updated.importDataSourceId).subscribe({
       next: () => {
-        this.importDS.getAll().subscribe({
-          next: (data) => {
-            this.processes = data;
-            this.closeDeleteDialog();
-          },
-          error: () => {
-            alert('שגיאה ברענון נתונים');
-            this.closeDeleteDialog();
-          }
-        });
+        // רענון מיידי של הנתונים מהשרת
+        this.loadProcesses();
+        this.closeDeleteDialog();
       },
       error: () => {
         alert('שגיאה במחיקה');

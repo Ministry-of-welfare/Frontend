@@ -4,19 +4,21 @@
   background: #fff;
   border: 1px solid #e6e6e6;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   min-width: 260px;
   max-width: 320px;
   padding: 0;
   font-family: inherit;
   font-size: 14px;
 }
+
 .context-menu-list {
   display: flex;
   flex-direction: column;
   margin: 0;
   padding: 0;
 }
+
 .context-menu-list .context-menu-item {
   display: flex;
   flex-direction: row;
@@ -31,12 +33,15 @@
   min-width: 0;
   white-space: nowrap;
 }
+
 .context-menu-list .context-menu-item:last-child {
   border-bottom: none;
 }
+
 .context-menu-list .context-menu-item:hover {
   background: #f7f9fa;
 }
+
 .context-menu-list .icon {
   font-size: 18px;
   margin-right: 8px;
@@ -44,6 +49,7 @@
   display: flex;
   align-items: center;
 }
+
 .page-container {
   font-family: "Segoe UI", Arial, sans-serif;
   direction: rtl;
@@ -55,7 +61,21 @@
   text-align: right;
   margin-bottom: 20px;
 }
-
+.data-table.label {
+  font-weight: 600;
+  color: #3b3636;
+  text-align: right;
+  /* padding-left: 4px; */
+  line-height: 1.1;
+   background: #9d2727;
+}
+.panel {
+  /* background: #fff; */
+  border-radius: 16px;
+  /* box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); */
+  padding: 10px;
+  /* margin-bottom: 10px; */
+}
 .status-cards {
   display: flex;
   gap: 15px;
@@ -69,6 +89,8 @@
   text-align: center;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    direction: rtl;
+
 }
 
 .card .value {
@@ -79,7 +101,13 @@
 .card .label {
   font-size: 14px;
 }
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+    direction: rtl;
 
+}
 
 .border-blue {
   border-left: 4px solid #3b82f6;
@@ -115,22 +143,76 @@
   border-radius: 4px;
 }
 
-.btn-search {
-  background: #7c3aed;
-  color: #fff;
-  border: none;
-  padding: 6px 15px;
-  border-radius: 4px;
-  cursor: pointer;
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+  text-align: right;
 }
 
+.checkbox {
+  /* direction: ltr; */
+  /* לצד ימין */
+  display: flex;
+  justify-content: flex-start;
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  /* לצד ימין */
+  gap: 1rem;
+  grid-column: 1 / -1;
+  margin-top: 8px;
+}
+
+.btn-search,
 .btn-reset {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 10px 24px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  letter-spacing: -0.2px;
+}
+
+.btn-search:hover,
+.btn-reset:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.btn-search:active,
+.btn-reset:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+
+/* .btn-reset {
   background: #e5e7eb;
   border: none;
   padding: 6px 15px;
   border-radius: 4px;
   cursor: pointer;
-}
+} */
 
 .data-table {
   width: 100%;
@@ -138,6 +220,9 @@
   background: #fff;
   border-radius: 6px;
   overflow: hidden;
+  direction: rtl;
+
+
 }
 
 .data-table th,
@@ -174,12 +259,13 @@
   background: #e5e7eb;
   color: #374151;
 }
+
 .status-card {
   background: #fff;
   padding: 16px;
   margin: 8px;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
 }
@@ -187,12 +273,24 @@
 .card {
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   padding: 16px;
   margin-bottom: 16px;
 }
+
 table.mat-table tr.mat-row td {
   padding: 12px 16px;
 }
 
+/* 📱 רספונסיביות */
+@media (max-width: 768px) {
+  .search-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 
+  .actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}

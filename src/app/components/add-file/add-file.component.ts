@@ -22,6 +22,28 @@ interface Column {
   styleUrl: './add-file.component.css'
 })
 export class AddFileComponent implements OnInit {
+  urlFileWarning: boolean = false;
+  urlFileAfterWarning: boolean = false;
+
+  checkPath(field: 'urlFile' | 'urlFileAfter') {
+    const value = this[field];
+    // Accepts Windows UNC path or local path, basic validation
+    const pathRegex = /^(\\\\[\w\-.]+\\[\w\-.\\]+|[A-Za-z]:\\[\w\-.\\]+)$/;
+    const isEmpty = !value || value.trim() === '';
+    const isValid = pathRegex.test(value);
+    if (field === 'urlFile') {
+      this.urlFileWarning = !isEmpty && !isValid;
+    } else if (field === 'urlFileAfter') {
+      this.urlFileAfterWarning = !isEmpty && !isValid;
+    }
+  }
+  hebrewEmailWarning: boolean = false;
+
+  checkHebrewEmail(event: Event) {
+    const value = (event.target as HTMLTextAreaElement).value;
+    const hebrewRegex = /[א-ת]/;
+    this.hebrewEmailWarning = hebrewRegex.test(value);
+  }
   getInputValue(event: Event): string {
     const target = event.target as HTMLInputElement | null;
     return target?.value ?? '';
@@ -53,22 +75,40 @@ export class AddFileComponent implements OnInit {
   tableName = '';
 
   submitGeneralDetails() {
-    if (!this.tableName) {
-      alert('אנא מלא את שם הטבלה');
+    // Validate required fields
+    if (!this.description || !this.dataSourceType || !this.systemType || !this.jobName || !this.tableName || !this.urlFile || !this.urlFileAfter) {
+      alert('אנא מלא את כל השדות החובה');
       return;
+    }
+    // Email validation
+    if (this.errorRecipients) {
+      const emails = this.errorRecipients.split(/[,;\s]+/).filter(e => e);
+      // Email must contain @, English letters, and can contain .
+      const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      const hebrewRegex = /[א-ת]/;
+      const invalidEmails = emails.filter(email => !emailRegex.test(email));
+      const hebrewEmails = emails.filter(email => hebrewRegex.test(email));
+      if (hebrewEmails.length > 0) {
+        alert('אזהרה: כתובת מייל מכילה אותיות בעברית: ' + hebrewEmails.join(', '));
+        return;
+      }
+      if (invalidEmails.length > 0) {
+        alert('כתובת מייל לא תקינה: ' + invalidEmails.join(', '));
+        return;
+      }
     }
     // Build the object according to ImportDataSources model
     const newFile: ImportDataSources = {
-      importDataSourceDesc: this.description,
+     importDataSourceDesc: this.description,
       dataSourceTypeId: Number(this.dataSourceType),
       systemId: Number(this.systemType),
       jobName: this.jobName,
-      tableName: this.tableName,
+      tableName: '',
       urlFile: this.urlFile,
       urlFileAfterProcess: this.urlFileAfter,
       errorRecipients: this.errorRecipients,
       insertDate: new Date().toISOString(),
-      startDate: new Date().toISOString(),
+      startDate: undefined,
       endDate: undefined
     };
     this.importDS.addImportDataSource(newFile).subscribe({
@@ -244,7 +284,7 @@ currentStep = 1;
   createFile() {
     console.log('createFile: התחלת תהליך יצירת קובץ');
     const newFile: ImportDataSources = {
-      importDataSourceDesc: this.description,
+    importDataSourceDesc: this.description,
       dataSourceTypeId: Number(this.dataSourceType),
       systemId: Number(this.systemType),
       jobName: this.jobName,
