@@ -4,12 +4,26 @@ body {
   background: #f5f7fb;
   margin: 0;
   color: #333;
-  direction: rtl;
+  /* direction: rtl; */
 }
 
 .page {
   padding: 20px;
 }
+   .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+            text-align: left;
+            direction: rtl;
+
+        }
 
 /* === פאנלים === */
 .panel {

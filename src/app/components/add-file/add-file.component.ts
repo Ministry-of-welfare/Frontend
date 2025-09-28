@@ -99,16 +99,16 @@ export class AddFileComponent implements OnInit {
     }
     // Build the object according to ImportDataSources model
     const newFile: ImportDataSources = {
-      importDataSourceDesc: this.description,
+     importDataSourceDesc: this.description,
       dataSourceTypeId: Number(this.dataSourceType),
       systemId: Number(this.systemType),
       jobName: this.jobName,
-      tableName: this.tableName,
+      tableName: '',
       urlFile: this.urlFile,
       urlFileAfterProcess: this.urlFileAfter,
       errorRecipients: this.errorRecipients,
       insertDate: new Date().toISOString(),
-      startDate: new Date().toISOString(),
+      startDate: undefined,
       endDate: undefined
     };
     this.importDS.addImportDataSource(newFile).subscribe({
@@ -284,7 +284,7 @@ currentStep = 1;
   createFile() {
     console.log('createFile: התחלת תהליך יצירת קובץ');
     const newFile: ImportDataSources = {
-      importDataSourceDesc: this.description,
+    importDataSourceDesc: this.description,
       dataSourceTypeId: Number(this.dataSourceType),
       systemId: Number(this.systemType),
       jobName: this.jobName,
