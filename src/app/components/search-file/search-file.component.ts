@@ -6,6 +6,7 @@ import { ImportStatusService } from '../../services/importStatus/import-status.s
 import { SystemsService } from '../../services/systems/systems.service';
 import { DataSourceTypeService } from '../../services/dataSuorceType/data-source-type.service';
 import { Systems } from '../../models/systems.model';
+import { FileStatusService } from '../../services/fileStatus/file-status.service';
 
 @Component({
   selector: 'app-search-file',
@@ -65,7 +66,8 @@ import { Systems } from '../../models/systems.model';
   constructor(private fb: FormBuilder,
      private SystemsService: SystemsService,
      private DataSourceTypeService: DataSourceTypeService,
-    private ImportStatusService: ImportStatusService) {
+    private ImportStatusService: ImportStatusService,
+    private FileStatusService: FileStatusService) {
     this.form = this.fb.group({
       query: [''],
       system: ['כל המערכות'],
@@ -79,7 +81,7 @@ import { Systems } from '../../models/systems.model';
   
   loadDummyData() {
     // נתונים דמי במקום קריאות שרת
-    this.statuses = ['פעיל', 'לא פעיל', 'ממתין', 'שגיאה', 'הושלם'];
+    this.statuses = ['פעיל', 'ד ד', 'דמה3', 'דמה2', 'דמה '];
     this.systems = [
       { id: 1, name: 'מערכת א (פעילה)' },
       { id: 2, name: 'מערכת ב (תחזוקה)' },
@@ -101,10 +103,10 @@ import { Systems } from '../../models/systems.model';
   // console.log(data)
   //   });
     // השארת הקוד המקורי כהערה למקרה שתרצי לחזור אליו
-    
-    this.ImportStatusService.getAll().subscribe(data => {
-      this.statuses= data.map(item => item.importStatusDesc)
-  .filter((t): t is string => t !== undefined);
+
+    this.FileStatusService.getAll().subscribe((data: any) => {
+      this.statuses= data.map((item: any) => item.fileStatusDesc)
+  .filter((t: any): t is string => t !== undefined);
   console.log(data)
     });
 
