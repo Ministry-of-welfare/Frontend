@@ -1,141 +1,181 @@
 <div class="container">
-  <!-- כותרת -->
+  <!-- 
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-    <h2 class="title">📄 קליטת עובדים סוציאליים – קבוצת #1001 </h2>
-      <!-- <a href="#capture" class="reset-btn"> חזרה לרשימה</a> 
-        <span>→</span>  -->
-        <a [routerLink]="['/capture']" fragment="top" class="reset-btn"> ← חזרה לרשימה </a>
+    <h2 class="title">📄 קליטת עובדים סוציאליים – קבוצת #1001 </h2> -->
 
-<!-- 
+  <div class="header">
+    <div class="header-content">
+      <div>
+        <h1>📄 קליטת עובדים סוציאליים – קבוצת #1001 </h1>
+        <div class="breadcrumb">
+          <a [routerLink]="['/capture']">רשימת קליטות</a>
+          <span>→</span>
+          <a href=" ">פרוט שורות קליטה</a>
+
+        </div>
+
+      </div>
+      <a [routerLink]="['/capture']" fragment="top" class="resett-btn"> ← חזרה לרשימה </a>
+
+    </div>
+
+    <!-- <a href="#capture" class="reset-btn"> חזרה לרשימה</a> 
+        <span>→</span>  -->
+
+    <!-- 
     <button class="reset-btn" > ← חזרה
       לרשימה </button> -->
   </div>
 
-  <!-- סינון -->
-  <div class="filters">
-    <div>
-      <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">מספר שורה</label>
-      <input [(ngModel)]="filters.rowNumber" placeholder="מספר שורה" class="input" />
-    </div>
-    <div>
-      <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">עמודה</label>
-      <select [(ngModel)]="filters.column" class="input">
-        <option value="">כל העמודות</option>
-        <option value="tz">ת.ז</option>
-        <option value="firstName">שם פרטי</option>
-        <option value="lastName">שם משפחה</option>
-        <option value="email">כתובת מייל</option>
-        <option value="phone">טלפון</option>
-      </select>
-    </div>
-    <div>
-      <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">סוג שגיאה</label>
-      <select [(ngModel)]="filters.errorType" class="input">
-        <option value="">כל סוגי השגיאות</option>
-        <option value="phone">טלפון לא תקין</option>
-        <option value="email">אימייל לא תקין</option>
-        <option value="tz">ת.ז לא תקינה</option>
-      </select>
-    </div>
-    <div>
-      <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">חיפוש טקסט
-        חופשי</label>
-      <div style="position: relative;">
-        <input [(ngModel)]="filters.freeText" placeholder="חיפוש טקסט חופשי" class="input"
-          style="padding-left: 2.5rem;" />
-        <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></span>
-      </div>
-    </div>
+  <!-- הכרטסת -->
+  <div class="tabs">
+    <button [class.active]="selectedTab === 'all'" (click)="selectedTab = 'all'">
+      📊 כל השורות (250)
+    </button>
+    <button [class.active]="selectedTab === 'errors'" (click)="selectedTab = 'errors'">
+      ⚠️ שורות שגויות (2)
+    </button>
+    <button [class.active]="selectedTab === 'success'" (click)="selectedTab = 'success'">
+      📉 סיכום שגיאות
+    </button>
+  </div>
 
-<!-- <label class="checkbox">
+  <!-- תוכן -->
+  <div *ngIf="selectedTab === 'all'">
+    <!-- אפשר לשים את הטבלה שלך -->
+    <!-- סינון -->
+    <div class="filters">
+      <div>
+        <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">מספר שורה</label>
+        <input [(ngModel)]="filters.rowNumber" placeholder="מספר שורה" class="input" />
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">עמודה</label>
+        <select [(ngModel)]="filters.column" class="input">
+          <option value="">כל העמודות</option>
+          <option value="tz">ת.ז</option>
+          <option value="firstName">שם פרטי</option>
+          <option value="lastName">שם משפחה</option>
+          <option value="email">כתובת מייל</option>
+          <option value="phone">טלפון</option>
+        </select>
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">סוג שגיאה</label>
+        <select [(ngModel)]="filters.errorType" class="input">
+          <option value="">כל סוגי השגיאות</option>
+          <option value="phone">טלפון לא תקין</option>
+          <option value="email">אימייל לא תקין</option>
+          <option value="tz">ת.ז לא תקינה</option>
+        </select>
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #374151;">חיפוש טקסט
+          חופשי</label>
+        <div style="position: relative;">
+          <input [(ngModel)]="filters.freeText" placeholder="חיפוש טקסט חופשי" class="input"
+            style="padding-left: 2.5rem;" />
+          <span
+            style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></span>
+        </div>
+      </div>
+
+      <!-- <label class="checkbox">
       <input type="checkbox" [(ngModel)]="filters.showErrorsOnly" id="showErrors"/>
       הצג רק קליטות עם שגיאות
     </label> -->
-   <label class="checkbox">
-    <input  
-  type="checkbox" 
-  [(ngModel)]="filters.showErrorsOnly" 
-  (change)="applyFilters()" 
-  id="showErrors"
-
-/>
-      הצג רק קליטות עם שגיאות
-  </label>
-
-  
+      <label class="checkbox">
+        <input type="checkbox" [(ngModel)]="filters.showErrorsOnly" (change)="applyFilters()" id="showErrors" />
+        הצג רק קליטות עם שגיאות
+      </label>
 
 
-  <!-- <div style="margin-top: 1rem; margin-bottom: 1rem;">
+
+
+      <!-- <div style="margin-top: 1rem; margin-bottom: 1rem;">
     <input type="checkbox" [(ngModel)]="filters.showErrorsOnly" id="showErrors" >
     <label for="showErrors" class="checkbox"> הצג רק שורות עם שגיאות</label>
   </div> -->
-  <div class="actions">
-    <button class="search-btn" (click)="search()">🔍 חיפוש </button>
-    <button class="reset-btn" (click)="reset()">🔄 איפוס </button>
-  </div>
-  </div>
+      <div class="actions">
+        <button class="search-btn" (click)="search()">🔍 חיפוש </button>
+        <button class="reset-btn" (click)="reset()">🔄 איפוס </button>
+      </div>
+    </div>
 
 
 
-  <!-- טבלה -->
-  <div class="table-container">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>פעולות</th>
-          <th>סטטוס</th>
-          <th>סטטוס עובד</th>
-          <th>תאריך התחלה</th>
-          <th>תפקיד</th>
-          <th>מחלקה מקור</th>
-          <th>טלפון</th>
-          <th>כתובת מייל</th>
-          <th>שם משפחה</th>
-          <th>שם פרטי</th>
-          <th>ת.ז</th>
-          <th>שורה</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of filteredRows">
-          <td style="text-align: center;">
-            <button class="action-btn">פעולות</button>
-          </td>
-          <td style="text-align: center;">
-            <span [ngClass]="{
+    <!-- טבלה -->
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>פעולות</th>
+            <th>סטטוס</th>
+            <th>סטטוס עובד</th>
+            <th>תאריך התחלה</th>
+            <th>תפקיד</th>
+            <th>מחלקה מקור</th>
+            <th>טלפון</th>
+            <th>כתובת מייל</th>
+            <th>שם משפחה</th>
+            <th>שם פרטי</th>
+            <th>ת.ז</th>
+            <th>שורה</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of filteredRows">
+            <td style="text-align: center;">
+              <button class="action-btn">פעולות</button>
+            </td>
+            <td style="text-align: center;">
+              <span [ngClass]="{
               'status-ok': row.status === 'ok',
               'status-error': row.status === 'error'
             }">
-              {{ row.status === 'ok' ? 'תקין' : 'שגיאה' }}
-            </span>
-          </td>
-          <td style="text-align: center;">{{ row.employeeStatus }}</td>
-          <td style="text-align: center;">{{ row.startDate }}</td>
-          <td style="text-align: center;">{{ row.role }}</td>
-          <td style="text-align: center;">{{ row.department }}</td>
-          <td style="text-align: center;" [class.error-cell]="hasError(row, 'phone')">{{ row.phone }}</td>
-          <td style="text-align: center;" [class.error-cell]="hasError(row, 'email')">{{ row.email }}</td>
-          <td style="text-align: center;">{{ row.lastName }}</td>
-          <td style="text-align: center;">{{ row.firstName }}</td>
-          <td style="text-align: center;" [class.error-cell]="hasError(row, 'tz')">{{ row.tz }}</td>
-          <td style="text-align: center;">{{ row.id }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+                {{ row.status === 'ok' ? 'תקין' : 'שגיאה' }}
+              </span>
+            </td>
+            <td style="text-align: center;">{{ row.employeeStatus }}</td>
+            <td style="text-align: center;">{{ row.startDate }}</td>
+            <td style="text-align: center;">{{ row.role }}</td>
+            <td style="text-align: center;">{{ row.department }}</td>
+            <td style="text-align: center;" [class.error-cell]="hasError(row, 'phone')">{{ row.phone }}</td>
+            <td style="text-align: center;" [class.error-cell]="hasError(row, 'email')">{{ row.email }}</td>
+            <td style="text-align: center;">{{ row.lastName }}</td>
+            <td style="text-align: center;">{{ row.firstName }}</td>
+            <td style="text-align: center;" [class.error-cell]="hasError(row, 'tz')">{{ row.tz }}</td>
+            <td style="text-align: center;">{{ row.id }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <!-- פאג'ינציה -->
-  <div style="display: flex; justify-content: center; align-items: center; margin-top: 2rem;">
-    <div class="pages">
-      <button (click)="previousPage()" [disabled]="currentPage === 1">&laquo;</button>
-      <button *ngFor="let page of getPages()" (click)="goToPage(page)" [class.active]="page === currentPage">{{ page
-        }}</button>
-      <button (click)="nextPage()" [disabled]="currentPage === totalPages">&raquo;</button>
+    <!-- פאג'ינציה -->
+    <div style="display: flex; justify-content: center; align-items: center; margin-top: 2rem;">
+      <div class="pages">
+        <button (click)="previousPage()" [disabled]="currentPage === 1">&laquo;</button>
+        <button *ngFor="let page of getPages()" (click)="goToPage(page)" [class.active]="page === currentPage">{{ page
+          }}</button>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages">&raquo;</button>
+      </div>
     </div>
   </div>
+
+  <div *ngIf="selectedTab === 'errors'">
+    <p>קליטות עם שגיאות יוצגו כאן</p>
+    <!-- אפשר לסנן ולהציג רק failed > 0 -->
+  </div>
+
+  <div *ngIf="selectedTab === 'success'">
+    <p>קליטות תקינות יוצגו כאן</p>
+    <!-- אפשר לסנן ולהציג רק failed = 0 -->
+  </div>
+
+
   <!-- צריך להחליץ את שמות הפונקציות ולבנות אותן -->
-   <div class="actionsexportToExcel">
+  <div class="actionsexportToExcel">
     <button class="exportToExcel" (click)="search()" (click)="exportAllToExcel()">📄 ייצוא השרות המסומנות</button>
-    <button class="exportToExcel" (click)="reset()"(click)="exportErrorsToExcel()">📄 ייצוא רק שגיאות </button>
+    <button class="exportToExcel" (click)="reset()" (click)="exportErrorsToExcel()">📄 ייצוא רק שגיאות </button>
   </div>
 </div>

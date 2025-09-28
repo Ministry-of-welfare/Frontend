@@ -1,4 +1,4 @@
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import * as XLSX from 'xlsx';
@@ -22,7 +22,7 @@ interface EmployeeRow {
 @Component({
   selector: 'app-view-control',
   standalone: true,
-  imports: [NgClass, NgFor, FormsModule, RouterLink],
+  imports: [NgClass, NgFor, FormsModule, RouterLink, NgIf],
   templateUrl: './view-control.component.html',
   styleUrls: ['./view-control.component.css'],
 })
@@ -213,6 +213,8 @@ export class ViewControlComponent implements OnInit {
 
     return pages;
   }
+  selectedTab: string = 'all'; // ברירת מחדל - כל השורות
+
 
   exportAllToExcel(): void {
     this.exportToExcel(this.filteredRows, 'עובדים-כללי');
