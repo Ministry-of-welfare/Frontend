@@ -4,7 +4,7 @@
     <h2 class="title">📄 קליטת עובדים סוציאליים – קבוצת #1001 </h2>
       <!-- <a href="#capture" class="reset-btn"> חזרה לרשימה</a> 
         <span>→</span>  -->
-        <a [routerLink]="['/capture']" fragment="top" class="reset-btn"> ← חזרה לרשימה</a>
+        <a [routerLink]="['/capture']" fragment="top" class="reset-btn"> ← חזרה לרשימה </a>
 
 <!-- 
     <button class="reset-btn" > ← חזרה
@@ -47,11 +47,20 @@
       </div>
     </div>
 
-<label class="checkbox">
+<!-- <label class="checkbox">
       <input type="checkbox" [(ngModel)]="filters.showErrorsOnly" id="showErrors"/>
       הצג רק קליטות עם שגיאות
-    </label>
+    </label> -->
+   <label class="checkbox">
+    <input  
+  type="checkbox" 
+  [(ngModel)]="filters.showErrorsOnly" 
+  (change)="applyFilters()" 
+  id="showErrors"
 
+/>
+      הצג רק קליטות עם שגיאות
+  </label>
 
   
 
