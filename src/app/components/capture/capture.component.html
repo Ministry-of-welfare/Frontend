@@ -49,8 +49,12 @@
       <option value="pending">מוכן</option>
     </select>
     <input type="text" [(ngModel)]="searchTerm" placeholder="שם קובץ..." />
-    <button class="btn-search">חפש</button>
-    <button class="btn-reset">איפוס פילטרים</button>
+    <button class="btn-search">חפש🔍
+    </button>
+    <button class="btn-reset">איפוס פילטרים
+        <span class="material-icons">refresh</span>
+
+    </button>
     <label>
       <input type="checkbox" [(ngModel)]="onlyErrors" />
       הצג רק קליטות עם שגיאות
@@ -60,6 +64,7 @@
 <div class="card table-card">
   <div class="table-header">
     <button mat-raised-button color="primary" (click)="exportToExcel()">
+       <span class="material-icons">download</span>
       <!-- <mat-icon>download</mat-icon> -->
       יצוא לאקסל
     </button>
