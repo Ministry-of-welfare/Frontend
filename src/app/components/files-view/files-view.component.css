@@ -10,20 +10,21 @@ body {
 .page {
   padding: 20px;
 }
-   .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #333;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
-            text-align: left;
-            direction: rtl;
 
-        }
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #333;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+  text-align: left;
+  direction: rtl;
+
+}
 
 /* === פאנלים === */
 .panel {
@@ -84,13 +85,15 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border-top: 3px solid #9aacd1;
 } */
- .cards-view {
+.cards-view {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
-  direction: rtl;  /* כרטיסים מימין לשמאל */
+  direction: rtl;
+  /* כרטיסים מימין לשמאל */
 }
- .job-card {
+
+.job-card {
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -142,8 +145,9 @@ body {
 
 .card-divider {
   border: none;
-  
-  border-top: 1px solid #e0e0e0; /* אפור יותר מודגש */
+
+  border-top: 1px solid #e0e0e0;
+  /* אפור יותר מודגש */
   margin: 8px 0;
 }
 
@@ -165,9 +169,10 @@ body {
   align-items: center;
   margin-bottom: 0;
 }
+
 .details-table td {
-  padding: 2px 4px;    
-    /* צמצום הריווח הפנימי */
+  padding: 2px 4px;
+  /* צמצום הריווח הפנימי */
   vertical-align: middle;
 }
 
@@ -203,7 +208,8 @@ body {
   justify-content: center;
   font-size: 18px;
   cursor: pointer;
-  border: 1px solid #ddd; /* מסגרת אפורה עדינה */
+  border: 1px solid #ddd;
+  /* מסגרת אפורה עדינה */
   transition: all 0.2s ease;
 }
 
@@ -213,13 +219,15 @@ body {
 }
 
 .edit-btn {
-  background: #e0f2fe;  /* כחול בהיר */
+  background: #e0f2fe;
+  /* כחול בהיר */
   color: #0369a1;
   border-color: #bae6fd;
 }
 
 .view-btn {
-  background: #dcfce7;  /* ירוק בהיר */
+  background: #dcfce7;
+  /* ירוק בהיר */
   color: #15803d;
   border-color: #bbf7d0;
 }
