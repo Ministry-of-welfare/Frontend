@@ -1,7 +1,7 @@
 <div class="page-container">
 <div class ="header-content">
   <h2 class="page-title">📊 רשימת קליטות קבצים</h2>
-<label >🔘 אדכון אוטומטי</label>
+<label >🔘 עדכון אוטומטי</label>
 </div>
   <!-- כרטיסי סטטוס -->
   <div class="status-cards">
@@ -53,7 +53,9 @@
       <input type="text" [(ngModel)]="searchTerm" placeholder="שם קובץ..." />
 
     </div>
+
     <!-- <label class="checkbox">
+
       <input type="checkbox" [(ngModel)]="onlyErrors" />
                  הצג רק קליטות עם שגיאות      
     </label> -->
@@ -67,24 +69,10 @@
 </label>
 
     <div class="actions">
-      <button class="btn-reset">🔄 איפוס פילטרים</button>
-      <button class="btn-search">🔍 חיפוש</button>
+      <button class="btn-reset" (click)="resetFilters()">🔄 איפוס פילטרים</button>
+      <button class="btn-search" (click)="applyFilters()">🔍 חיפוש</button>
     </div>
   </div>
-  <section class="panel">
-    <!-- <div class="card table-card"> -->
-
-    <div class="section-title">🗒️ תוצאות הקליטות </div>
-
-    <div class="actions">
-
-      <button class="btn-reset" (click)="exportToExcel()">
-        <!-- <mat-icon>download</mat-icon> -->
-        📄 יצוא לאקסל
-      </button>
-    </div>
-    <!-- </div> -->
-  </section>
 
   <!-- <div *ngIf="viewMode === 'table' && !loading" class="table-wrapper">
       <table>
@@ -103,6 +91,23 @@
         </thead> -->
 
   <div class="card table-card">
+
+
+      <section class="panel">
+    <!-- <div class="card table-card"> -->
+
+
+    <div class="actions">
+    <div class="section-title">🗒️ תוצאות הקליטות </div>
+
+      <button class="btn-reset" (click)="exportToExcel()">
+        <!-- <mat-icon>download</mat-icon> -->
+        📄 יצוא לאקסל
+      </button>
+    </div>
+    <!-- </div> -->
+  </section>
+
     <!-- טבלה -->
     <table class="data-table">
       <thead>
