@@ -18,5 +18,4 @@ export class CaptureService {
       console.log("import    ")
       return this.http.get<ImportControl[]>(this.BASE_URL);
     }
-
 }
