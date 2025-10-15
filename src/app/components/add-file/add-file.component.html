@@ -41,6 +41,9 @@
       <!-- שלב 1: פרטים כלליים -->
       <div *ngIf="currentStep===1" class="step-content">
         <div class="form-section">
+          <div *ngIf="requiredFieldsWarning" class="error-message" style="color: #d32f2f; font-weight: bold; margin-bottom: 10px;">
+            {{requiredFieldsWarning}}
+          </div>
           <div class="section-title">⚙️ הגדרות בסיסיות</div>
           <div class="form-grid">
             <div class="form-field">
@@ -74,22 +77,23 @@
             </div>
             <div class="form-field">
               <label class="form-label">שם טבלה <span class="required">*</span></label>
-              <input type="text" class="form-input" [(ngModel)]="tableName" placeholder="הכנס שם טבלה">
+              <input type="text" class="form-input" [(ngModel)]="tableName" (input)="onTableNameInput(getInputValue($event))" placeholder="הכנס שם טבלה">
               <div class="help-text">שם הטבלה שתיווצר במסד הנתונים</div>
+              <div *ngIf="tableNameWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">{{tableNameWarning}}</div>
             </div>
 
             <div class="form-field full-width">
               <label class="form-label">נתיב קבצי מקור <span class="required">*</span></label>
-              <input type="text" class="form-input" [(ngModel)]="urlFile" (input)="checkPath('urlFile')" placeholder="\\server\shared\import\">
+              <input type="text" class="form-input" [(ngModel)]="urlFile" (input)="onUrlFileInput(getInputValue($event))" placeholder="\\server\shared\import\">
               <div class="help-text">הנתיב בו קיימים הקבצים המיועדים לקליטה</div>
-              <div *ngIf="urlFileWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">אזהרה: נתיב לא תקין! יש להכניס נתיב תקני.</div>
+              <div *ngIf="urlFileCustomWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">{{urlFileCustomWarning}}</div>
             </div>
 
             <div class="form-field full-width">
               <label class="form-label">נתיב קבצים מעובדים <span class="required">*</span></label>
-              <input type="text" class="form-input" [(ngModel)]="urlFileAfter" (input)="checkPath('urlFileAfter')" placeholder="\\server\shared\processed\">
+              <input type="text" class="form-input" [(ngModel)]="urlFileAfter" (input)="onUrlFileAfterInput(getInputValue($event))" placeholder="\\server\shared\processed\">
               <div class="help-text">הנתיב אליו יועברו הקבצים לאחר עיבוד</div>
-              <div *ngIf="urlFileAfterWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">אזהרה: נתיב לא תקין! יש להכניס נתיב תקני.</div>
+              <div *ngIf="urlFileAfterCustomWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">{{urlFileAfterCustomWarning}}</div>
             </div>
 
             <div class="form-field full-width">
@@ -103,7 +107,7 @@
 
         <div class="actions-section">
           <div></div>
-          <button type="button" class="btn btn-primary" (click)="nextStep()">המשך לשלב הבא ➡️</button>
+          <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="urlFileCustomWarning || urlFileAfterCustomWarning">המשך לשלב הבא ➡️</button>
         </div>
       </div>
 
