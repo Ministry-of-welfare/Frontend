@@ -2,7 +2,7 @@ import { NgClass, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import * as XLSX from 'xlsx';
-import { RouterLink } from "@angular/router";
+import { RouterLink, Router } from "@angular/router";
 
 interface EmployeeRow {
   id: number;
@@ -29,6 +29,16 @@ interface EmployeeRow {
 export class ViewControlComponent implements OnInit {
   rows: EmployeeRow[] = [];
   filteredRows: EmployeeRow[] = [];
+  captureId: number = 1001;
+  captureName: string = 'קליטת עובדים סוציאליים';
+
+  constructor(private router: Router) {
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.captureId = navigation.extras.state['captureId'] || this.captureId;
+      this.captureName = navigation.extras.state['captureName'] || this.captureName;
+    }
+  }
 
   filters = {
     rowNumber: '',

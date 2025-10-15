@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import * as XLSX from 'xlsx';
 
 export interface GroupImport {
@@ -26,6 +27,8 @@ export interface GroupImport {
   styleUrl: './capture.component.css'
 })
 export class CaptureComponent {
+
+  constructor(private router: Router) {}
   // משתנים לתפריט קונטקסט
   contextMenuVisible = false;
   contextMenuX = 0;
@@ -55,7 +58,12 @@ export class CaptureComponent {
   }
   viewRows() {
     // צפיה בפרוט שורות הקליטה
-    alert('צפיה בפרוט שורות: ' + this.contextMenuRow.fileName);
+    this.router.navigate(['/view-control'], {
+      state: {
+        captureId: this.contextMenuRow.id,
+        captureName: this.contextMenuRow.source
+      }
+    });
     this.closeContextMenu();
   }
   viewErrors() {
@@ -85,6 +93,7 @@ export class CaptureComponent {
 
   // לחיצה כפולה על שורת אב
   onRowDoubleClick(row: any) {
+    this.contextMenuRow = row;
     this.viewRows();
   }
 
