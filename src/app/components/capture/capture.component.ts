@@ -233,55 +233,63 @@ get filteredData() {
    * הפונקציה תמשיך לעבוד גם עם נתונים אמיתיים מהשרת,
    * כל עוד הנתונים נשמרים במשתנה data והפונקציה filteredData מחזירה את השורות הרלוונטיות.
    */
-  exportToExcel(): void {
-    const headers = [
-      'מ"ז קליטה',
-      'תיאור מקור',
-      'מערכת',
-      'שם קובץ',
-      'תחילת קליטה',
-      'סיום קליטה',
-      'שורות בקובץ',
-      'שורות שנקלטו',
-      'שורות פגומות',
-      'סטטוס',
-      'סטטוס בעברית'
-    ];
+exportToExcel(): void {
+  const headers = [
+    'מ"ז קליטה',
+    'תיאור מקור',
+    'מערכת',
+    'שם קובץ',
+    'תחילת קליטה',
+    'סיום קליטה',
+    'שורות בקובץ',
+    'שורות שנקלטו',
+    'שורות פגומות',
+    'סטטוס',
+    'סטטוס בעברית'
+  ];
 
-    const dataToExport = this.filteredData.map(item => [
-      item.id,
-      item.source,
-      item.system,
-      item.fileName,
-      item.startDate,
-      item.endDate,
-      item.total,
-      item.loaded,
-      item.failed,
-      item.status,
-      item.statusLabel
-    ]);
+  // הפיכת הסדר של הנתונים – כך שהעמודה הימנית תהיה הראשונה בגיליון
+  const dataToExport = this.filteredData.map(item => [
+    item.id,
+    item.source,
+    item.system,
+    item.fileName,
+    item.startDate,
+    item.endDate,
+    item.total,
+    item.loaded,
+    item.failed,
+    item.status,
+    item.statusLabel
+  ]);
 
-    const worksheetData = [headers, ...dataToExport];
-    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  // הופך את כל השורות כדי ש-XLSX יכתוב אותן לפי סדר RTL
+  const worksheetData = [headers, ...dataToExport].map(row => row.reverse());
 
-    // הדגשת כותרת (שורה ראשונה) ב-bold
-    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
-    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+  const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+  // ✅ מגדיר את כיווניות הגיליון מימין לשמאל
+  (ws as any)['!sheetViews'] = [{ rightToLeft: true }];
+
+  // ✅ יישור לימין והדגשת כותרות
+  const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
       if (!ws[cellAddress]) continue;
       ws[cellAddress].s = {
-        font: { bold: true }
+        alignment: { horizontal: 'right' },
+        font: R === 0 ? { bold: true } : undefined
       };
     }
-
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-    const now = new Date();
-    const fileName = `קליטות-קבצים-${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}_${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}${now.getSeconds().toString().padStart(2,'0')}.xlsx`;
-    XLSX.writeFile(wb, fileName);
   }
+
+  // יצירת workbook וכתיבה לקובץ
+  const wb: XLSX.WorkBook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'דו"ח קליטות');
+
+  XLSX.writeFile(wb, 'דו"ח_קליטות_עברית.xlsx');
+}
 
    applyFilters(): void {
     // קריאה מחדש ל־getter filteredData (שומר State)
