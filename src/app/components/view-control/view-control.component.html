@@ -194,13 +194,47 @@
   </div>
 </div>
 
-  <div *ngIf="selectedTab === 'success'">
-    <p>קליטות תקינות יוצגו כאן</p>
-    <!-- אפשר לסנן ולהציג רק failed = 0 -->
+  <div *ngIf="selectedTab === 'success'" class="summary-container">
+  <h2>📉 סיכום שגיאות</h2>
+
+  <!-- אזור סיכום לפי סוג שגיאה -->
+  <div class="cards-section">
+    <h3>🧾 סיכום לפי סוג שגיאה</h3>
+    <div class="cards-grid">
+      <div *ngFor="let err of summaryByError" class="summary-card">
+        <h4>{{ err.type }}</h4>
+        <p>מספר מופעים: <b>{{ err.count }}</b></p>
+        <p>עמודות מושפעות: <b>{{ err.columns.join(', ') }}</b></p>
+      </div>
+    </div>
   </div>
 
+  <!-- אזור סטטיסטיקה כללית -->
+  <div class="cards-section">
+    <h3>📊 סטטיסטיקה כללית</h3>
+    <div class="cards-grid">
+      <div class="summary-card">
+        <h4>סה"כ שורות</h4>
+        <p>{{ stats.totalRows }}</p>
+      </div>
+      <div class="summary-card">
+        <h4>סה"כ שגיאות</h4>
+        <p>{{ stats.totalErrors }}</p>
+      </div>
+      <div class="summary-card">
+        <h4>אחוז שורות תקינות</h4>
+        <p>{{ stats.successRate }}%</p>
+      </div>
+      <div class="summary-card">
+        <h4>ממוצע שגיאות לשורה</h4>
+        <p>{{ stats.avgErrorsPerRow }}</p>
+      </div>
+    </div>
+  </div>
+</div>
 
-ש  <div class="actionsexportToExcel">
+
+<div class="actionsexportToExcel">
 <button class="exportToExcel" (click)="exportSelectedToExcel()">📄 ייצוא השרות המסומנות</button>
     <button class="exportToExcel" (click)="reset()" (click)="exportErrorsToExcel()">📄 ייצוא רק שגיאות </button>
   </div>

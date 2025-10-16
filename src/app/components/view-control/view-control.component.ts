@@ -43,7 +43,8 @@ export class ViewControlComponent implements OnInit {
   captureName: string = 'קליטת עובדים סוציאליים';
   allRows: EmployeeRow[] = [];
   errorDetails: ErrorDetail[] = [];
-
+  summaryByError: any[] = [];
+stats: any = {};
   constructor(private router: Router, private http: HttpClient) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
@@ -70,7 +71,32 @@ export class ViewControlComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+    this.loadSummaryData();
+
   }
+  loadSummaryData() {
+  // כאן בדרך כלל תבוא קריאת API אמיתית
+  const dataFromServer = null; // הדמיה
+
+  if (dataFromServer) {
+    // this.summaryByError = dataFromServer.summaryByError;
+    // this.stats = dataFromServer.stats;
+  } else {
+    // נתוני דמה
+    this.summaryByError = [
+      { type: 'טלפון לא תקין', count: 8, columns: ['phone'] },
+      { type: 'אימייל לא תקין', count: 5, columns: ['email'] },
+      { type: 'ת.ז לא תקינה', count: 3, columns: ['tz'] }
+    ];
+
+    this.stats = {
+      totalRows: 250,
+      totalErrors: 16,
+      successRate: 93.6,
+      avgErrorsPerRow: 0.06
+    };
+  }
+}
 
   /**
    * 🟢 טעינת נתונים מהשרת (אם נכשל – מציג נתוני דמה)
