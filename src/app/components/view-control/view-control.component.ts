@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import { RouterLink, Router } from "@angular/router";
 
 interface EmployeeRow {
+  selected?: boolean; 
   id: number;
   tz: string;
   firstName: string;
@@ -185,7 +186,14 @@ export class ViewControlComponent implements OnInit {
     this.startRecord = this.totalRecords > 0 ? startIndex + 1 : 0;
     this.endRecord = Math.min(endIndex, this.totalRecords);
   }
-
+exportSelectedToExcel(): void {
+  const selectedRows = this.filteredRows.filter(row => row.selected);
+  if (selectedRows.length === 0) {
+    alert('לא נבחרו שורות לייצוא');
+    return;
+  }
+  this.exportToExcel(selectedRows, 'עובדים-מסומנים');
+}
   previousPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
@@ -235,22 +243,26 @@ export class ViewControlComponent implements OnInit {
     this.exportToExcel(errorsOnly, 'עובדים-שגיאות');
   }
 
-  private exportToExcel(rows: EmployeeRow[], prefix: string): void {
-    const headers = [
-      'ID',
-      'תעודת זהות',
-      'שם פרטי',
-      'שם משפחה',
-      'אימייל',
-      'טלפון',
-      'מחלקה',
-      'תפקיד',
-      'תאריך התחלה',
-      'סטטוס עובד',
-      'סטטוס רשומה'
-    ];
+private exportToExcel(rows: EmployeeRow[], prefix: string): void {
+  const headers = [
+    'ID',
+    'תעודת זהות',
+    'שם פרטי',
+    'שם משפחה',
+    'אימייל',
+    'טלפון',
+    'מחלקה',
+    'תפקיד',
+    'תאריך התחלה',
+    'סטטוס עובד',
+    'סטטוס רשומה'
+  ];
 
-    const dataToExport = rows.map(item => [
+  // ✅ הפוך את סדר העמודות כך שה-ID יהיה בצד ימין
+  const reversedHeaders = [...headers].reverse();
+
+  const dataToExport = rows.map(item =>
+    [
       item.id,
       item.tz,
       item.firstName,
@@ -262,33 +274,46 @@ export class ViewControlComponent implements OnInit {
       item.startDate,
       item.employeeStatus,
       item.status
-    ]);
+    ].reverse() // גם הנתונים הפוכים באותו סדר
+  );
 
-    const worksheetData = [headers, ...dataToExport];
-    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  const worksheetData = [reversedHeaders, ...dataToExport];
+  const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
-    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+  // ✅ מצב תצוגה מימין לשמאל
+  (ws as any)['!sheetViews'] = [
+    { rightToLeft: true, zoomScale: 110 }
+  ];
+
+  // ✅ יישור לימין + כותרות מודגשות
+  const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
       if (!ws[cellAddress]) continue;
       ws[cellAddress].s = {
-        font: { bold: true }
+        alignment: { horizontal: 'right' },
+        font: R === 0 ? { bold: true } : undefined
       };
     }
-
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-    const now = new Date();
-    const fileName = `${prefix}-${now.getFullYear()}${(now.getMonth()+1)
-      .toString()
-      .padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now
-      .getHours()
-      .toString()
-      .padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now
-      .getSeconds()
-      .toString()
-      .padStart(2, '0')}.xlsx`;
-    XLSX.writeFile(wb, fileName);
   }
+
+  // יצירת workbook ושמירה
+  const wb: XLSX.WorkBook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'דוח עובדים');
+
+  const now = new Date();
+  const fileName = `${prefix}-${now.getFullYear()}${(now.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now
+    .getHours()
+    .toString()
+    .padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now
+    .getSeconds()
+    .toString()
+    .padStart(2, '0')}.xlsx`;
+
+  XLSX.writeFile(wb, fileName, { compression: true });
+}
+
 }

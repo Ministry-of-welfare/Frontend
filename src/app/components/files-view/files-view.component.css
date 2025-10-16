@@ -243,6 +243,7 @@ body {
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+ 
 }
 
 .table-wrapper table {
@@ -251,21 +252,25 @@ body {
   border-spacing: 0;
   font-size: 14px;
   color: #333;
+
 }
 
 .table-wrapper thead th {
-  text-align: right;
-  padding: 10px 14px;
+  /* text-align: right; */
+  padding: 10px 17px;
   background: #f9fafc;
   font-weight: 600;
   color: #444;
   border-bottom: 1px solid #e5e7eb;
   white-space: nowrap;
+  text-align: center;
 }
 
 .table-wrapper tbody tr {
   background: #fff;
   transition: background 0.2s ease;
+   direction: rtl;
+
 }
 
 .table-wrapper tbody tr:nth-child(even) {
