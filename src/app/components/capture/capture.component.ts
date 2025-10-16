@@ -29,7 +29,7 @@ export interface GroupImport {
   styleUrl: './capture.component.css'
 })
 export class CaptureComponent {
-  constructor(private captureService: CaptureService,private importDataSource: ImportDataSourceService) {}
+  constructor(private captureService: CaptureService,private importDataSource: ImportDataSourceService, private router: Router) {}
 
   data2: any[] = [];
  @Input() totalItems: number = 0;          // סה"כ רשומות
