@@ -1,14 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
+import { CaptureService } from '../../services/capture/capture.service';
+import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 
 export interface GroupImport {
   id: number;
   sourceDesc: string;
   system: string;
   fileName: string;
-  startDate: string;
+  importStartDate: string;
   endDate: string;
   totalRows: number;
   importedRows: number;
@@ -26,11 +28,86 @@ export interface GroupImport {
   styleUrl: './capture.component.css'
 })
 export class CaptureComponent {
+  constructor(private captureService: CaptureService,private importDataSource: ImportDataSourceService) {}
+
+  data2: any[] = [];
+ @Input() totalItems: number = 0;          // סה"כ רשומות
+  @Input() pageSize: number = 10;           // כמה רשומות לעמוד
+  @Input() currentPage: number = 1;
+  @Output() pageChange = new EventEmitter<number>();
+  @Output() pageSizeChange = new EventEmitter<number>();
   // משתנים לתפריט קונטקסט
   contextMenuVisible = false;
   contextMenuX = 0;
   contextMenuY = 0;
   contextMenuRow: any = null;
+  ngOnInit(): void {
+    //   ..נסיון שילוב
+debugger;
+//  שלב 1: מביאים את כל הקליטות
+  this.captureService.getAll().subscribe(captures => {
+    console.log("captures", captures); // בדיקה שהנתונים מגיעים
+    // שלב 2: מביאים את כל המקורות
+    this.importDataSource.getAll().subscribe(sources => {
+          console.log("sources", sources); // בדיקה שהנתונים מגיעים
+      // שלב 3: ממזגים נתונים
+      this.data2 = captures.map(capture => {
+        // מוצאים את המקור המתאים לפי importDataSourceId
+        const source = sources.find(s => s.importDataSourceId === capture.importDataSourceId);
+console.log("source", source); // בדיקה שהנתונים מגיעים
+console.log("data2", this.data2); // בדיקה שהנתונים מגיעים
+
+        return {
+          id: capture.importControlId,
+          source: source ? source.importDataSourceDesc : '', // תיאור מקור מהטבלה השנייה
+          // system:source ? source. : '', // או תביאי שם מערכת אם יש
+          fileName: capture. fileName,
+          importStartDate: capture.importStartDate,
+          endDate: capture.importFinishDate,
+          total: capture.totalRows,
+          loaded: capture.totalRowsAffected,
+          failed: capture.rowsInvalid,
+          // status: capture.ImportStatus, // אם יש
+          // statusLabel: capture.ImportStatusDesc // אם יש
+        };
+       });
+     });
+   });
+}
+  //עובד
+  //  this.captureService.getAll().subscribe(data => {
+  //      this.data2 = data;
+  //      console.log(this.data2)
+  //     console.log(this.data2[0].importControlId) // בדיקה שהנתונים מגיעים
+
+  //    });}
+     //נסיון המרה
+//       this.importDataSource.getAll().subscribe(importSources => {
+//         console.log(importSources); // בדיקה שהנתונים מגיעים
+//   this.filterByImportDataSourceIds(importSources);
+// });
+
+//      this.captureService.getAll().subscribe(data => {
+//     this.data2 = data.map(item => ({
+//       id: item.ImportControlId,
+//       source: item.ImportDataSourceId,
+//       // system: item.importSystemDesc,
+//       fileName: item.FileName,
+//       importStartDate: item.ImportStartDate,
+//       endDate: item.ImportFinishDate,
+//       total: item.TotalRows,
+//       loaded: item.TotalRowsAffected,
+//       failed: item.RowsInvalid,
+//       // status: item.importStatus,
+//       // statusLabel: item.importStatusDesc
+//     }));
+//        console.log(this.data2)
+//       console.log(this.data2[0].importControlId)
+//   });
+
+//   return this.data2;
+//   }
+  
 
   // פתיחת תפריט קונטקסט
   onContextMenu(event: MouseEvent, row: any) {
@@ -102,9 +179,22 @@ export class CaptureComponent {
 //   console.log(data)
 //     });}
 
+ capture = [
+    {
+      id: 1001,
+      source: 'קליטת עובדים סוציאליים',
+      system: 'מערכת עובדים',
+      fileName: 'social_workers_2024.xlsx',
+      importStartDate: '15.01.2025 09:30',
+      endDate: '15.01.2025 09:45',
+      total: 250,
+      loaded: 248,
+      failed: 0,
+      status: 'success',
+      statusLabel: 'הצלחה'
+    },]
 
-
-  startDate = '';
+  importStartDate = '';
   endDate = '';
   selectedSystem = '';
   selectedSource = '';
@@ -112,68 +202,71 @@ export class CaptureComponent {
   searchTerm = '';
   onlyErrors = false;
 
-  data = [
-    {
-      id: 1001,
-      source: 'קליטת עובדים סוציאליים',
-      system: 'מערכת עובדים',
-      fileName: 'social_workers_2024.xlsx',
-      startDate: '15.01.2025 09:30',
-      endDate: '15.01.2025 09:45',
-      total: 250,
-      loaded: 248,
-      failed: 0,
-      status: 'success',
-      statusLabel: 'הצלחה'
-    },
-    {
-      id: 1002,
-      source: 'קליטת משמרות',
-      system: 'מערכת חירום',
-      fileName: 'emergency_shifts.csv',
-      startDate: '20.01.2025 14:15',
-      endDate: '20.01.2025 14:20',
-      total: 180,
-      loaded: 180,
-      failed: 0,
-      status: 'success',
-      statusLabel: 'הצלחה'
-    },
-    {
-      id: 1003,
-      source: 'קליטת בתי מלון',
-      system: 'מערכת תיירות',
-      fileName: 'hotels_data.xlsx',
-      startDate: '05.02.2025 11:00',
-      endDate: '-',
-      total: 320,
-      loaded: 15,
-      failed: 0,
-      status: 'in-progress',
-      statusLabel: 'בתהליך'
-    },
-    {
-      id: 1004,
-      source: 'קליטת נתוני חירום',
-      system: 'מערכת חירום',
-      fileName: 'emergency_data_corrupt.csv',
-      startDate: '10.12.2024 16:30',
-      endDate: '10.12.2024 16:35',
-      total: 450,
-      loaded: 0,
-      failed: 450,
-      status: 'error',
-      statusLabel: 'כישלון'
-    }
-  ];
+  // data = [
+  //   {
+  //     id: 1001,
+  //     source: 'קליטת עובדים סוציאליים',
+  //     system: 'מערכת עובדים',
+  //     fileName: 'social_workers_2024.xlsx',
+  //     importStartDate: '15.01.2025 09:30',
+  //     endDate: '15.01.2025 09:45',
+  //     total: 250,
+  //     loaded: 248,
+  //     failed: 0,
+  //     status: 'success',
+  //     statusLabel: 'הצלחה'
+  //   },
+  //   {
+  //     id: 1002,
+  //     source: 'קליטת משמרות',
+  //     system: 'מערכת חירום',
+  //     fileName: 'emergency_shifts.csv',
+  //     importStartDate: '20.01.2025 14:15',
+  //     endDate: '20.01.2025 14:20',
+  //     total: 180,
+  //     loaded: 180,
+  //     failed: 0,
+  //     status: 'success',
+  //     statusLabel: 'הצלחה'
+  //   },
+  //   {
+  //     id: 1003,
+  //     source: 'קליטת בתי מלון',
+  //     system: 'מערכת תיירות',
+  //     fileName: 'hotels_data.xlsx',
+  //     importStartDate: '05.02.2025 11:00',
+  //     endDate: '-',
+  //     total: 320,
+  //     loaded: 15,
+  //     failed: 0,
+  //     status: 'in-progress',
+  //     statusLabel: 'בתהליך'
+  //   },
+  //   {
+  //     id: 1004,
+  //     source: 'קליטת נתוני חירום',
+  //     system: 'מערכת חירום',
+  //     fileName: 'emergency_data_corrupt.csv',
+  //     importStartDate: '10.12.2024 16:30',
+  //     endDate: '10.12.2024 16:35',
+  //     total: 450,
+  //     loaded: 0,
+  //     failed: 450,
+  //     status: 'error',
+  //     statusLabel: 'כישלון'
+  //   }
+  // ];
+
+
+
 get filteredData() {
-  return this.data.filter(item => {
+  return this.data2.filter(item => {
     let ok = true;
 
     // טווח תאריכים
-    if (this.startDate && item.startDate) {
-      const itemStart = new Date(item.startDate.split(' ')[0].split('.').reverse().join('-'));
-      const filterStart = new Date(this.startDate);
+    if (this.importStartDate && item.importStartDate) {
+      const itemStart = new Date(item.importStartDate.split(' ')[0].split('.').reverse().join('-'));
+      const filterStart = new Date(this.importStartDate);
       if (itemStart < filterStart) ok = false;
     }
 
@@ -206,33 +299,7 @@ get filteredData() {
   });
 }
 
-  // get filteredData() {
-  //   return this.data.filter(item => {
-  //     const matchStatus =
-  //       !this.selectedStatus || item.status === this.selectedStatus;
-  //     const matchErrors = !this.onlyErrors || item.failed > 0;
-  //     const matchSearch =
-  //       !this.searchTerm ||
-  //       item.fileName.includes(this.searchTerm) ||
-  //       item.source.includes(this.searchTerm);
-  //     return matchStatus && matchErrors && matchSearch;
-  //   });
-
-
-    
-  // }
-
-//   exportToExcel(): void {
-//   const element = document.getElementById('dataTable'); // ה-id של הטבלה שלך
-//   const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
-//   const wb: XLSX.WorkBook = XLSX.utils.book_new();
-//   XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-//   XLSX.writeFile(wb, 'table-data.xlsx');
-// }
-  /**
-   * הפונקציה תמשיך לעבוד גם עם נתונים אמיתיים מהשרת,
-   * כל עוד הנתונים נשמרים במשתנה data והפונקציה filteredData מחזירה את השורות הרלוונטיות.
-   */
+ 
   exportToExcel(): void {
     const headers = [
       'מ"ז קליטה',
@@ -253,7 +320,7 @@ get filteredData() {
       item.source,
       item.system,
       item.fileName,
-      item.startDate,
+      item.importStartDate,
       item.endDate,
       item.total,
       item.loaded,
@@ -289,7 +356,7 @@ get filteredData() {
   }
 
   resetFilters(): void {
-    this.startDate = '';
+    this.importStartDate = '';
     this.endDate = '';
     this.selectedSystem = '';
     this.selectedSource = '';
@@ -298,69 +365,75 @@ get filteredData() {
     this.onlyErrors = false;
     console.log('הפילטרים אופסו');
   }
+
+
+  pageSizeOptions: number[] = [5, 10, 20, 50];
+
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.pageSize);
+  }
+
+  get pages(): (number | string)[] {
+    const pages: (number | string)[] = [];
+
+    if (this.totalPages <= 7) {
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      pages.push(1);
+      if (this.currentPage > 3) {
+        pages.push('...');
+      }
+
+      const start = Math.max(2, this.currentPage - 1);
+      const end = Math.min(this.totalPages - 1, this.currentPage + 1);
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (this.currentPage < this.totalPages - 2) {
+        pages.push('...');
+      }
+      pages.push(this.totalPages);
+    }
+
+    return pages;
+  }
+
+  get startItem(): number {
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endItem(): number {
+    return Math.min(this.currentPage * this.pageSize, this.totalItems);
+  }
+
+  changePage(page: number | string) {
+    if (typeof page === 'number' && page !== this.currentPage) {
+      this.pageChange.emit(page);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.pageChange.emit(this.currentPage - 1);
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.pageChange.emit(this.currentPage + 1);
+    }
+  }
+
+  changePageSize(event: Event) {
+  const value = (event.target as HTMLSelectElement).value;
+  this.pageSizeChange.emit(+value); // ממיר ל-number
+}
+
 }
 
 
 
-
-
-// import { CommonModule } from '@angular/common';
-// import { Component, OnInit } from '@angular/core';
-// import { FormsModule } from '@angular/forms';
-// import * as XLSX from 'xlsx';
-
-// import { CaptureService } from '../../services/capture/capture.service';
-// import { ImportControl } from '../../models/importControl.model';
-
-// @Component({
-//   selector: 'app-capture',
-//   standalone: true,
-//   imports: [CommonModule, FormsModule],
-//   templateUrl: './capture.component.html',
-//   styleUrl: './capture.component.css'
-// })
-// export class CaptureComponent implements OnInit {
-
-//   startDate = '';
-//   endDate = '';
-//   selectedStatus = '';
-//   searchTerm = '';
-//   onlyErrors = false;
-
-//   data: ImportControl[] = [];
-
-//   constructor(private captureService: CaptureService) {}
-
-//   ngOnInit(): void {
-//     this.captureService.getAll().subscribe({
-//       next: (res: ImportControl[]) => {
-//         this.data = res;
-//         console.log('Data from API:', res);
-//       },
-//       error: (err) => {
-//         console.error('Error while fetching data:', err);
-//       }
-//     });
-//   }
-
-//   get filteredData(): ImportControl[] {
-//     return this.data.filter(item => {
-//       const matchErrors = !this.onlyErrors || (item.RowsInvalid ?? 0) > 0;
-//       const matchSearch =
-//         !this.searchTerm ||
-//         (item.FileName?.includes(this.searchTerm) ?? false) ||
-//         (item.ErrorReportPath?.includes(this.searchTerm) ?? false);
-//       // שים לב: במודל שלך אין "סטטוס" מובהק, אז סינון סטטוס הוסר או יצטרך להגיע מהשרת
-//       return matchErrors && matchSearch;
-//     });
-//   }
-
-//   exportToExcel(): void {
-//     const element = document.getElementById('dataTable');
-//     if (!element) return;
-//     const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(element);
-//     const wb: XLSX.WorkBook = XLSX.utils.book_new();
-//     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-//     XLSX.writeFile(wb, 'table-data.xlsx');
-//   }
-// }

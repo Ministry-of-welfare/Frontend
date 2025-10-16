@@ -1,11 +1,11 @@
 export class ImportControl {
- ImportControlId ?: number;
- ImportDataSourceId ?: number;
- ImportStartDate ?: Date;
- ImportFinishDate ?: Date | null;
- TotalRows? : number | null;
- TotalRowsAffected ?: number | null;
- RowsInvalid ?: number | null;
- FileName ?: string;
- ErrorReportPath ?: string | null;
+ importControlId ?: number;
+ importDataSourceId ?: number;
+ importStartDate ?: Date;
+ importFinishDate ?: Date | null;
+ totalRows? : number | null;
+ totalRowsAffected ?: number | null;
+ rowsInvalid ?: number | null;
+ fileName ?: string;
+ errorReportPath ?: string | null;
 }
