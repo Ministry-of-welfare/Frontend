@@ -245,10 +245,13 @@ export class FilesViewComponent implements OnChanges {
       urlFile: process.urlFile || '',
       urlFileAfterProcess: process.urlFileAfterProcess || process.urlFileAfter || '',
       errorRecipients: process.errorRecipients || '',
-      endDate: this.formatDateForInput(process.endDate),
-      createdDate: this.formatDateForInput(process.insertDate || process.createdDate || process.created),
-      startDate: this.formatDateForInput(process.startDate)
-    };
+endDate: this.formatDateForInput(
+  process.endDate || process.EndDate || process.end_date
+),      createdDate: this.formatDateForInput(process.insertDate || process.createdDate || process.created),
+startDate: this.formatDateForInput(
+  process.startDate || process.StartDate || process.start_date
+),    
+};
 
     // ✅ בדיקת תקינות כתובת המייל
     if (this.dialogData.errorRecipients && !this.validateEmail(this.dialogData.errorRecipients)) {
