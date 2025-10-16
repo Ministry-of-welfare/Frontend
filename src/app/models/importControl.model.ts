@@ -8,15 +8,15 @@ export class ImportControl {
  rowsInvalid ?: number | null;
  fileName ?: string;
  errorReportPath ?: string | null;
-//  importFromDate ?: Date;
-//  importToDate ?: Date | null;
-//  importStatusId ?: number;
-//  urlFileAfterProcess ?: string | null;
-//  emailSento ?: string | null;
-//  appImportProblems ?: any[];
-//     importDataSource: any;
-//     importStatus: any;
-//   ImportFromDate ?: Date;
+ importFromDate ?: Date;
+ importToDate ?: Date | null;
+ importStatusId ?: number;
+ urlFileAfterProcess ?: string | null;
+ emailSento ?: string | null;
+ appImportProblems ?: any[];
+    importDataSource: any;
+    importStatus: any;
+  ImportFromDate ?: Date;
 
 //  /// <summary>
 //  /// עד תאריך — עד מתי הקליטה בתוקף
