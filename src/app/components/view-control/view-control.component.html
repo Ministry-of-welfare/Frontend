@@ -168,10 +168,31 @@
     </div>
   </div>
 
-  <div *ngIf="selectedTab === 'errors'">
-    <p>קליטות עם שגיאות יוצגו כאן</p>
-    <!-- אפשר לסנן ולהציג רק failed > 0 -->
+  <div *ngIf="selectedTab === 'errors'" class="errors-container">
+  <div class="errors-list">
+    <h2>⚠️ רשימת שגיאות בקליטה</h2>
+
+    <div *ngFor="let error of errorDetails" class="error-card">
+      <div class="error-header">
+        <strong>{{ error.columnName }}</strong>
+        <span class="error-type">{{ error.errorType }}</span>
+      </div>
+      <div class="error-body">
+        <p><b>ערך שהתקבל:</b> {{ error.receivedValue }}</p>
+        <p><b>פורמט נדרש:</b> {{ error.requiredFormat }}</p>
+        <p><b>הסבר:</b> {{ error.description }}</p>
+      </div>
+    </div>
   </div>
+
+  <!-- צד ימין/שמאל - פאנל מידע כללי -->
+  <div class="side-panel">
+    <h3>📋 מידע כללי על הקליטה</h3>
+    <p>סה״כ שורות: {{ allRows.length }}</p>
+    <p>סה״כ שגיאות: {{ errorDetails.length }}</p>
+    <button class="export-btn" (click)="exportErrorsToExcel()">📄 ייצוא לשגיאות</button>
+  </div>
+</div>
 
   <div *ngIf="selectedTab === 'success'">
     <p>קליטות תקינות יוצגו כאן</p>
@@ -179,8 +200,7 @@
   </div>
 
 
-  <!-- צריך להחליץ את שמות הפונקציות ולבנות אותן -->
-  <div class="actionsexportToExcel">
+ש  <div class="actionsexportToExcel">
 <button class="exportToExcel" (click)="exportSelectedToExcel()">📄 ייצוא השרות המסומנות</button>
     <button class="exportToExcel" (click)="reset()" (click)="exportErrorsToExcel()">📄 ייצוא רק שגיאות </button>
   </div>
