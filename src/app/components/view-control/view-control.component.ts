@@ -226,7 +226,7 @@ loadSummaryData() {
     ];
 
     this.allRows = [...this.rows];
-      this.loadSummaryData(); // ✅ נוספה כאן גם
+      this.loadSummaryData(); 
 
   }
 
