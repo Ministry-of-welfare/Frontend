@@ -71,29 +71,49 @@ stats: any = {};
 
   ngOnInit() {
     this.loadData();
-    this.loadSummaryData();
+    // this.loadSummaryData();
 
   }
-  loadSummaryData() {
-  // כאן בדרך כלל תבוא קריאת API אמיתית
-  const dataFromServer = null; // הדמיה
+loadSummaryData() {
+  // במצב אמיתי: נתונים מהשרת
+  const dataFromServer = null;
 
   if (dataFromServer) {
     // this.summaryByError = dataFromServer.summaryByError;
     // this.stats = dataFromServer.stats;
   } else {
-    // נתוני דמה
-    this.summaryByError = [
-      { type: 'טלפון לא תקין', count: 8, columns: ['phone'] },
-      { type: 'אימייל לא תקין', count: 5, columns: ['email'] },
-      { type: 'ת.ז לא תקינה', count: 3, columns: ['tz'] }
-    ];
+    // נבנה מתוך הנתונים הקיימים בפועל
+    const errorMap: { [key: string]: { count: number; columns: string[] } } = {};
+
+    this.allRows.forEach(row => {
+      row.errors?.forEach(err => {
+        if (!errorMap[err.message]) {
+          errorMap[err.message] = { count: 0, columns: [] };
+        }
+        errorMap[err.message].count++;
+        if (!errorMap[err.message].columns.includes(err.field)) {
+          errorMap[err.message].columns.push(err.field);
+        }
+      });
+    });
+
+    this.summaryByError = Object.entries(errorMap).map(([type, data]) => ({
+      type,
+      count: data.count,
+      columns: data.columns
+    }));
 
     this.stats = {
-      totalRows: 250,
-      totalErrors: 16,
-      successRate: 93.6,
-      avgErrorsPerRow: 0.06
+      totalRows: this.allRows.length,
+      totalErrors: this.allRows.filter(r => r.status === 'error').length,
+      successRate:
+        ((this.allRows.filter(r => r.status === 'ok').length /
+          this.allRows.length) *
+          100).toFixed(1),
+      avgErrorsPerRow: (
+        this.allRows.reduce((acc, row) => acc + (row.errors?.length || 0), 0) /
+        this.allRows.length
+      ).toFixed(2)
     };
   }
 }
@@ -112,11 +132,15 @@ stats: any = {};
           this.loadMockData();
         }
         this.applyFilters();
+        this.loadSummaryData(); // ✅ נוספה כאן
+
       },
       error: () => {
         console.warn('⚠️ לא הצלחנו לטעון נתונים מהשרת – מוצגים נתוני דמה.');
         this.loadMockData();
         this.applyFilters();
+       this.loadSummaryData(); // ✅ נוספה גם כאן
+
       }
     });
   }
@@ -202,6 +226,8 @@ stats: any = {};
     ];
 
     this.allRows = [...this.rows];
+      this.loadSummaryData(); 
+
   }
 
   hasError(row: EmployeeRow, field: string) {
