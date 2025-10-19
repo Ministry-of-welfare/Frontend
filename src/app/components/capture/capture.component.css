@@ -348,3 +348,54 @@ table.mat-table tr.mat-row td {
     flex-wrap: wrap;
   }
 }
+
+
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.info {
+  font-size: 14px;
+  color: #374151;
+}
+
+.pagination {
+  display: flex;
+  gap: 6px;
+}
+
+button {
+  border: 1px solid #ccc;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+button.active {
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.page-size select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}

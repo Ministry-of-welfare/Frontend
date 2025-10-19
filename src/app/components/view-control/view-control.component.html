@@ -121,6 +121,7 @@
             <th>שם פרטי</th>
             <th>ת.ז</th>
             <th>שורה</th>
+            <th>בחר</th>
           </tr>
         </thead>
         <tbody>
@@ -136,7 +137,8 @@
                 {{ row.status === 'ok' ? 'תקין' : 'שגיאה' }}
               </span>
             </td>
-            <td style="text-align: center;">{{ row.employeeStatus }}</td>
+
+            <td style="text-align: center;">{{ row.employeeStatus }} </td>
             <td style="text-align: center;">{{ row.startDate }}</td>
             <td style="text-align: center;">{{ row.role }}</td>
             <td style="text-align: center;">{{ row.department }}</td>
@@ -145,7 +147,11 @@
             <td style="text-align: center;">{{ row.lastName }}</td>
             <td style="text-align: center;">{{ row.firstName }}</td>
             <td style="text-align: center;" [class.error-cell]="hasError(row, 'tz')">{{ row.tz }}</td>
-            <td style="text-align: center;">{{ row.id }}</td>
+            <td style="text-align: center;">{{ row.id }} </td>
+            <td style="text-align: center;">
+              <input type="checkbox" [(ngModel)]="row.selected" />
+            </td>
+           
           </tr>
         </tbody>
       </table>
@@ -175,7 +181,7 @@
 
   <!-- צריך להחליץ את שמות הפונקציות ולבנות אותן -->
   <div class="actionsexportToExcel">
-    <button class="exportToExcel" (click)="search()" (click)="exportAllToExcel()">📄 ייצוא השרות המסומנות</button>
+<button class="exportToExcel" (click)="exportSelectedToExcel()">📄 ייצוא השרות המסומנות</button>
     <button class="exportToExcel" (click)="reset()" (click)="exportErrorsToExcel()">📄 ייצוא רק שגיאות </button>
   </div>
 </div>

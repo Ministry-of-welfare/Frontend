@@ -26,7 +26,6 @@ export class FilesViewComponent implements OnChanges {
   @Output() clearSearchEvent = new EventEmitter<void>();
   hasActiveSearch = false;
 
-  // נתוני פאנל צד ימין
   liveStats = {
     processedToday: 0,
     activeJobs: 0,
@@ -150,7 +149,6 @@ export class FilesViewComponent implements OnChanges {
     });
   }
 
-
   filterProcesses(): void {
     if (!this.searchCriteria || 
         (!this.searchCriteria.query && 
@@ -186,14 +184,12 @@ export class FilesViewComponent implements OnChanges {
 
   getSystemName(id: number | string): string {
     if (!id) return '—';
-    // חיפוש במיפוי לפי ה-ID של התהליך
     const systemName = this.systemsMap[id];
     if (systemName) return systemName;
-    
-    // אם לא נמצא במיפוי, חפש ישירות במערכות
     const system = this.systems.find(s => s.SystemId === Number(id));
     return system ? system.systemName : id.toString();
   }
+
   getDataSourceTypeName(id: number | string): string {
     if (!id) return '—';
     return this.DataSourceTypeMap[id] || id.toString();
@@ -228,17 +224,12 @@ export class FilesViewComponent implements OnChanges {
     }
   }
 
-  // getSystemName(systemId: string): string {
-  //   if (!systemId) return '—';
-  //   const system = this.systemOptions.find(s => s.value == systemId);
-  //   return system ? system.label : systemId;
-  // }
-
-  // getTypeName(typeId: string): string {
-  //   if (!typeId) return '—';
-  //   const type = this.typeOptions.find(t => t.value == typeId);
-  //   return type ? type.label : typeId;
-  // }
+  // ✅ ולידציה תקינה לאימייל בעברית ובאנגלית
+  private validateEmail(email: string): boolean {
+    if (!email) return true;
+    const pattern = /^[A-Za-z0-9._%+\u05D0-\u05EA-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    return pattern.test(email.trim());
+  }
 
   openEditDialog(process: any) {
     this.dialogIsEdit = true;
@@ -254,10 +245,20 @@ export class FilesViewComponent implements OnChanges {
       urlFile: process.urlFile || '',
       urlFileAfterProcess: process.urlFileAfterProcess || process.urlFileAfter || '',
       errorRecipients: process.errorRecipients || '',
-      endDate: this.formatDateForInput(process.endDate),
-      createdDate: this.formatDateForInput(process.insertDate || process.createdDate || process.created),
-      startDate: this.formatDateForInput(process.startDate)
-    };
+endDate: this.formatDateForInput(
+  process.endDate || process.EndDate || process.end_date
+),      createdDate: this.formatDateForInput(process.insertDate || process.createdDate || process.created),
+startDate: this.formatDateForInput(
+  process.startDate || process.StartDate || process.start_date
+),    
+};
+
+    // ✅ בדיקת תקינות כתובת המייל
+    if (this.dialogData.errorRecipients && !this.validateEmail(this.dialogData.errorRecipients)) {
+      alert('כתובת המייל אינה תקינה. יש להזין כתובת תקינה באנגלית או בעברית.');
+      return;
+    }
+
     console.log('openEditDialog: dialogData:', this.dialogData);
     this.dialogVisible = true;
   }
@@ -283,20 +284,16 @@ export class FilesViewComponent implements OnChanges {
     console.log('openViewDialog: dialogData:', this.dialogData);
     this.dialogVisible = true;
   }
-  // Helper function to format date for input type="date"
+
   formatDateForInput(date: any): string {
     if (!date) return '';
-    // Accepts ISO, 'YYYY-MM-DD', or 'YYYY-MM-DDTHH:mm:ssZ'
     try {
       if (typeof date === 'string') {
-        // If already in 'YYYY-MM-DD' format
         if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
           return date;
         }
-        // If ISO format with time
         const d = new Date(date);
         if (!isNaN(d.getTime())) {
-          // Pad month and day
           const month = String(d.getMonth() + 1).padStart(2, '0');
           const day = String(d.getDate()).padStart(2, '0');
           return `${d.getFullYear()}-${month}-${day}`;
@@ -344,7 +341,6 @@ export class FilesViewComponent implements OnChanges {
     };
     this.importDS.updateTheEndDate(updated.importDataSourceId).subscribe({
       next: () => {
-        // רענון מיידי של הנתונים מהשרת
         this.loadProcesses();
         this.closeDeleteDialog();
       },
@@ -389,6 +385,7 @@ export class FilesViewComponent implements OnChanges {
       this.closeDeleteDialog();
     }
   }
+
   loadSystems(): void {
     this.systemsService.getAll().subscribe({
       next: (data) => {
@@ -426,6 +423,4 @@ export class FilesViewComponent implements OnChanges {
       }
     });
   }
-
 }
-

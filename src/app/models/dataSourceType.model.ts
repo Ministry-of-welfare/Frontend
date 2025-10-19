@@ -1,4 +1,4 @@
 export class DataSourceType {
-    DataSourceTypeId!: number;
-    dataSourceTypeDesc?:string
+    dataSourceTypeId!: number;
+    dataSourceTypeDesc?: string;
 }

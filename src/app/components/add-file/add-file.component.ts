@@ -24,20 +24,90 @@ interface Column {
   styleUrl: './add-file.component.css'
 })
 export class AddFileComponent implements OnInit {
-  urlFileWarning: boolean = false;
-  urlFileAfterWarning: boolean = false;
+  urlFileAfterCustomWarning: string = '';
+
+  onUrlFileAfterInput = (value: string) => {
+    if (!value) {
+      this.urlFileAfterCustomWarning = '';
+      return;
+    }
+    if (!value.includes('\\')) {
+      this.urlFileAfterCustomWarning = 'נתיב קבצים מעובדים חייב להכיל לפחות תו \\ אחד';
+      return;
+    }
+    const justLetters = value.replace(/\\/g, '');
+    const allowedRegex = /^[A-Za-z\u05D0-\u05EA0-9_\-\(\)\[\]]+$/u;
+    if (justLetters.length > 0 && !allowedRegex.test(justLetters)) {
+      this.urlFileAfterCustomWarning = 'ניתן להכניס רק אותיות, מספרים, _, -, (, ), [, ]';
+      return;
+    }
+    // אם אין בכלל \ — ורק אז בודקים "רק אותיות"
+    if (!value.includes('\\')) {
+      const onlyLettersRegex = /^[A-Za-z\u05D0-\u05EA]+$/u;
+      if (justLetters.length > 0 && onlyLettersRegex.test(justLetters)) {
+        this.urlFileAfterCustomWarning = 'נתיב קבצים מעובדים לא יכול להכיל רק אותיות';
+        return;
+      }
+    }
+    this.urlFileAfterCustomWarning = '';
+  }
+  getDataSourceLabel(): string {
+    const opt = this.dataSourceOptions?.find(opt => String(opt.dataSourceTypeId) === this.dataSourceType);
+    return opt ? (opt.dataSourceTypeDesc || '') : '';
+  }
+
+  getSystemLabel(): string {
+    const opt = this.systemOptions?.find(opt => String(opt.systemId) === this.systemType);
+    return opt ? (opt.systemName || '') : '';
+  }
+  onTableNameInput(value: string) {
+    const tableNameRegex = /^[A-Za-z0-9_]+$/;
+    if (!value) {
+      this.tableNameWarning = '';
+      return;
+    }
+    if (!tableNameRegex.test(value)) {
+      this.tableNameWarning = 'שם הטבלה חייב להיות באנגלית';
+    } else {
+      this.tableNameWarning = '';
+    }
+  }
+
+  onUrlFileInput = (value: string) => {
+    if (!value) {
+      this.urlFileCustomWarning = '';
+      return;
+    }
+    if (!value.includes('\\')) {
+      this.urlFileCustomWarning = 'נתיב קבצי מקור חייב להכיל לפחות תו \\ אחד';
+      return;
+    }
+    // אם יש תו \ — לא בודקים "רק אותיות"
+    const justLetters = value.replace(/\\/g, '');
+    // מותר: אותיות, מספרים, _, -, (, ), [, ]
+    const allowedRegex = /^[A-Za-z\u05D0-\u05EA0-9_\-\(\)\[\]]+$/u;
+    if (justLetters.length > 0 && !allowedRegex.test(justLetters)) {
+      this.urlFileCustomWarning = 'ניתן להכניס רק אותיות, מספרים, _, -, (, ), [, ]';
+      return;
+    }
+    // אם אין בכלל \ — ורק אז בודקים "רק אותיות"
+    if (!value.includes('\\')) {
+      const onlyLettersRegex = /^[A-Za-z\u05D0-\u05EA]+$/u;
+      if (justLetters.length > 0 && onlyLettersRegex.test(justLetters)) {
+        this.urlFileCustomWarning = 'נתיב קבצי מקור לא יכול להכיל רק אותיות';
+        return;
+      }
+    }
+    this.urlFileCustomWarning = '';
+  }
+  tableNameWarning: string = '';
+  urlFileCustomWarning: string = '';
+    requiredFieldsWarning: string = '';
 
   checkPath(field: 'urlFile' | 'urlFileAfter') {
-    const value = this[field];
-    // Accepts Windows UNC path or local path, basic validation
-    const pathRegex = /^(\\\\[\w\-.]+\\[\w\-.\\]+|[A-Za-z]:\\[\w\-.\\]+)$/;
-    const isEmpty = !value || value.trim() === '';
-    const isValid = pathRegex.test(value);
-    if (field === 'urlFile') {
-      this.urlFileWarning = !isEmpty && !isValid;
-    } else if (field === 'urlFileAfter') {
-      this.urlFileAfterWarning = !isEmpty && !isValid;
-    }
+    // פונקציה זו אינה נדרשת עוד כי הודעות השגיאה מוצגות דרך urlFileCustomWarning בלבד
+    // אפשר למחוק או להשאיר ריק למניעת שגיאות קומפילציה
+    return;
   }
   hebrewEmailWarning: boolean = false;
 
@@ -75,13 +145,42 @@ export class AddFileComponent implements OnInit {
     private systemsService: SystemsService,
     private dataSourceTypeService: DataSourceTypeService
   ) {}
-  tableName = '';
 
   submitGeneralDetails() {
     // Validate required fields
+    this.requiredFieldsWarning = '';
+    this.tableNameWarning = '';
+    this.urlFileCustomWarning = '';
+    this.urlFileAfterCustomWarning = '';
     if (!this.description || !this.dataSourceType || !this.systemType || !this.jobName || !this.tableName || !this.urlFile || !this.urlFileAfter) {
-      alert('אנא מלא את כל השדות החובה');
+      this.requiredFieldsWarning = 'אנא מלא את כל השדות החובה';
       return;
+    }
+    // Prevent continue if urlFile or urlFileAfter have validation errors
+    this.onUrlFileInput(this.urlFile);
+    this.onUrlFileAfterInput(this.urlFileAfter);
+    if (this.urlFileCustomWarning || this.urlFileAfterCustomWarning) {
+      return;
+    }
+    // Table name validation: English only
+    const tableNameRegex = /^[A-Za-z0-9_]+$/;
+      if (!tableNameRegex.test(this.tableName)) {
+        this.tableNameWarning = 'שם הטבלה חייב להכיל אותיות באנגלית, מספרים וקו תחתון בלבד';
+      return;
+    } else {
+      this.tableNameWarning = '';
+    }
+    // urlFile validation: must contain at least one \\ and not only letters
+    if (!this.urlFile.includes('\\')) {
+      this.urlFileCustomWarning = 'נתיב קבצי מקור חייב להכיל לפחות תו \\ אחד';
+      return;
+    }
+    const onlyLettersRegex = /^[A-Za-z]+$/;
+    if (onlyLettersRegex.test(this.urlFile.replace(/\\/g, ''))) {
+      this.urlFileCustomWarning = 'נתיב קבצי מקור לא יכול להכיל רק אותיות';
+      return;
+    } else {
+      this.urlFileCustomWarning = '';
     }
     // Email validation
     if (this.errorRecipients) {
@@ -128,6 +227,7 @@ currentStep = 1;
   dataSourceType = '';
   systemType = '';
   jobName = '';
+  tableName = '';
   urlFile = '';
   urlFileAfter = '';
   errorRecipients = '';
@@ -409,15 +509,15 @@ currentStep = 1;
       }
     }
   }
-  getDataSourceLabel(): string {
-    const opt = this.dataSourceOptions?.find(opt => String(opt.DataSourceTypeId) === this.dataSourceType);
-    return opt ? (opt.dataSourceTypeDesc || '') : '';
-  }
+  // getDataSourceLabel(): string {
+  //   const opt = this.dataSourceOptions?.find(opt => String(opt.DataSourceTypeId) === this.dataSourceType);
+  //   return opt ? (opt.dataSourceTypeDesc || '') : '';
+  // }
 
-  getSystemLabel(): string {
-    const opt = this.systemOptions?.find(opt => String(opt.SystemId) === this.systemType);
-    return opt ? (opt.systemName || '') : '';
-  }
+  // getSystemLabel(): string {
+  //   const opt = this.systemOptions?.find(opt => String(opt.SystemId) === this.systemType);
+  //   return opt ? (opt.systemName || '') : '';
+  // }
 
   onDataSourceTypeChange() {
     console.log('סוג קליטה שונה ל:', this.dataSourceType);
@@ -427,13 +527,5 @@ currentStep = 1;
     console.log('מערכת שונתה ל:', this.systemType);
   }
 
-  getDataSourceTypeId(): number {
-    const opt = this.dataSourceOptions?.find(opt => opt.dataSourceTypeDesc === this.dataSourceType);
-    return opt ? opt.DataSourceTypeId : 0;
-  }
 
-  getSystemId(): number {
-    const opt = this.systemOptions?.find(opt => opt.systemName === this.systemType);
-    return opt ? opt.SystemId : 0;
-  }
 }

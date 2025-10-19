@@ -1,7 +1,7 @@
 <div class="page-container">
 <div class ="header-content">
   <h2 class="page-title">📊 רשימת קליטות קבצים</h2>
-<label >🔘 עדכון אוטומטי</label>
+<!-- <label >🔘 אדכון אוטומטי</label> -->
 </div>
   <!-- כרטיסי סטטוס -->
   <div class="status-cards">
@@ -29,7 +29,7 @@
 
     <!-- פילטרים -->
     <div class="filters">
-      <input type="date" [(ngModel)]="startDate" />
+      <input type="date" [(ngModel)]="importStartDate" />
       <input type="date" [(ngModel)]="endDate" />
       <select [(ngModel)]="selectedSystem">
         <option value="">כל המערכות</option>
@@ -132,7 +132,7 @@
           <td >{{ item.source }}</td>
           <td >{{ item.system }}</td>
           <td c>{{ item.fileName }}</td>
-          <td >{{ item.startDate }}</td>
+          <td >{{ item.importStartDate }}</td>
           <td>{{ item.endDate }}</td>
           <td>{{ item.total }}</td>
           <td>{{ item.loaded }}</td>
@@ -187,4 +187,37 @@
     </table>
   </div>
 
+
+<div class="pagination-container">
+  <div class="info">
+    מציג {{ startItem }} עד {{ endItem }} מתוך {{ totalItems }} תוצאות
+  </div>
+
+  <div class="pagination">
+    <button (click)="prevPage()" [disabled]="currentPage === 1">הקודם</button>
+
+    <button
+      *ngFor="let page of pages"
+      [disabled]="page === '...'"
+      [class.active]="page === currentPage"
+      (click)="changePage(page)"
+    >
+      {{ page }}
+    </button>
+
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages">הבא</button>
+  </div>
+
+  <!-- <div class="page-size">
+    <label>שורות לעמוד:</label>
+    <select [value]="pageSize" (change)="changePageSize($event)">
+  <option *ngFor="let option of pageSizeOptions" [value]="option">
+    {{ option }}
+  </option>
+</select>
+
+  </div> -->
+</div>
+
+  
 </div>
