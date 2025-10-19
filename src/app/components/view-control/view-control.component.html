@@ -151,7 +151,7 @@
             <td style="text-align: center;">
               <input type="checkbox" [(ngModel)]="row.selected" />
             </td>
-           
+
           </tr>
         </tbody>
       </table>
@@ -168,20 +168,96 @@
     </div>
   </div>
 
-  <div *ngIf="selectedTab === 'errors'">
-    <p>קליטות עם שגיאות יוצגו כאן</p>
-    <!-- אפשר לסנן ולהציג רק failed > 0 -->
+  <div *ngIf="selectedTab === 'errors'" class="errors-container">
+    <div class="errors-list">
+      <h2>⚠️ רשימת שגיאות בקליטה</h2>
+
+      <div *ngFor="let error of errorDetails" class="error-card">
+        <div class="error-header">
+          <strong>{{ error.columnName }}</strong>
+          <span class="error-type">{{ error.errorType }}</span>
+        </div>
+        <div class="error-body">
+          <p><b>ערך שהתקבל:</b> {{ error.receivedValue }}</p>
+          <p><b>פורמט נדרש:</b> {{ error.requiredFormat }}</p>
+          <p><b>הסבר:</b> {{ error.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- צד ימין/שמאל - פאנל מידע כללי -->
+    <div class="side-panel">
+      <h3>📋 מידע כללי על הקליטה</h3>
+      <p>סה״כ שורות: {{ allRows.length }}</p>
+      <p>סה״כ שגיאות: {{ errorDetails.length }}</p>
+      <button class="export-btn" (click)="exportErrorsToExcel()">📄 ייצוא השגיאות</button>
+    </div>
   </div>
 
-  <div *ngIf="selectedTab === 'success'">
-    <p>קליטות תקינות יוצגו כאן</p>
-    <!-- אפשר לסנן ולהציג רק failed = 0 -->
+  <div *ngIf="selectedTab === 'success'" class="summary-wrapper">
+    <!-- <div class="summary-header">
+    <h2>📉 סיכום שגיאות</h2>
+  </div> -->
+
+    <div class="summary-section">
+      <div class="summary-grid">
+        <h4>⚠️ סיכום לפי שגיאה </h4>
+        <div *ngFor="let err of summaryByError" class="summary-card">
+
+          <h4>{{ err.type }}</h4>
+          <!-- <p>מספר מופעים: <b>{{ err.count }}</b></p>
+        <p>עמודות מושפעות: <b>{{ err.columns.join(', ') }}</b></p> -->
+        </div>
+      </div>
+    </div>
+    <div class="summary-section">
+      <div class="summary-grid">
+        <h4>📊 עמודות בעייתיות</h4>
+        <div *ngFor="let err of summaryByError" class="summary-card">
+
+          <h4>{{ err.columns }}</h4>
+          <!-- <p>מספר מופעים: <b>{{ err.count }}</b></p>
+        <p>עמודות מושפעות: <b>{{ err.columns.join(', ') }}</b></p> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-section">
+      <h4>📉 סטטיסטיקה כללית</h4>
+      <br>
+      <div class="summary-grid">
+        <tr>
+
+          <td>
+            <h6>סה"כ שורות:</h6>
+          </td>
+          <td>{{ stats.totalRows }}</td>
+        </tr>
+        <tr>
+          <td>
+            <h6>סה"כ שגיאות:</h6>
+          </td>
+          <td>{{ stats.totalErrors }}</td>
+        </tr>
+        <tr>
+          <td>
+            <h6>אחוז שורות תקינות:</h6>
+          </td>
+          <td>{{ stats.successRate }}%</td>
+        <tr>
+          <td>
+            <h6>ממוצע שגיאות לשורה:</h6>
+          </td>
+          <td>{{ stats.avgErrorsPerRow }}
+        </tr>
+      </div>
+    </div>
   </div>
 
 
-  <!-- צריך להחליץ את שמות הפונקציות ולבנות אותן -->
+
   <div class="actionsexportToExcel">
-<button class="exportToExcel" (click)="exportSelectedToExcel()">📄 ייצוא השרות המסומנות</button>
+    <button class="exportToExcel" (click)="exportSelectedToExcel()">📄 ייצוא השרות המסומנות</button>
     <button class="exportToExcel" (click)="reset()" (click)="exportErrorsToExcel()">📄 ייצוא רק שגיאות </button>
   </div>
 </div>

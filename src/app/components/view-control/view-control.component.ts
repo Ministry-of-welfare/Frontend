@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import * as XLSX from 'xlsx';
 import { RouterLink, Router } from "@angular/router";
+import { HttpClient } from '@angular/common/http';
 
 interface EmployeeRow {
   selected?: boolean; 
@@ -20,6 +21,14 @@ interface EmployeeRow {
   errors?: { field: string; message: string }[];
 }
 
+interface ErrorDetail {
+  columnName: string;
+  errorType: string;
+  receivedValue: string;
+  requiredFormat: string;
+  description: string;
+}
+
 @Component({
   selector: 'app-view-control',
   standalone: true,
@@ -32,8 +41,11 @@ export class ViewControlComponent implements OnInit {
   filteredRows: EmployeeRow[] = [];
   captureId: number = 1001;
   captureName: string = 'קליטת עובדים סוציאליים';
-
-  constructor(private router: Router) {
+  allRows: EmployeeRow[] = [];
+  errorDetails: ErrorDetail[] = [];
+  summaryByError: any[] = [];
+stats: any = {};
+  constructor(private router: Router, private http: HttpClient) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.captureId = navigation.extras.state['captureId'] || this.captureId;
@@ -55,8 +67,88 @@ export class ViewControlComponent implements OnInit {
   totalPages = 0;
   startRecord = 0;
   endRecord = 0;
+  selectedTab: string = 'all';
 
   ngOnInit() {
+    this.loadData();
+    // this.loadSummaryData();
+
+  }
+loadSummaryData() {
+  // במצב אמיתי: נתונים מהשרת
+  const dataFromServer = null;
+
+  if (dataFromServer) {
+    // this.summaryByError = dataFromServer.summaryByError;
+    // this.stats = dataFromServer.stats;
+  } else {
+    // נבנה מתוך הנתונים הקיימים בפועל
+    const errorMap: { [key: string]: { count: number; columns: string[] } } = {};
+
+    this.allRows.forEach(row => {
+      row.errors?.forEach(err => {
+        if (!errorMap[err.message]) {
+          errorMap[err.message] = { count: 0, columns: [] };
+        }
+        errorMap[err.message].count++;
+        if (!errorMap[err.message].columns.includes(err.field)) {
+          errorMap[err.message].columns.push(err.field);
+        }
+      });
+    });
+
+    this.summaryByError = Object.entries(errorMap).map(([type, data]) => ({
+      type,
+      count: data.count,
+      columns: data.columns
+    }));
+
+    this.stats = {
+      totalRows: this.allRows.length,
+      totalErrors: this.allRows.filter(r => r.status === 'error').length,
+      successRate:
+        ((this.allRows.filter(r => r.status === 'ok').length /
+          this.allRows.length) *
+          100).toFixed(1),
+      avgErrorsPerRow: (
+        this.allRows.reduce((acc, row) => acc + (row.errors?.length || 0), 0) /
+        this.allRows.length
+      ).toFixed(2)
+    };
+  }
+}
+
+  /**
+   * 🟢 טעינת נתונים מהשרת (אם נכשל – מציג נתוני דמה)
+   */
+  loadData() {
+    this.http.get<any>('/api/errors').subscribe({
+      next: (response: any) => {
+        if (response && response.rows) {
+          this.rows = response.rows;
+          this.allRows = response.rows;
+          this.errorDetails = response.errors;
+        } else {
+          this.loadMockData();
+        }
+        this.applyFilters();
+        this.loadSummaryData(); // ✅ נוספה כאן
+
+      },
+      error: () => {
+        console.warn('⚠️ לא הצלחנו לטעון נתונים מהשרת – מוצגים נתוני דמה.');
+        this.loadMockData();
+        this.applyFilters();
+       this.loadSummaryData(); // ✅ נוספה גם כאן
+
+      }
+    });
+  }
+
+  /**
+   * 🧩 נתוני דמה – יוצגו אם אין שרת פעיל
+   */
+  loadMockData() {
     this.rows = [
       {
         id: 1,
@@ -115,7 +207,27 @@ export class ViewControlComponent implements OnInit {
         status: 'ok',
       },
     ];
-    this.applyFilters();
+
+    this.errorDetails = [
+      {
+        columnName: 'טלפון',
+        errorType: 'טלפון לא תקין',
+        receivedValue: '123',
+        requiredFormat: 'מספר בעל 10 ספרות',
+        description: 'הוזן מספר קצר מדי – נדרש פורמט 05X-XXXXXXX',
+      },
+      {
+        columnName: 'אימייל',
+        errorType: 'אימייל לא תקין',
+        receivedValue: 'אימייל לא תקין',
+        requiredFormat: 'example@domain.com',
+        description: 'המייל לא בפורמט תקין וכולל תווים לא חוקיים.',
+      }
+    ];
+
+    this.allRows = [...this.rows];
+      this.loadSummaryData(); 
+
   }
 
   hasError(row: EmployeeRow, field: string) {
@@ -186,14 +298,16 @@ export class ViewControlComponent implements OnInit {
     this.startRecord = this.totalRecords > 0 ? startIndex + 1 : 0;
     this.endRecord = Math.min(endIndex, this.totalRecords);
   }
-exportSelectedToExcel(): void {
-  const selectedRows = this.filteredRows.filter(row => row.selected);
-  if (selectedRows.length === 0) {
-    alert('לא נבחרו שורות לייצוא');
-    return;
+
+  exportSelectedToExcel(): void {
+    const selectedRows = this.filteredRows.filter(row => row.selected);
+    if (selectedRows.length === 0) {
+      alert('לא נבחרו שורות לייצוא');
+      return;
+    }
+    this.exportToExcel(selectedRows, 'עובדים-מסומנים');
   }
-  this.exportToExcel(selectedRows, 'עובדים-מסומנים');
-}
+
   previousPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
@@ -231,8 +345,6 @@ exportSelectedToExcel(): void {
 
     return pages;
   }
-  selectedTab: string = 'all'; // ברירת מחדל - כל השורות
-
 
   exportAllToExcel(): void {
     this.exportToExcel(this.filteredRows, 'עובדים-כללי');
@@ -243,77 +355,72 @@ exportSelectedToExcel(): void {
     this.exportToExcel(errorsOnly, 'עובדים-שגיאות');
   }
 
-private exportToExcel(rows: EmployeeRow[], prefix: string): void {
-  const headers = [
-    'ID',
-    'תעודת זהות',
-    'שם פרטי',
-    'שם משפחה',
-    'אימייל',
-    'טלפון',
-    'מחלקה',
-    'תפקיד',
-    'תאריך התחלה',
-    'סטטוס עובד',
-    'סטטוס רשומה'
-  ];
+  private exportToExcel(rows: EmployeeRow[], prefix: string): void {
+    const headers = [
+      'ID',
+      'תעודת זהות',
+      'שם פרטי',
+      'שם משפחה',
+      'אימייל',
+      'טלפון',
+      'מחלקה',
+      'תפקיד',
+      'תאריך התחלה',
+      'סטטוס עובד',
+      'סטטוס רשומה'
+    ];
 
-  // ✅ הפוך את סדר העמודות כך שה-ID יהיה בצד ימין
-  const reversedHeaders = [...headers].reverse();
+    const reversedHeaders = [...headers].reverse();
 
-  const dataToExport = rows.map(item =>
-    [
-      item.id,
-      item.tz,
-      item.firstName,
-      item.lastName,
-      item.email,
-      item.phone,
-      item.department,
-      item.role,
-      item.startDate,
-      item.employeeStatus,
-      item.status
-    ].reverse() // גם הנתונים הפוכים באותו סדר
-  );
+    const dataToExport = rows.map(item =>
+      [
+        item.id,
+        item.tz,
+        item.firstName,
+        item.lastName,
+        item.email,
+        item.phone,
+        item.department,
+        item.role,
+        item.startDate,
+        item.employeeStatus,
+        item.status
+      ].reverse()
+    );
 
-  const worksheetData = [reversedHeaders, ...dataToExport];
-  const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const worksheetData = [reversedHeaders, ...dataToExport];
+    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-  // ✅ מצב תצוגה מימין לשמאל
-  (ws as any)['!sheetViews'] = [
-    { rightToLeft: true, zoomScale: 110 }
-  ];
+    (ws as any)['!sheetViews'] = [
+      { rightToLeft: true, zoomScale: 110 }
+    ];
 
-  // ✅ יישור לימין + כותרות מודגשות
-  const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
-  for (let R = range.s.r; R <= range.e.r; ++R) {
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-      if (!ws[cellAddress]) continue;
-      ws[cellAddress].s = {
-        alignment: { horizontal: 'right' },
-        font: R === 0 ? { bold: true } : undefined
-      };
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!ws[cellAddress]) continue;
+        ws[cellAddress].s = {
+          alignment: { horizontal: 'right' },
+          font: R === 0 ? { bold: true } : undefined
+        };
+      }
     }
+
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'דוח עובדים');
+
+    const now = new Date();
+    const fileName = `${prefix}-${now.getFullYear()}${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now
+      .getHours()
+      .toString()
+      .padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now
+      .getSeconds()
+      .toString()
+      .padStart(2, '0')}.xlsx`;
+
+    XLSX.writeFile(wb, fileName, { compression: true });
   }
-
-  // יצירת workbook ושמירה
-  const wb: XLSX.WorkBook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'דוח עובדים');
-
-  const now = new Date();
-  const fileName = `${prefix}-${now.getFullYear()}${(now.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now
-    .getHours()
-    .toString()
-    .padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now
-    .getSeconds()
-    .toString()
-    .padStart(2, '0')}.xlsx`;
-
-  XLSX.writeFile(wb, fileName, { compression: true });
-}
-
 }

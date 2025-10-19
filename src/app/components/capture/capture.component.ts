@@ -54,19 +54,20 @@ debugger;
       // שלב 3: ממזגים נתונים
       this.data2 = captures.map(capture => {
         // מוצאים את המקור המתאים לפי importDataSourceId
-        const source = sources.find(s => s.importDataSourceId === (capture as any).importDataSourceId);
-console.log("source", source);
-console.log("data2", this.data2);
-
+        const source = sources.find(s => s.importDataSourceId === capture.importDataSourceId);
+console.log("source", source); // בדיקה שהנתונים מגיעים
+console.log("data2", this.data2); // בדיקה שהנתונים מגיעים
+console.log("importStatusId", captures[0].importStatusId); // בדיקה שהנתונים מגיעים
         return {
-          id: (capture as any).importControlId,
-          source: source ? source.importDataSourceDesc : '',
-          fileName: (capture as any).fileName,
-          importStartDate: (capture as any).importStartDate,
-          endDate: (capture as any).importFinishDate,
-          total: (capture as any).totalRows,
-          loaded: (capture as any).totalRowsAffected,
-          failed: (capture as any).rowsInvalid,
+          id: capture.importControlId,
+          source: source ? source.importDataSourceDesc : '', // תיאור מקור מהטבלה השנייה
+          // system:source ? source. : '', // או תביאי שם מערכת אם יש
+          fileName: capture. fileName,
+          importStartDate: capture.importStartDate,
+          endDate: capture.importFinishDate??'-',
+          total: capture.totalRows??'-',
+          loaded: capture.totalRowsAffected??'-',
+          failed: capture.rowsInvalid??'-',
           // status: capture.ImportStatus, // אם יש
           // statusLabel: capture.ImportStatusDesc // אם יש
         };
@@ -185,20 +186,20 @@ console.log("data2", this.data2);
 //   console.log(data)
 //     });}
 
- capture = [
-    {
-      id: 1001,
-      source: 'קליטת עובדים סוציאליים',
-      system: 'מערכת עובדים',
-      fileName: 'social_workers_2024.xlsx',
-      importStartDate: '15.01.2025 09:30',
-      endDate: '15.01.2025 09:45',
-      total: 250,
-      loaded: 248,
-      failed: 0,
-      status: 'success',
-      statusLabel: 'הצלחה'
-    },]
+//  capture = [
+//     {
+//       id: 1001,
+//       source: 'קליטת עובדים סוציאליים',
+//       system: 'מערכת עובדים',
+//       fileName: 'social_workers_2024.xlsx',
+//       importStartDate: '15.01.2025 09:30',
+//       endDate: '15.01.2025 09:45',
+//       total: 250,
+//       loaded: 248,
+//       failed: 0,
+//       status: 'success',
+//       statusLabel: 'הצלחה'
+//     },]
 
   importStartDate = '';
   endDate = '';
@@ -266,6 +267,8 @@ console.log("data2", this.data2);
 
 
 get filteredData() {
+  console.log("data2", this.data2); // בדיקה שהנתונים מגיעים
+
   return this.data2.filter(item => {
     let ok = true;
 
@@ -280,6 +283,7 @@ get filteredData() {
       const itemEnd = new Date(item.endDate.split(' ')[0].split('.').reverse().join('-'));
       const filterEnd = new Date(this.endDate);
       if (itemEnd > filterEnd) ok = false;
+      
     }
 
     // מערכת
