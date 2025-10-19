@@ -6,7 +6,7 @@ import { RouterLink, Router } from "@angular/router";
 import { HttpClient } from '@angular/common/http';
 
 interface EmployeeRow {
-  selected?: boolean; 
+  selected?: boolean;
   id: number;
   tz: string;
   firstName: string;
@@ -22,6 +22,8 @@ interface EmployeeRow {
 }
 
 interface ErrorDetail {
+    lineId: number; // מזהה השורה שאליה השגיאה שייכת
+
   columnName: string;
   errorType: string;
   receivedValue: string;
@@ -44,7 +46,8 @@ export class ViewControlComponent implements OnInit {
   allRows: EmployeeRow[] = [];
   errorDetails: ErrorDetail[] = [];
   summaryByError: any[] = [];
-stats: any = {};
+  stats: any = {};
+consol: any;
   constructor(private router: Router, private http: HttpClient) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
@@ -74,49 +77,49 @@ stats: any = {};
     // this.loadSummaryData();
 
   }
-loadSummaryData() {
-  // במצב אמיתי: נתונים מהשרת
-  const dataFromServer = null;
+  loadSummaryData() {
+    // במצב אמיתי: נתונים מהשרת
+    const dataFromServer = null;
 
-  if (dataFromServer) {
-    // this.summaryByError = dataFromServer.summaryByError;
-    // this.stats = dataFromServer.stats;
-  } else {
-    // נבנה מתוך הנתונים הקיימים בפועל
-    const errorMap: { [key: string]: { count: number; columns: string[] } } = {};
+    if (dataFromServer) {
+      // this.summaryByError = dataFromServer.summaryByError;
+      // this.stats = dataFromServer.stats;
+    } else {
+      // נבנה מתוך הנתונים הקיימים בפועל
+      const errorMap: { [key: string]: { count: number; columns: string[] } } = {};
 
-    this.allRows.forEach(row => {
-      row.errors?.forEach(err => {
-        if (!errorMap[err.message]) {
-          errorMap[err.message] = { count: 0, columns: [] };
-        }
-        errorMap[err.message].count++;
-        if (!errorMap[err.message].columns.includes(err.field)) {
-          errorMap[err.message].columns.push(err.field);
-        }
+      this.allRows.forEach(row => {
+        row.errors?.forEach(err => {
+          if (!errorMap[err.message]) {
+            errorMap[err.message] = { count: 0, columns: [] };
+          }
+          errorMap[err.message].count++;
+          if (!errorMap[err.message].columns.includes(err.field)) {
+            errorMap[err.message].columns.push(err.field);
+          }
+        });
       });
-    });
 
-    this.summaryByError = Object.entries(errorMap).map(([type, data]) => ({
-      type,
-      count: data.count,
-      columns: data.columns
-    }));
+      this.summaryByError = Object.entries(errorMap).map(([type, data]) => ({
+        type,
+        count: data.count,
+        columns: data.columns
+      }));
 
-    this.stats = {
-      totalRows: this.allRows.length,
-      totalErrors: this.allRows.filter(r => r.status === 'error').length,
-      successRate:
-        ((this.allRows.filter(r => r.status === 'ok').length /
-          this.allRows.length) *
-          100).toFixed(1),
-      avgErrorsPerRow: (
-        this.allRows.reduce((acc, row) => acc + (row.errors?.length || 0), 0) /
-        this.allRows.length
-      ).toFixed(2)
-    };
+      this.stats = {
+        totalRows: this.allRows.length,
+        totalErrors: this.allRows.filter(r => r.status === 'error').length,
+        successRate:
+          ((this.allRows.filter(r => r.status === 'ok').length /
+            this.allRows.length) *
+            100).toFixed(1),
+        avgErrorsPerRow: (
+          this.allRows.reduce((acc, row) => acc + (row.errors?.length || 0), 0) /
+          this.allRows.length
+        ).toFixed(2)
+      };
+    }
   }
-}
 
   /**
    * 🟢 טעינת נתונים מהשרת (אם נכשל – מציג נתוני דמה)
@@ -139,7 +142,7 @@ loadSummaryData() {
         console.warn('⚠️ לא הצלחנו לטעון נתונים מהשרת – מוצגים נתוני דמה.');
         this.loadMockData();
         this.applyFilters();
-       this.loadSummaryData(); // ✅ נוספה גם כאן
+        this.loadSummaryData(); // ✅ נוספה גם כאן
 
       }
     });
@@ -210,6 +213,8 @@ loadSummaryData() {
 
     this.errorDetails = [
       {
+            lineId: 2,
+
         columnName: 'טלפון',
         errorType: 'טלפון לא תקין',
         receivedValue: '123',
@@ -217,6 +222,8 @@ loadSummaryData() {
         description: 'הוזן מספר קצר מדי – נדרש פורמט 05X-XXXXXXX',
       },
       {
+            lineId: 2,
+
         columnName: 'אימייל',
         errorType: 'אימייל לא תקין',
         receivedValue: 'אימייל לא תקין',
@@ -226,9 +233,42 @@ loadSummaryData() {
     ];
 
     this.allRows = [...this.rows];
-      this.loadSummaryData(); 
+    this.loadSummaryData();
 
   }
+openErrorFromCell(row: any, column: string) {
+  const mappedName = this.mapColumnKeyToHebrew(column).trim();
+
+  const error = this.errorDetails.find(
+    (e: any) =>
+      e.columnName.trim() === mappedName &&
+      e.lineId === row.id
+  );
+
+  if (error) {
+    console.log('✅ נמצאה שגיאה:', error);
+    this.selectedError = error;
+    this.selectedErrorRow = row;
+  } else {
+    console.log('❌ אין שגיאה לשורה הזאת בעמודה הזאת');
+    console.log('בדיקה:', { column, mappedName, allErrorColumns: this.errorDetails.map(e => e.columnName) });
+  }
+}
+// מיפוי בין שמות העמודות במבנה לבין שמות בעברית
+mapColumnKeyToHebrew(column: string): string {
+  switch (column) {
+    case 'phone': return 'טלפון';
+    case 'email': return 'אימייל';
+    case 'tz': return 'ת.ז';
+    case 'firstName': return 'שם פרטי';
+    case 'lastName': return 'שם משפחה';
+    case 'department': return 'מחלקה';
+    default: return column;
+  }
+}
+getErrorsForRow(rowId: number) {
+  return this.errorDetails.filter(e => e.lineId === rowId);
+}
 
   hasError(row: EmployeeRow, field: string) {
     return row.errors?.some((e) => e.field === field);
@@ -298,6 +338,48 @@ loadSummaryData() {
     this.startRecord = this.totalRecords > 0 ? startIndex + 1 : 0;
     this.endRecord = Math.min(endIndex, this.totalRecords);
   }
+  selectedError: ErrorDetail | null = null;
+  selectedErrorRow: EmployeeRow | null = null;
+
+getRowById(id: number): EmployeeRow | null {
+  return this.allRows.find(r => r.id === id) || null;
+}
+
+ showErrorOverlay(error: ErrorDetail, row?: EmployeeRow) {
+  // שמירת מיקום הגלילה הנוכחי
+  sessionStorage.setItem('scrollPosition', window.scrollY.toString());
+
+  this.selectedError = error;
+  this.selectedErrorRow = row || this.getRowById(error.lineId);
+}
+
+ closeErrorOverlay() {
+  // סוגר את הפאנל
+  this.selectedError = null;
+  this.selectedErrorRow = null;
+
+  // ✅ מחכה רגע כדי לוודא שה־DOM עודכן לפני שמחזירים את הגלילה
+  setTimeout(() => {
+    const scrollY = sessionStorage.getItem('scrollPosition');
+    if (scrollY) {
+      window.scrollTo({ top: +scrollY, behavior: 'smooth' });
+    }
+  }, 100);
+}
+
+
+ viewErrorCatalog() {
+  // סגור את הפאנל (אם פתוח)
+  this.selectedError = null;
+  this.selectedErrorRow = null;
+
+  // עבור לטאב של "שורות שגויות"
+  this.selectedTab = 'errors';
+
+  // החזר את הגלילה למעלה
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 
   exportSelectedToExcel(): void {
     const selectedRows = this.filteredRows.filter(row => row.selected);
@@ -414,12 +496,12 @@ loadSummaryData() {
     const fileName = `${prefix}-${now.getFullYear()}${(now.getMonth() + 1)
       .toString()
       .padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now
-      .getHours()
-      .toString()
-      .padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now
-      .getSeconds()
-      .toString()
-      .padStart(2, '0')}.xlsx`;
+        .getHours()
+        .toString()
+        .padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now
+          .getSeconds()
+          .toString()
+          .padStart(2, '0')}.xlsx`;
 
     XLSX.writeFile(wb, fileName, { compression: true });
   }
