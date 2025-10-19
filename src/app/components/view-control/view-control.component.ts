@@ -269,6 +269,19 @@ mapColumnKeyToHebrew(column: string): string {
 getErrorsForRow(rowId: number) {
   return this.errorDetails.filter(e => e.lineId === rowId);
 }
+viewErrorDetails(errorSummary: any) {
+  // כאן אתה יכול לפתוח פאנל צדדי או טאבל מודאלי
+  // לדוגמה — תראה את כל השורות שמכילות את השגיאה הזאת
+  this.selectedTab = 'errors'; // מעביר לטאב של השגיאות
+  console.log('מציג פרטים לשגיאה:', errorSummary.type);
+}
+viewErrorColumns(errorSummary: any) {
+  // מעביר אוטומטית לטאב של השגיאות
+  this.selectedTab = 'errors';
+
+  // מדפיס בקונסול כדי לבדוק שהכל עובד
+  console.log('📊 מציג פרטים לעמודות בעייתיות:', errorSummary.columns);
+}
 
   hasError(row: EmployeeRow, field: string) {
     return row.errors?.some((e) => e.field === field);
