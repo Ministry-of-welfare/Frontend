@@ -208,14 +208,16 @@
   <div class="summary-grid">
     <div class="summary-card">
           <!-- 📈 סטטיסטיקה כללית -->
+<h3>📈 סטטיסטיקה כללית</h3>
+<div class="stats">
+  <p><strong>סה״כ שורות:</strong> {{ stats.totalRows }}</p>
+  <p><strong>סה״כ שורות תקינות:</strong> {{ stats.totalValidRows }}</p>
+  <p><strong>סה״כ שורות שגויות:</strong> {{ stats.totalErrorRows }}</p>
+  <p><strong>סה״כ שגיאות:</strong> {{ stats.totalErrors }}</p>
+  <p><strong>אחוז שורות תקינות:</strong> {{ stats.successRate }}%</p>
+  <p><strong>ממוצע שגיאות לשורה:</strong> {{ stats.avgErrorsPerRow }}</p>
+</div>
 
-      <h3>📈 סטטיסטיקה כללית</h3>
-      <div class="stats">
-        <p>סה״כ שורות: <b>{{ stats.totalRows }}</b></p>
-        <p>סה״כ שגיאות: <b>{{ stats.totalErrors }}</b></p>
-        <p>אחוז שורות תקינות: <b>{{ stats.successRate }}%</b></p>
-        <p>ממוצע שגיאות לשורה: <b>{{ stats.avgErrorsPerRow }}</b></p>
-      </div>
     </div>
 <!-- 📊 עמודות בעייתיות -->
 <div class="summary-card">
