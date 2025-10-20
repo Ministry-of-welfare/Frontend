@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import * as XLSX from 'xlsx';
 import { CaptureService } from '../../services/capture/capture.service';
+import { HttpClient } from '@angular/common/http';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
+import { ExportService } from '../../services/export/export.service';
 
 export interface GroupImport {
   id: number;
@@ -29,7 +31,11 @@ export interface GroupImport {
   styleUrl: './capture.component.css'
 })
 export class CaptureComponent {
-  constructor(private captureService: CaptureService,private importDataSource: ImportDataSourceService, private router: Router) {}
+  constructor(private captureService: CaptureService,
+              private importDataSource: ImportDataSourceService,
+              private router: Router,
+              private http: HttpClient,
+              private exportService: ExportService) {}
 
   data2: any[] = [];
  @Input() totalItems: number = 0;          // סה"כ רשומות
@@ -119,6 +125,24 @@ console.log("importStatusId", captures[0].importStatusId); // בדיקה שהנ�
     this.contextMenuRow = row;
   }
 
+  // helper to map API row to the EmployeeRow shape expected by ExportService
+  private mapApiRowToEmployeeRow(apiRow: any, seq: number, importControlId: number) {
+    return {
+      id: apiRow.id ?? apiRow.rowId ?? seq,
+      tz: apiRow.tz ?? apiRow.identityNumber ?? apiRow.TZ ?? '',
+      firstName: apiRow.firstName ?? apiRow.first_name ?? apiRow.NameFirst ?? '',
+      lastName: apiRow.lastName ?? apiRow.last_name ?? apiRow.NameLast ?? '',
+      email: apiRow.email ?? apiRow.Email ?? '',
+      phone: apiRow.phone ?? apiRow.Phone ?? apiRow.Telephone ?? '',
+      department: apiRow.department ?? apiRow.Department ?? apiRow.source ?? '',
+      role: apiRow.role ?? apiRow.Role ?? '',
+      startDate: apiRow.startDate ?? apiRow.importStartDate ?? '',
+      employeeStatus: apiRow.employeeStatus ?? apiRow.statusDesc ?? '',
+      status: (apiRow.status === 'error' || apiRow.hasError || apiRow.invalid) ? 'error' : 'ok',
+      errors: apiRow.errors ?? apiRow.errorList ?? []
+    };
+  }
+
   // סגירת תפריט קונטקסט
   closeContextMenu() {
     this.contextMenuVisible = false;
@@ -142,22 +166,66 @@ console.log("importStatusId", captures[0].importStatusId); // בדיקה שהנ�
     this.closeContextMenu();
   }
   viewErrors() {
-    // צפיה בשגיאות
-    alert('צפיה בשגיאות: ' + this.contextMenuRow.fileName);
+    // ניווט לרכיב פרוט השורות ופתיחת הטאב של "שגיאות"
+    this.router.navigate(['/view-control'], {
+      state: {
+        selectedTab: 'errors',
+        captureId: this.contextMenuRow.id,
+        captureName: this.contextMenuRow.source
+      }
+    });
     this.closeContextMenu();
   }
   downloadErrorReport() {
     // הורדת דוח שגיאות
-    if (this.contextMenuRow.failed > 0) {
-      alert('הורדת דוח שגיאות: ' + this.contextMenuRow.fileName);
-    } else {
-      alert('אין דוח שגיאות לשורה זו');
+    const row = this.contextMenuRow;
+    if (!row) {
+      alert('לא נבחרה שורה');
+      return this.closeContextMenu();
     }
+
+    if (!row.failed || row.failed <= 0) {
+      alert('אין שגיאות לייצא עבור פריט זה');
+      return this.closeContextMenu();
+    }
+
+    const importControlId = row.id;
+    // Request ViewControl (or any subscriber) to perform the export — fallbackToLocal = true
+    this.exportService.requestExportErrors(importControlId, true);
     this.closeContextMenu();
   }
   openFilePath() {
     // פתיחת נתיב הקובץ לאחר עיבוד
-    alert('פתיחת נתיב קובץ: ' + this.contextMenuRow.fileName);
+    const row = this.contextMenuRow;
+    if (!row) {
+      alert('לא נבחרה שורה לפתיחה');
+      return this.closeContextMenu();
+    }
+
+    const url = row.urlFileAfterProcess || row.url || null;
+    if (!url) {
+      alert('אין נתיב קובץ לאחר עיבוד עבור פריט זה');
+      return this.closeContextMenu();
+    }
+
+    try {
+      // אם זה כתובת http/https פשוט נפתח בלשונית חדשה
+      if (/^https?:\/\//i.test(url)) {
+        window.open(url, '_blank');
+      } else if (/^file:\/\//i.test(url)) {
+        // קישור מסוג file:// - נסה לפתוח ישירות (מדפדפן ייתכן שיחסום)
+        window.open(url);
+      } else {
+        // מסלול יחס/מקומי - אם השרת משרת את הקבצים ניתן לנסות להוסיף base URL
+        // נניח שהקבצים נגישים דרך '/files/' על השרת
+        const maybeUrl = url.startsWith('/') ? url : '/files/' + url;
+        window.open(maybeUrl, '_blank');
+      }
+    } catch (e) {
+      console.error('שגיאה בניסיון לפתוח נתיב קובץ:', e);
+      alert('לא ניתן לפתוח את נתיב הקובץ באופן אוטומטי. הנתיב: ' + url);
+    }
+
     this.closeContextMenu();
   }
   showLogs() {

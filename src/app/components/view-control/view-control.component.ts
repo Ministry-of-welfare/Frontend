@@ -2,6 +2,7 @@ import { NgClass, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import * as XLSX from 'xlsx';
+import { ExportService } from '../../services/export/export.service';
 import { RouterLink, Router } from "@angular/router";
 import { HttpClient } from '@angular/common/http';
 
@@ -48,13 +49,30 @@ export class ViewControlComponent implements OnInit {
   summaryByError: any[] = [];
   stats: any = {};
 consol: any;
-  constructor(private router: Router, private http: HttpClient) {
+  constructor(private router: Router, private http: HttpClient, private _exportService: ExportService) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.captureId = navigation.extras.state['captureId'] || this.captureId;
       this.captureName = navigation.extras.state['captureName'] || this.captureName;
+      // אם נשלח selectedTab דרך ה־state (למשל 'errors'), נעדכן את הטאב הנבחר
+      if (navigation.extras.state['selectedTab']) {
+        this.selectedTab = navigation.extras.state['selectedTab'];
+      }
+      // בדיקה האם יש בקשה לייצא אוטומטית שגיאות
+      if (navigation.extras.state['autoExport']) {
+        // נשמור את הסימן ונפעיל את הייצוא לאחר טעינת הנתונים ב-ngOnInit
+        this._autoExportRequest = {
+          captureId: this.captureId
+        };
+      }
     }
+    this.exportService = _exportService;
   }
+
+  // inject ExportService via property (will set in constructor below)
+  exportService!: ExportService;
+
+  private _autoExportRequest: { captureId?: number } | null = null;
 
   filters = {
     rowNumber: '',
@@ -75,6 +93,31 @@ consol: any;
   ngOnInit() {
     this.loadData();
     // this.loadSummaryData();
+
+    // subscribe to external export requests (e.g., from CaptureComponent)
+    this.exportService.exportErrorsRequest.subscribe(req => {
+      if (!req) return;
+      // if request is for this capture (or captureId not set), proceed
+      if (!req.captureId || req.captureId === this.captureId) {
+        setTimeout(() => {
+          this.selectedTab = 'errors';
+          this.applyFilters();
+          if (req.fallbackToLocal) {
+            const serverErrors = this.filteredRows.filter(item => item.status === 'error');
+            if (serverErrors && serverErrors.length > 0) {
+              this.exportService.exportEmployeesToExcel(serverErrors, `קליטה_${this.captureId}_שגיאות`);
+            } else {
+              const localErrors = this.allRows.filter(r => r.status === 'error');
+              if (localErrors && localErrors.length > 0) {
+                this.exportService.exportEmployeesToExcel(localErrors, `קליטה_${this.captureId}_שגיאות_מקומי`);
+              }
+            }
+          } else {
+            this.exportErrorsToExcel();
+          }
+        }, 300);
+      }
+    });
 
   }
   loadSummaryData() {
@@ -146,6 +189,17 @@ consol: any;
         }
         this.applyFilters();
         this.loadSummaryData(); // ✅ נוספה כאן
+        // אם המשתמש ביקש ייצוא אוטומטי — נפעיל אותו כאן אחרי שהנתונים נטענו
+        if (this._autoExportRequest) {
+          // וידוא שהנתונים של אותה קליטה נטענו (אם יש פילטר לפי captureId אפשר להפעיל כאן)
+          // פשוט מפעילים את פונקציית הייצוא של שגיאות לפי ה־filteredRows
+          setTimeout(() => {
+            this.selectedTab = 'errors';
+            this.applyFilters();
+            this.exportErrorsToExcel();
+          }, 200);
+          this._autoExportRequest = null;
+        }
 
       },
       error: () => {
@@ -410,7 +464,7 @@ getRowById(id: number): EmployeeRow | null {
       alert('לא נבחרו שורות לייצוא');
       return;
     }
-    this.exportToExcel(selectedRows, 'עובדים-מסומנים');
+    this.exportService.exportEmployeesToExcel(selectedRows, 'עובדים-מסומנים');
   }
 
   previousPage() {
@@ -452,80 +506,11 @@ getRowById(id: number): EmployeeRow | null {
   }
 
   exportAllToExcel(): void {
-    this.exportToExcel(this.filteredRows, 'עובדים-כללי');
+    this.exportService.exportEmployeesToExcel(this.filteredRows, 'עובדים-כללי');
   }
 
   exportErrorsToExcel(): void {
     const errorsOnly = this.filteredRows.filter(item => item.status === 'error');
-    this.exportToExcel(errorsOnly, 'עובדים-שגיאות');
-  }
-
-  private exportToExcel(rows: EmployeeRow[], prefix: string): void {
-    const headers = [
-      'ID',
-      'תעודת זהות',
-      'שם פרטי',
-      'שם משפחה',
-      'אימייל',
-      'טלפון',
-      'מחלקה',
-      'תפקיד',
-      'תאריך התחלה',
-      'סטטוס עובד',
-      'סטטוס רשומה'
-    ];
-
-    const reversedHeaders = [...headers].reverse();
-
-    const dataToExport = rows.map(item =>
-      [
-        item.id,
-        item.tz,
-        item.firstName,
-        item.lastName,
-        item.email,
-        item.phone,
-        item.department,
-        item.role,
-        item.startDate,
-        item.employeeStatus,
-        item.status
-      ].reverse()
-    );
-
-    const worksheetData = [reversedHeaders, ...dataToExport];
-    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-    (ws as any)['!sheetViews'] = [
-      { rightToLeft: true, zoomScale: 110 }
-    ];
-
-    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
-    for (let R = range.s.r; R <= range.e.r; ++R) {
-      for (let C = range.s.c; C <= range.e.c; ++C) {
-        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-        if (!ws[cellAddress]) continue;
-        ws[cellAddress].s = {
-          alignment: { horizontal: 'right' },
-          font: R === 0 ? { bold: true } : undefined
-        };
-      }
-    }
-
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'דוח עובדים');
-
-    const now = new Date();
-    const fileName = `${prefix}-${now.getFullYear()}${(now.getMonth() + 1)
-      .toString()
-      .padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now
-        .getHours()
-        .toString()
-        .padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now
-          .getSeconds()
-          .toString()
-          .padStart(2, '0')}.xlsx`;
-
-    XLSX.writeFile(wb, fileName, { compression: true });
+    this.exportService.exportEmployeesToExcel(errorsOnly, 'עובדים-שגיאות');
   }
 }
