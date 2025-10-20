@@ -17,11 +17,13 @@ import { FileStatus } from '../../models/filleStatus.model';
 })
 export class FilesViewComponent implements OnChanges {
   viewMode: 'cards' | 'table' = 'cards';
+
   processes: any[] = [];
   filteredProcesses: any[] = [];
   loading = true;
   systemsMap: { [key: string]: string } = {}; 
   DataSourceTypeMap: { [key: string]: string } = {}; 
+
   fileStatuses: FileStatus[] = [];
   fileStatusMap: { [key: number]: string } = {};
   @Input() systems: any[] = [];
@@ -81,6 +83,16 @@ export class FilesViewComponent implements OnChanges {
   ) {}
 
   ngOnInit(): void {
+    // ברירת-מחדל: הצג את 'כל הסטטוסים' כבר בטעינת העמוד
+    if (!this.searchCriteria) {
+      this.searchCriteria = {
+        query: '',
+        system: 'כל המערכות',
+        type: 'כל הסוגים',
+        status: 'כל הסטטוסים'
+      };
+    }
+
     this.loadProcesses();
     this.loadSystems();
     this.lloadDataSourceType();
