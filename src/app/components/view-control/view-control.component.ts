@@ -459,14 +459,16 @@ getRowById(id: number): EmployeeRow | null {
 }
 
 
-  exportSelectedToExcel(): void {
-    const selectedRows = this.filteredRows.filter(row => row.selected);
-    if (selectedRows.length === 0) {
-      alert('לא נבחרו שורות לייצוא');
-      return;
-    }
-    this.exportService.exportEmployeesToExcel(selectedRows, 'עובדים-מסומנים');
+ exportSelectedToExcel(): void {
+  const selectedRows = this.filteredRows.filter(row => row.selected);
+  if (selectedRows.length === 0) {
+    alert('לא נבחרו שורות לייצוא');
+    return;
   }
+  const mappedRows = this.mapRowsForExport(selectedRows);
+  this.exportService.exportEmployeesToExcel(mappedRows, 'עובדים-מסומנים');
+}
+
 
   previousPage() {
     if (this.currentPage > 1) {
@@ -507,11 +509,21 @@ getRowById(id: number): EmployeeRow | null {
   }
 
   exportAllToExcel(): void {
-    this.exportService.exportEmployeesToExcel(this.filteredRows, 'עובדים-כללי');
-  }
+  const mappedRows = this.mapRowsForExport(this.filteredRows);
+  this.exportService.exportEmployeesToExcel(mappedRows, 'עובדים-כללי');
+}
+
 
   exportErrorsToExcel(): void {
-    const errorsOnly = this.filteredRows.filter(item => item.status === 'error');
-    this.exportService.exportEmployeesToExcel(errorsOnly, 'עובדים-שגיאות');
-  }
+  const errorsOnly = this.filteredRows.filter(item => item.status === 'error');
+  const mappedRows = this.mapRowsForExport(errorsOnly);
+  this.exportService.exportEmployeesToExcel(mappedRows, 'עובדים-שגיאות');
+}
+private mapRowsForExport(rows: EmployeeRow[]): any[] {
+  return rows.map(row => ({
+    ...row,
+    status: row.status === 'error' ? 'שגיאה' : 'תקין'
+  }));
+}
+
 }
