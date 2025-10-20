@@ -40,8 +40,8 @@
             <div class="card-title">{{ p.importDataSourceDesc || 'ללא תיאור' }}</div>
             <div class="card-subtitle">{{ p.jobName || p.tableName || '—' }}</div>
           </div>
-          <span class="status-badge" [ngClass]="getStatusClass(p.status)">
-            {{ formatStatus(p.status) }}
+          <span class="status-badge" [ngClass]="p.statusClass || getStatusClass(p.status)">
+            {{ p.statusLabel || formatStatus(p.status) }}
           </span>
         </div>
 
@@ -115,8 +115,8 @@
             <td>{{ p.endDate || '—' }}</td>
             <td>{{ p.createdDate || p.startDate || '—' }}</td>
             <td>
-              <span class="status-badge" [ngClass]="getStatusClass(p.status)">
-                {{ formatStatus(p.status) }}
+              <span class="status-badge" [ngClass]="p.statusClass || getStatusClass(p.status)">
+                {{ p.statusLabel || formatStatus(p.status) }}
               </span>
             </td>
             <td>{{ getDataSourceTypeName(p.dataSourceTypeId) || '—  ' }}</td>

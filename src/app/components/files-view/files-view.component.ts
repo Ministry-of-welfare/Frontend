@@ -5,6 +5,8 @@ import { ImportDataSourceService } from '../../services/importDataSource/import-
 import { EditProcessDialogComponent, EditProcessData } from '../edit-process-dialog/edit-process-dialog.component';
 import { SystemsService } from '../../services/systems/systems.service';
 import { DataSourceTypeService } from '../../services/dataSuorceType/data-source-type.service';
+import { FileStatusService } from '../../services/fileStatus/file-status.service';
+import { FileStatus } from '../../models/filleStatus.model';
 
 @Component({
   selector: 'app-files-view',
@@ -20,6 +22,8 @@ export class FilesViewComponent implements OnChanges {
   loading = true;
   systemsMap: { [key: string]: string } = {}; 
   DataSourceTypeMap: { [key: string]: string } = {}; 
+  fileStatuses: FileStatus[] = [];
+  fileStatusMap: { [key: number]: string } = {};
   @Input() systems: any[] = [];
   @Input() DataSourceType: any[] = [];
   @Input() searchCriteria: any = null;
@@ -73,12 +77,14 @@ export class FilesViewComponent implements OnChanges {
     private router: Router,
     private systemsService: SystemsService,
     private DataTypeService: DataSourceTypeService
+    , private fileStatusService: FileStatusService
   ) {}
 
   ngOnInit(): void {
     this.loadProcesses();
     this.loadSystems();
     this.lloadDataSourceType();
+    this.loadFileStatuses();
   }
 
   ngOnChanges(): void {
@@ -108,45 +114,79 @@ export class FilesViewComponent implements OnChanges {
   }
 
   loadProcesses(): void {
-    const dummyData = [
-      {
-        id: 1,
-        importDataSourceDesc: 'קליטת נתוני עובדים',
-        tableName: 'BULK_EMPLOYEE_DATA',
-        jobName: 'ImportEmployeeJob',
-        systemId: 1,
-        dataSourceTypeId: 'טעינה ועיבוד',
-        status: 'active',
-        createdDate: '2025-01-15',
-        endDate: '2025-01-20'
-      },
-      {
-        id: 2,
-        importDataSourceDesc: 'קליטת נתוני לקוחות',
-        tableName: 'BULK_CUSTOMERS',
-        jobName: 'ImportCustomersJob',
-        systemId: 2,
-        dataSourceTypeId: 'טעינה בלבד',
-        status: 'design',
-        createdDate: '2025-01-10',
-        endDate: '2025-01-18'
-      }
-    ];
-
     this.importDS.getAll().subscribe({
       next: (data) => {
-        this.processes = (data && data.length > 0) ? data : dummyData;
+        // Use only server-provided data; if empty, leave arrays empty and stop loading spinner
+        this.processes = data || [];
         this.filteredProcesses = this.processes;
         this.loading = false;
+        this.applyStatusMapping();
         this.filterProcesses();
       },
       error: (err) => {
-        console.error('שגיאה בקבלת נתונים, משתמש בנתוני דמה', err);
-        this.processes = dummyData;
-        this.filteredProcesses = dummyData;
+        console.error('שגיאה בקבלת נתונים מהשרת:', err);
+        // keep processes empty to avoid showing local/hardcoded entries
+        this.processes = [];
+        this.filteredProcesses = [];
         this.loading = false;
       }
     });
+  }
+
+  loadFileStatuses(): void {
+    this.fileStatusService.getAll().subscribe({
+      next: (data) => {
+        this.fileStatuses = data || [];
+        this.fileStatusMap = {};
+        this.fileStatuses.forEach(s => {
+          if (s.fileStatusId !== undefined && s.fileStatusDesc) {
+            this.fileStatusMap[Number(s.fileStatusId)] = s.fileStatusDesc;
+          }
+        });
+        // apply mapping to any already-loaded processes
+        this.applyStatusMapping();
+      },
+      error: (err) => {
+        console.error('שגיאה בטעינת סטטוסים:', err);
+      }
+    });
+  }
+
+  private applyStatusMapping() {
+    if (!this.processes || this.processes.length === 0) return;
+    this.processes = this.processes.map(p => {
+      const id = p.fileStatusId ?? p.FileStatusId ?? p.status;
+      let statusLabel = '';
+      let statusClass = '';
+
+      // Prefer server-provided foreign-key based status mapping
+      if (typeof id === 'number' || (typeof id === 'string' && /^\d+$/.test(String(id)))) {
+        const numericId = Number(id);
+        statusLabel = this.fileStatusMap[numericId] || '';
+        // Map classes from server label (Hebrew or english)
+        if (statusLabel === 'פעיל' || statusLabel.toLowerCase() === 'active') statusClass = 'status-success';
+        else if (statusLabel === 'לא פעיל' || statusLabel.toLowerCase() === 'inactive') statusClass = 'status-error';
+        else if (statusLabel === 'בהקמה' || statusLabel.toLowerCase() === 'design' || statusLabel === 'בעיצוב') statusClass = 'status-warning';
+        else statusClass = 'status-success';
+      } else if (typeof id === 'string') {
+        // If server returned a string status field (not FK), use it directly (expecting server values)
+        statusLabel = p.status || '';
+        statusClass = this.getStatusClass(p.status || '');
+      }
+
+      return {
+        ...p,
+        // If server didn't provide a mapped label, leave empty — UI will hide items without server status per requirement
+        statusLabel: statusLabel,
+        statusClass: statusClass
+      };
+    });
+    // also update filteredProcesses to keep UI consistent
+    this.filteredProcesses = this.filteredProcesses.map(p => ({
+      ...p,
+      statusLabel: p.statusLabel,
+      statusClass: p.statusClass
+    }));
   }
 
   filterProcesses(): void {
@@ -155,7 +195,13 @@ export class FilesViewComponent implements OnChanges {
          this.searchCriteria.system === 'כל המערכות' && 
          this.searchCriteria.type === 'כל הסוגים' && 
          this.searchCriteria.status === 'כל הסטטוסים')) {
-      this.filteredProcesses = this.processes;
+      // Default view: show only items with server-resolved status 'פעיל' or 'בהקמה'
+      this.filteredProcesses = this.processes.filter(p => {
+        const resolved = p.statusLabel || this.fileStatusMap[Number(p.fileStatusId ?? p.FileStatusId ?? -1)] || (p.status ? this.formatStatus(p.status) : '');
+        const isActive = (resolved === 'פעיל' || resolved?.toLowerCase() === 'active');
+        const isDesign = (resolved === 'בהקמה' || resolved?.toLowerCase() === 'design' || resolved === 'בעיצוב');
+        return isActive || isDesign;
+      });
       this.hasActiveSearch = false;
       return;
     }
@@ -163,6 +209,16 @@ export class FilesViewComponent implements OnChanges {
     this.hasActiveSearch = true;
     
     this.filteredProcesses = this.processes.filter(process => {
+      // Determine resolved label for the process
+      const resolvedLabel = process.statusLabel || this.fileStatusMap[Number(process.fileStatusId ?? process.FileStatusId ?? -1)] || this.formatStatus(process.status);
+
+      // If the resolved label indicates 'not active' (Hebrew or English) only include it
+      // when the user explicitly selected that status in searchCriteria.
+      const isInactive = (resolvedLabel === 'לא פעיל' || resolvedLabel.toLowerCase() === 'inactive');
+      const userRequestedInactive = this.searchCriteria && this.searchCriteria.status && (this.searchCriteria.status === 'לא פעיל' || this.searchCriteria.status.toLowerCase() === 'inactive');
+      if (isInactive && !userRequestedInactive) {
+        return false; // hide inactive unless explicitly requested
+      }
       const matchesQuery = !this.searchCriteria.query || 
         process.importDataSourceDesc?.toLowerCase().includes(this.searchCriteria.query.toLowerCase()) ||
         process.tableName?.toLowerCase().includes(this.searchCriteria.query.toLowerCase()) ||
@@ -174,9 +230,26 @@ export class FilesViewComponent implements OnChanges {
       const matchesType = this.searchCriteria.type === 'כל הסוגים' || 
         this.getDataSourceTypeName(process.dataSourceTypeId) === this.searchCriteria.type;
 
-      const matchesStatus = this.searchCriteria.status === 'כל הסטטוסים' ||
-        process.status === this.searchCriteria.status ||
-        this.formatStatus(process.status) === this.searchCriteria.status;
+      // Resolve the status label to compare against the UI selection
+      const resolvedStatusLabel = resolvedLabel;
+
+      let matchesStatus = false;
+      if (this.searchCriteria.status === 'כל הסטטוסים') {
+        // Default page view: show only 'פעיל' and 'בהקמה'
+        const isActive = (resolvedStatusLabel === 'פעיל' || resolvedStatusLabel?.toLowerCase() === 'active');
+        const isDesign = (resolvedStatusLabel === 'בהקמה' || resolvedStatusLabel?.toLowerCase() === 'design' || resolvedStatusLabel === 'בעיצוב');
+        matchesStatus = isActive || isDesign;
+      } else {
+        // User selected a specific status: strict match to the resolved server label
+        const selected = this.searchCriteria.status;
+        // Strict: only include when the server-resolved label equals the selected label.
+        // As a minimal safety, if the resolved label is empty, compare the server `process.status` via formatStatus.
+        if (resolvedStatusLabel) {
+          matchesStatus = (resolvedStatusLabel === selected);
+        } else {
+          matchesStatus = (this.formatStatus(process.status) === selected) || (process.status === selected);
+        }
+      }
 
       return matchesQuery && matchesSystem && matchesType && matchesStatus;
     });

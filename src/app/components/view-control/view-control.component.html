@@ -30,10 +30,10 @@
   <!-- הכרטסת -->
   <div class="tabs">
     <button [class.active]="selectedTab === 'all'" (click)="selectedTab = 'all'">
-      📊 כל השורות (250)
+      📊 כל השורות ({{ totalRowsCount }})
     </button>
     <button [class.active]="selectedTab === 'errors'" (click)="selectedTab = 'errors'">
-      ⚠️ שורות שגויות (2)
+      ⚠️ שורות שגויות ({{ errorRowsCount }})
     </button>
     <button [class.active]="selectedTab === 'success'" (click)="selectedTab = 'success'">
       📉 סיכום שגיאות
@@ -142,11 +142,21 @@
             <td style="text-align: center;">{{ row.startDate }}</td>
             <td style="text-align: center;">{{ row.role }}</td>
             <td style="text-align: center;">{{ row.department }}</td>
-            <td style="text-align: center;" [class.error-cell]="hasError(row, 'phone')">{{ row.phone }}</td>
-            <td style="text-align: center;" [class.error-cell]="hasError(row, 'email')">{{ row.email }}</td>
+         <td style="text-align: center;" 
+    [class.error-cell]="hasError(row, 'phone')" 
+    (click)="openErrorFromCell(row, 'phone')">
+  {{ row.phone }}
+</td>
+            <td style="text-align: center;" [class.error-cell]="hasError(row, 'email')"
+              (click)="openErrorFromCell(row, 'email')">
+              {{ row.email }}
+            </td>
             <td style="text-align: center;">{{ row.lastName }}</td>
             <td style="text-align: center;">{{ row.firstName }}</td>
-            <td style="text-align: center;" [class.error-cell]="hasError(row, 'tz')">{{ row.tz }}</td>
+            <td style="text-align: center;" [class.error-cell]="hasError(row, 'tz')"
+              (click)="openErrorFromCell(row, 'tz')">
+              {{ row.tz }}
+            </td>
             <td style="text-align: center;">{{ row.id }} </td>
             <td style="text-align: center;">
               <input type="checkbox" [(ngModel)]="row.selected" />
@@ -172,7 +182,7 @@
     <div class="errors-list">
       <h2>⚠️ רשימת שגיאות בקליטה</h2>
 
-      <div *ngFor="let error of errorDetails" class="error-card">
+      <div *ngFor="let error of errorDetails" class="error-card" (click)="showErrorOverlay(error)">
         <div class="error-header">
           <strong>{{ error.columnName }}</strong>
           <span class="error-type">{{ error.errorType }}</span>
@@ -194,66 +204,122 @@
     </div>
   </div>
 
-  <div *ngIf="selectedTab === 'success'" class="summary-wrapper">
-    <!-- <div class="summary-header">
-    <h2>📉 סיכום שגיאות</h2>
-  </div> -->
+ <div *ngIf="selectedTab === 'success'" class="summary-wrapper">
+  <div class="summary-grid">
+    <div class="summary-card">
+          <!-- 📈 סטטיסטיקה כללית -->
 
-    <div class="summary-section">
-      <div class="summary-grid">
-        <h4>⚠️ סיכום לפי שגיאה </h4>
-        <div *ngFor="let err of summaryByError" class="summary-card">
-
-          <h4>{{ err.type }}</h4>
-          <!-- <p>מספר מופעים: <b>{{ err.count }}</b></p>
-        <p>עמודות מושפעות: <b>{{ err.columns.join(', ') }}</b></p> -->
-        </div>
+      <h3>📈 סטטיסטיקה כללית</h3>
+      <div class="stats">
+        <p>סה״כ שורות: <b>{{ stats.totalRows }}</b></p>
+        <p>סה״כ שגיאות: <b>{{ stats.totalErrors }}</b></p>
+        <p>אחוז שורות תקינות: <b>{{ stats.successRate }}%</b></p>
+        <p>ממוצע שגיאות לשורה: <b>{{ stats.avgErrorsPerRow }}</b></p>
       </div>
     </div>
-    <div class="summary-section">
-      <div class="summary-grid">
-        <h4>📊 עמודות בעייתיות</h4>
-        <div *ngFor="let err of summaryByError" class="summary-card">
+<!-- 📊 עמודות בעייתיות -->
+<div class="summary-card">
+  <h3>📊 עמודות בעייתיות</h3>
+  <div class="summary-list">
+    <div *ngFor="let err of summaryByError" class="error-summary-item">
+      <span>{{ err.columns.join(', ') }}</span>
 
-          <h4>{{ err.columns }}</h4>
-          <!-- <p>מספר מופעים: <b>{{ err.count }}</b></p>
-        <p>עמודות מושפעות: <b>{{ err.columns.join(', ') }}</b></p> -->
-        </div>
-      </div>
-    </div>
-
-    <div class="summary-section">
-      <h4>📉 סטטיסטיקה כללית</h4>
-      <br>
-      <div class="summary-grid">
-        <tr>
-
-          <td>
-            <h6>סה"כ שורות:</h6>
-          </td>
-          <td>{{ stats.totalRows }}</td>
-        </tr>
-        <tr>
-          <td>
-            <h6>סה"כ שגיאות:</h6>
-          </td>
-          <td>{{ stats.totalErrors }}</td>
-        </tr>
-        <tr>
-          <td>
-            <h6>אחוז שורות תקינות:</h6>
-          </td>
-          <td>{{ stats.successRate }}%</td>
-        <tr>
-          <td>
-            <h6>ממוצע שגיאות לשורה:</h6>
-          </td>
-          <td>{{ stats.avgErrorsPerRow }}
-        </tr>
-      </div>
+      <button class="details-btn" (click)="viewErrorColumns(err)">
+        פרטים
+        <span class="badge">{{ err.count }}</span>
+      </button>
     </div>
   </div>
+</div>
 
+    <!-- ⚠️ סיכום לפי שגיאה -->
+    <div class="summary-card">
+      <h3>⚠️ סיכום לפי שגיאה</h3>
+      <div class="summary-list">
+<div *ngFor="let err of summaryByError" class="error-summary-item">
+  <span>{{ err.type }}</span>
+
+  <button class="details-btn" (click)="viewErrorDetails(err)">
+    פרטים
+    <span class="badge">{{ err.count }}</span>
+  </button>
+</div>
+        
+      </div>
+    </div>
+
+   
+
+    
+  </div>
+</div>
+
+<!-- 🔲 מסך כהה עם כל השגיאות לשורה -->
+<div class="error-overlay" *ngIf="selectedErrorRow" (click)="closeErrorOverlay()">
+  <div class="error-sidebar" (click)="$event.stopPropagation()">
+
+    <div class="error-header">
+      <h2>פרטי שגיאות - שורה #{{ selectedErrorRow.id }}</h2>
+      <button class="close-btn" (click)="closeErrorOverlay()">✕</button>
+    </div>
+
+    <div *ngIf="getErrorsForRow(selectedErrorRow.id)?.length; else noErrors">
+      <div class="error-card" *ngFor="let err of getErrorsForRow(selectedErrorRow.id); let i = index">
+        <div class="error-card-header">
+          <span class="error-num">שגיאה #{{ i + 1 }}</span>
+          <span class="error-type">{{ err.errorType }}</span>
+        </div>
+        <div class="error-card-body">
+          <p><b>עמודה:</b> {{ err.columnName }}</p>
+          <p><b>ערך שהתקבל:</b> {{ err.receivedValue }}</p>
+          <p><b>פורמט נדרש:</b> {{ err.requiredFormat }}</p>
+          <p><b>הסבר:</b> {{ err.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noErrors>
+      <p class="no-errors">לא נמצאו שגיאות לשורה זו ✅</p>
+    </ng-template>
+
+    <button class="catalog-btn" (click)="viewErrorCatalog()">📘 צפייה בקטלוג שגיאות</button>
+  </div>
+</div>
+
+  <!-- 🔲 מסך כהה עם פרטי שגיאה
+  <div class="error-overlay" *ngIf="selectedError" (click)="closeErrorOverlay()">
+    <div class="error-sidebar" (click)="$event.stopPropagation()">
+      <h3>🛠 פרטי שגיאה</h3>
+      <table class="error-table">
+        <tr>
+          <th>שורה</th>
+          <td>{{ selectedErrorRow?.id }}</td>
+        </tr>
+        <tr>
+          <th>עמודה</th>
+          <td>{{ selectedError.columnName }}</td>
+        </tr>
+        <tr>
+          <th>סוג שגיאה</th>
+          <td>{{ selectedError.errorType }}</td>
+        </tr>
+        <tr>
+          <th>ערך שהתקבל</th>
+          <td>{{ selectedError.receivedValue }}</td>
+        </tr>
+        <tr>
+          <th>פורמט נדרש</th>
+          <td>{{ selectedError.requiredFormat }}</td>
+        </tr>
+        <tr>
+          <th>הסבר</th>
+          <td>{{ selectedError.description }}</td>
+        </tr>
+      </table>
+
+      <button class="catalog-btn" (click)="viewErrorCatalog()">📘 צפייה בקטלוג שגיאות</button>
+    </div>
+  </div> -->
 
 
   <div class="actionsexportToExcel">
