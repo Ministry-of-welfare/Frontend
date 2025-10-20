@@ -3,6 +3,6 @@ export class ImportDataSourceColumn {
     importDataSourceId!: number;
     orderId!: number;
     columnName!: string;
-    formatColumnId!: string;
+    formatColumnId!: number;
     columnNameHebDescription!: string;
 }

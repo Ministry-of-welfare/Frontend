@@ -440,7 +440,7 @@ currentStep = 1;
         console.log('typeof res:', typeof res);
         console.log('Object.keys(res):', Object.keys(res));
         console.log('=== ניסיון לחלץ ID ===');
-        const importDataSourceId = res.importDataSourceId || res.id || res.ImportDataSourceId;
+        const importDataSourceId = res.importDataSourceId || res || res.ImportDataSourceId;
         console.log('importDataSourceId שהתקבל:', importDataSourceId);
         console.log('res.importDataSourceId:', res.importDataSourceId);
         console.log('res.id:', res.id);
@@ -480,7 +480,7 @@ currentStep = 1;
         importDataSourceId: importDataSourceId,
         orderId: col.order,
         columnName: col.nameEng,
-        formatColumnId: col.type,
+        formatColumnId:3,
         columnNameHebDescription: col.nameHeb
       };
       
