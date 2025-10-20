@@ -121,6 +121,16 @@ consol: any;
     }
   }
 
+  // Returns total rows count based on the currently loaded data (server or mock)
+  get totalRowsCount(): number {
+    return this.allRows ? this.allRows.length : 0;
+  }
+
+  // Returns number of rows that have status === 'error'
+  get errorRowsCount(): number {
+    return this.allRows ? this.allRows.filter(r => r.status === 'error').length : 0;
+  }
+
   /**
    * 🟢 טעינת נתונים מהשרת (אם נכשל – מציג נתוני דמה)
    */
