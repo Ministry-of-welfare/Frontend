@@ -56,7 +56,7 @@
               <label class="form-label">סוג קליטה <span class="required">*</span></label>
               <select class="form-select" [(ngModel)]="dataSourceType" (ngModelChange)="onDataSourceTypeChange()">
                 <option value="">בחר סוג קליטה</option>
-                <option *ngFor="let option of dataSourceOptions" [value]="option.dataSourceTypeId">{{option.dataSourceTypeDesc}}</option>
+                <option *ngFor="let option of dataSourceOptions" [value]="option.DataSourceTypeId">{{option.dataSourceTypeDesc}}</option>
               </select>
               <div class="help-text">קובע את רמת הוולידציה שתתבצע על הקובץ</div>
             </div>
@@ -65,7 +65,7 @@
               <label class="form-label">מערכת <span class="required">*</span></label>
               <select class="form-select" [(ngModel)]="systemType" (ngModelChange)="onSystemTypeChange()">
                 <option value="">בחר מערכת</option>
-                <option *ngFor="let option of systemOptions" [value]="option.systemId">{{option.systemName}}</option>
+                <option *ngFor="let option of systemOptions" [value]="option.SystemId">{{option.systemName}}</option>
               </select>
               <div class="help-text">המערכת שאליה שייך הקובץ</div>
             </div>

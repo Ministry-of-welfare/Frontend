@@ -52,12 +52,12 @@ export class AddFileComponent implements OnInit {
     this.urlFileAfterCustomWarning = '';
   }
   getDataSourceLabel(): string {
-    const opt = this.dataSourceOptions?.find(opt => String(opt.dataSourceTypeId) === this.dataSourceType);
+    const opt = this.dataSourceOptions?.find(opt => String(opt.DataSourceTypeId) === this.dataSourceType);
     return opt ? (opt.dataSourceTypeDesc || '') : '';
   }
 
   getSystemLabel(): string {
-    const opt = this.systemOptions?.find(opt => String(opt.systemId) === this.systemType);
+    const opt = this.systemOptions?.find(opt => String(opt.SystemId) === this.systemType);
     return opt ? (opt.systemName || '') : '';
   }
   onTableNameInput(value: string) {
@@ -251,18 +251,28 @@ currentStep = 1;
   loadOptionsFromServer() {
     console.log('טוען אפשרויות מהשרת...');
     this.systemsService.getAll().subscribe({
-      next: (data: Systems[]) => {
+      next: (data: any[]) => {
         console.log('מערכות שנטענו:', data);
-        this.systemOptions = data;
+        // המרת נתונים מהשרת למודל
+        this.systemOptions = data.map(item => ({
+          SystemId: item.systemId,
+          systemCode: item.systemCode,
+          systemName: item.systemName,
+          ownerEmail: item.ownerEmail
+        }));
       },
       error: (err: any) => {
         console.error('שגיאה בטעינת מערכות:', err);
       }
     });
     this.dataSourceTypeService.getAll().subscribe({
-      next: (data: DataSourceType[]) => {
+      next: (data: any[]) => {
         console.log('סוגי קליטה שנטענו:', data);
-        this.dataSourceOptions = data;
+        // המרת נתונים מהשרת למודל
+        this.dataSourceOptions = data.map(item => ({
+          DataSourceTypeId: item.dataSourceTypeId,
+          dataSourceTypeDesc: item.dataSourceTypeDesc
+        }));
       },
       error: (err: any) => {
         console.error('שגיאה בטעינת סוגי קליטה:', err);
@@ -435,9 +445,13 @@ currentStep = 1;
         console.log('res.importDataSourceId:', res.importDataSourceId);
         console.log('res.id:', res.id);
         console.log('res.ImportDataSourceId:', res.ImportDataSourceId);
+        console.log('מספר עמודות:', this.columns.length);
+        
         if (importDataSourceId && this.columns.length > 0) {
+          console.log('קורא ל-saveColumns עם ID:', importDataSourceId);
           this.saveColumns(importDataSourceId);
         } else {
+          console.log('לא קורא ל-saveColumns. ID:', importDataSourceId, 'עמודות:', this.columns.length);
           this.successMessageVisible = true;
           this.creatingFile = false;
           if (confirm('הקובץ נוצר בהצלחה! האם תרצה לחזור לרשימת הקבצים?')) {
@@ -454,10 +468,14 @@ currentStep = 1;
   }
 
   saveColumns(importDataSourceId: number) {
+    console.log('=== התחלת saveColumns ===');
+    console.log('importDataSourceId:', importDataSourceId);
+    console.log('columns:', this.columns);
+    
     let savedCount = 0;
     const totalColumns = this.columns.length;
     
-    this.columns.forEach(col => {
+    this.columns.forEach((col, index) => {
       const columnData: ImportDataSourceColumn = {
         importDataSourceId: importDataSourceId,
         orderId: col.order,
@@ -465,6 +483,8 @@ currentStep = 1;
         formatColumnId: col.type,
         columnNameHebDescription: col.nameHeb
       };
+      
+      console.log(`שולח עמודה ${index + 1}:`, columnData);
       
       this.importDSColumn.addImportDataSource(columnData).subscribe({
         next: (res) => {
@@ -479,7 +499,8 @@ currentStep = 1;
           }
         },
         error: (err) => {
-          console.error('שגיאה בשמירת עמודה:', err);
+          console.error(`שגיאה בשמירת עמודה ${index + 1}:`, err);
+          console.error('פרטי שגיאה:', err.error);
           this.errorMessageVisible = true;
           this.creatingFile = false;
         }
@@ -509,15 +530,7 @@ currentStep = 1;
       }
     }
   }
-  // getDataSourceLabel(): string {
-  //   const opt = this.dataSourceOptions?.find(opt => String(opt.DataSourceTypeId) === this.dataSourceType);
-  //   return opt ? (opt.dataSourceTypeDesc || '') : '';
-  // }
 
-  // getSystemLabel(): string {
-  //   const opt = this.systemOptions?.find(opt => String(opt.SystemId) === this.systemType);
-  //   return opt ? (opt.systemName || '') : '';
-  // }
 
   onDataSourceTypeChange() {
     console.log('סוג קליטה שונה ל:', this.dataSourceType);

@@ -1,5 +1,5 @@
 export class Systems {
-    systemId!: number;
+    SystemId!: number;
     systemCode!: string;
     systemName!: string;
     ownerEmail?: string;

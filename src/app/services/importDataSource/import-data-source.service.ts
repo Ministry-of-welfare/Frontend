@@ -22,7 +22,7 @@ export class ImportDataSourceService {
   }
 
   addImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
-    return this.http.post<ImportDataSources>(`${this.BASE_URL}/create`, importDataSource);
+    return this.http.post<ImportDataSources>(`${this.BASE_URL}/CreateAndReturnId`, importDataSource);
   }
 
   updateImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
