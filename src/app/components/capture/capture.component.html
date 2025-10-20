@@ -6,26 +6,25 @@
   <!-- כרטיסי סטטוס -->
   <div class="status-cards">
     <div class="card border-blue">
-      <div class="value">12</div>
+      <div class="value">{{ statusCounts.waiting }}</div>
       <div class="label">ממתין</div>
     </div>
     <div class="card border-yellow">
-      <div class="value">3</div>
+      <div class="value">{{ statusCounts.inProgress }}</div>
       <div class="label">בתהליך</div>
     </div>
 
     <div class="card border-green">
-      <div class="value">145</div>
+      <div class="value">{{ statusCounts.success }}</div>
       <div class="label">הצלחה</div>
     </div>
 
     <div class="card border-red">
-      <div class="value">8</div>
+      <div class="value">{{ statusCounts.error }}</div>
       <div class="label">כישלון</div>
     </div>
   </div>
   <div class="card filters-card">
-    <!-- כאן הפילטרים -->
 
     <!-- פילטרים -->
     <div class="filters">

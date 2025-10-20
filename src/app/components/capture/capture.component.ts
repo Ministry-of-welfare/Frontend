@@ -128,7 +128,7 @@ export class CaptureComponent implements OnInit {
       if (this.selectedSystem && String(item.system) !== this.selectedSystem) return false;
       if (this.selectedStatus && String(item.status) !== this.selectedStatus) return false;
       if (this.searchTerm && !String(item.fileName).toLowerCase().includes(this.searchTerm.toLowerCase())) return false;
-
+   
       // תאריכים (אם רצוי להשוות - התאמה לפי פורמט התאריך שמגיע מהשרת)
       if (this.importStartDate && item.importStartDate) {
         const from = new Date(this.importStartDate);
@@ -140,8 +140,9 @@ export class CaptureComponent implements OnInit {
         const itemDate = new Date(item.endDate);
         if (itemDate > to) return false;
       }
-
+  
       return true;
+    
     });
 
     // pagination
@@ -150,6 +151,8 @@ export class CaptureComponent implements OnInit {
     this.currentPage = Math.min(Math.max(1, this.currentPage), maxPage);
     const start = (this.currentPage - 1) * this.pageSize;
     this.filteredData = this.allFilteredData.slice(start, start + this.pageSize);
+        this.computeStatusCounts();
+
   }
 
   // --- כפתורים / אירועים UI ---
@@ -374,7 +377,39 @@ export class CaptureComponent implements OnInit {
 
   XLSX.writeFile(wb, 'דו"ח_קליטות_עברית.xlsx');
 }
+// ...existing code...
+  // סטטיסטיקות לסטטוסים
+  statusCounts = {
+    waiting: 0,     // ממתין
+    inProgress: 0,  // בתהליך
+    success: 0,     // הצלחה
+    error: 0,       // כישלון
+    other: 0
+  };
 
+  private normalizeStatusToken(token: string): 'waiting'|'inProgress'|'success'|'error'|'other' {
+    if (!token) return 'other';
+    const t = token.trim().toLowerCase();
+    if (t.startsWith('הצלחה') || t.startsWith('success')) return 'success';
+    if (t.startsWith('כישלון') || t.startsWith('error') || t.startsWith('failed')) return 'error';
+    if (t.startsWith('בתהליך') || t.includes('in-progress') || t.includes('in progress')) return 'inProgress';
+    if (t.startsWith('ממתין') || t.startsWith('pending')) return 'waiting';
+    return 'other';
+  }
+
+  // קראי לפונקציה הזו אחרי שמשנים/ממפים את הנתונים (למשל בסוף applyLocalFiltersAndPaginate או בסוף שגיאת ה־search)
+  computeStatusCounts(): void {
+    // אם רוצים שהסכום ישקף את התוצאות לאחר סינון מקומי - השתמשי ב־allFilteredData
+    const list = Array.isArray(this.allFilteredData) ? this.allFilteredData : (Array.isArray(this.tableData) ? this.tableData : []);
+    const counts = { waiting: 0, inProgress: 0, success: 0, error: 0, other: 0 };
+    for (const item of list) {
+      const token = this.getStatusToken ? this.getStatusToken(item) : ((item.statusLabel || item.status || '') + '');
+      const key = this.normalizeStatusToken((token || '') + '');
+      counts[key]++;
+    }
+    this.statusCounts = counts;
+  }
+// ...existing code...
 
 
 
