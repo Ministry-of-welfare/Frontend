@@ -121,6 +121,16 @@ consol: any;
     }
   }
 
+  // Returns total rows count based on the currently loaded data (server or mock)
+  get totalRowsCount(): number {
+    return this.allRows ? this.allRows.length : 0;
+  }
+
+  // Returns number of rows that have status === 'error'
+  get errorRowsCount(): number {
+    return this.allRows ? this.allRows.filter(r => r.status === 'error').length : 0;
+  }
+
   /**
    * 🟢 טעינת נתונים מהשרת (אם נכשל – מציג נתוני דמה)
    */
@@ -268,6 +278,19 @@ mapColumnKeyToHebrew(column: string): string {
 }
 getErrorsForRow(rowId: number) {
   return this.errorDetails.filter(e => e.lineId === rowId);
+}
+viewErrorDetails(errorSummary: any) {
+  // כאן אתה יכול לפתוח פאנל צדדי או טאבל מודאלי
+  // לדוגמה — תראה את כל השורות שמכילות את השגיאה הזאת
+  this.selectedTab = 'errors'; // מעביר לטאב של השגיאות
+  console.log('מציג פרטים לשגיאה:', errorSummary.type);
+}
+viewErrorColumns(errorSummary: any) {
+  // מעביר אוטומטית לטאב של השגיאות
+  this.selectedTab = 'errors';
+
+  // מדפיס בקונסול כדי לבדוק שהכל עובד
+  console.log('📊 מציג פרטים לעמודות בעייתיות:', errorSummary.columns);
 }
 
   hasError(row: EmployeeRow, field: string) {
