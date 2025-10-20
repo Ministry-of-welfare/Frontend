@@ -106,18 +106,19 @@ consol: any;
         columns: data.columns
       }));
 
-      this.stats = {
-        totalRows: this.allRows.length,
-        totalErrors: this.allRows.filter(r => r.status === 'error').length,
-        successRate:
-          ((this.allRows.filter(r => r.status === 'ok').length /
-            this.allRows.length) *
-            100).toFixed(1),
-        avgErrorsPerRow: (
-          this.allRows.reduce((acc, row) => acc + (row.errors?.length || 0), 0) /
-          this.allRows.length
-        ).toFixed(2)
-      };
+     this.stats = {
+  totalRows: this.allRows.length,
+  totalErrors: this.errorDetails.length,
+  totalValidRows: this.allRows.filter(r => r.status === 'ok').length,
+  totalErrorRows: this.allRows.filter(r => r.status === 'error').length,
+  successRate: (
+    (this.allRows.filter(r => r.status === 'ok').length / this.allRows.length) * 100
+  ).toFixed(1),
+  avgErrorsPerRow: (
+    this.errorDetails.length / this.allRows.length
+  ).toFixed(2)
+};
+
     }
   }
 
