@@ -3,6 +3,7 @@ export class ImportDataSources {
     importDataSourceId?: number;
     importDataSourceDesc?: string;
     dataSourceTypeId!: number;
+    fileStatusId?: number;
     systemId?: number;
     jobName?: string;
     tableName!: string;

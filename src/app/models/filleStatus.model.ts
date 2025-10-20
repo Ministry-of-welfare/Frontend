@@ -1,6 +1,4 @@
 export class FileStatus {
- fileStatusId?: string;
-
- fileStatusDesc!: string;
-
+	fileStatusId!: number;
+	fileStatusDesc?: string;
 }

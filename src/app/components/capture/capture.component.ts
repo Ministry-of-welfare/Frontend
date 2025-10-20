@@ -1,116 +1,256 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import * as XLSX from 'xlsx';
-import { CaptureService } from '../../services/capture/capture.service';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
+import { catchError, of } from 'rxjs';
+import * as XLSX from 'xlsx';
 
-export interface GroupImport {
+
+interface TableRow {
   id: number;
-  sourceDesc: string;
+  source: string;
   system: string;
   fileName: string;
-  importStartDate: string;
-  endDate: string;
-  totalRows: number;
-  importedRows: number;
-  errorRows: number;
-  status: 'מוכן' | 'בתהליך' | 'הצלחה' | 'כישלון' | string;
+  importStartDate?: string | null;
+  endDate?: string | null;
+  total: number;
+  loaded: number;
+  failed: number;
+  status?: string;
+  statusLabel?: string;
+  [key: string]: any;
 }
-
 
 @Component({
   selector: 'app-capture',
   standalone: true,
-  imports: [CommonModule,FormsModule,    
-],
+  imports: [CommonModule, FormsModule],
   templateUrl: './capture.component.html',
   styleUrl: './capture.component.css'
 })
-export class CaptureComponent {
-  constructor(private captureService: CaptureService,private importDataSource: ImportDataSourceService, private router: Router) {}
+export class CaptureComponent implements OnInit {
+  // מקור נתונים: השרת מחזיר DTO/מוזג דרך search
+  tableData: TableRow[] = [];
 
-  data2: any[] = [];
- @Input() totalItems: number = 0;          // סה"כ רשומות
-  @Input() pageSize: number = 10;           // כמה רשומות לעמוד
-  @Input() currentPage: number = 1;
-  @Output() pageChange = new EventEmitter<number>();
-  @Output() pageSizeChange = new EventEmitter<number>();
-  // משתנים לתפריט קונטקסט
+  // נתונים לאחר פילטרים מקומיים (לפאגינציה והצגה)
+  allFilteredData: TableRow[] = [];
+  filteredData: TableRow[] = [];
+
+  // UI filters שנשלחים לשרת
+  importStartDate = '';
+  endDate = '';
+  selectedSystem = '';
+  selectedSource = '';
+  selectedStatus = '';
+  searchTerm = '';
+  onlyErrors = false;
+
+  // state
+  loading = false;
+  errorMsg = '';
+
+  // pagination
+  pageSizeOptions = [5, 10, 20, 50];
+  pageSize = 10;
+  currentPage = 1;
+
+  // context menu
+  // contextMenuVisible = false;
+  // contextMenuX = 0;
+  // contextMenuY = 0;
+  // contextMenuRow: TableRow | null = null;
   contextMenuVisible = false;
   contextMenuX = 0;
   contextMenuY = 0;
   contextMenuRow: any = null;
+
+  constructor(private importDataSourceService: ImportDataSourceService, private router: Router) {}
+
   ngOnInit(): void {
-    //   ..נסיון שילוב
-debugger;
-//  שלב 1: מביאים את כל הקליטות
-  this.captureService.getAll().subscribe(captures => {
-    console.log("captures", captures); // בדיקה שהנתונים מגיעים
-    // שלב 2: מביאים את כל המקורות
-    this.importDataSource.getAll().subscribe(sources => {
-          console.log("sources", sources); // בדיקה שהנתונים מגיעים
-      // שלב 3: ממזגים נתונים
-      this.data2 = captures.map(capture => {
-        // מוצאים את המקור המתאים לפי importDataSourceId
-        const source = sources.find(s => s.importDataSourceId === capture.importDataSourceId);
-console.log("source", source); // בדיקה שהנתונים מגיעים
-console.log("data2", this.data2); // בדיקה שהנתונים מגיעים
-console.log("importStatusId", captures[0].importStatusId); // בדיקה שהנתונים מגיעים
-        return {
-          id: capture.importControlId,
-          source: source ? source.importDataSourceDesc : '', // תיאור מקור מהטבלה השנייה
-          // system:source ? source. : '', // או תביאי שם מערכת אם יש
-          fileName: capture. fileName,
-          importStartDate: capture.importStartDate,
-          endDate: capture.importFinishDate??'-',
-          total: capture.totalRows??'-',
-          loaded: capture.totalRowsAffected??'-',
-          failed: capture.rowsInvalid??'-',
-          // status: capture.ImportStatus, // אם יש
-          // statusLabel: capture.ImportStatusDesc // אם יש
-        };
-       });
-     });
-   });
-}
-  //עובד
-  //  this.captureService.getAll().subscribe(data => {
-  //      this.data2 = data;
-  //      console.log(this.data2)
-  //     console.log(this.data2[0].importControlId) // בדיקה שהנתונים מגיעים
+    // התחלה: בקשת search עם פילטרים ריקים => השרת יחזיר את כל ה־DTO/מוזג
+    this.searchImportDataSources();
+  }
 
-  //    });}
-     //נסיון המרה
-//       this.importDataSource.getAll().subscribe(importSources => {
-//         console.log(importSources); // בדיקה שהנתונים מגיעים
-//   this.filterByImportDataSourceIds(importSources);
-// });
+  // --- קריאה לשרת (רק search) ---
+  searchImportDataSources(overrides?: any): void {
+    this.loading = true;
+    this.errorMsg = '';
 
-//      this.captureService.getAll().subscribe(data => {
-//     this.data2 = data.map(item => ({
-//       id: item.ImportControlId,
-//       source: item.ImportDataSourceId,
-//       // system: item.importSystemDesc,
-//       fileName: item.FileName,
-//       importStartDate: item.ImportStartDate,
-//       endDate: item.ImportFinishDate,
-//       total: item.TotalRows,
-//       loaded: item.TotalRowsAffected,
-//       failed: item.RowsInvalid,
-//       // status: item.importStatus,
-//       // statusLabel: item.importStatusDesc
-//     }));
-//        console.log(this.data2)
-//       console.log(this.data2[0].importControlId)
-//   });
+    const filtersToSend: any = {
+      status: this.selectedStatus || undefined,
+      system: this.selectedSystem || undefined,
+      search: this.searchTerm || undefined,
+      importStartDate: this.importStartDate || undefined,
+      importFinishDate: this.endDate || undefined,
+      ...overrides
+    };
 
-//   return this.data2;
+    this.importDataSourceService.search(filtersToSend).pipe(
+      catchError(err => {
+        console.error('search error', err);
+        this.errorMsg = 'שגיאה בטעינת נתונים';
+        this.loading = false;
+        return of([] as any[]);
+      })
+    ).subscribe((result: any[]) => {
+      // Normalize לשדות שה־HTML מצפה להם
+      this.tableData = (result || []).map(r => ({
+        id: r.importControlId ?? r.id ?? 0,
+        source: r.importDataSourceDesc ?? r.source ?? '',
+        system: r.systemName ?? r.system ?? '',
+        fileName: r.fileName ?? '',
+        importStartDate: r.importStartDate ?? r.importStart ?? r.startDate ?? '',
+        endDate: r.importFinishDate ?? r.importFinish ?? r.endDate ?? '',
+        total: r.totalRows ?? r.total ?? 0,
+        loaded: r.totalRowsAffected ?? r.loaded ?? 0,
+        failed: r.rowsInvalid ?? r.failed ?? 0,
+        status: r.importStatus ?? r.status ?? '',
+        statusLabel: r.importStatusDesc ?? r.statusLabel ?? ''
+      } as TableRow));
+
+      // החלת פילטרים מקומיים (onlyErrors וכו') ועידכון פאגינציה
+      this.currentPage = 1;
+      this.applyLocalFiltersAndPaginate();
+      this.loading = false;
+    });
+  }
+ getStatusToken(item: any): string {
+    const val = (item?.status || item?.statusLabel || '') + '';
+    const parts = val.trim().split(/[ \t\-]+/);
+    return parts.length ? parts[0] : '';
+  }
+  // --- פילטרים מקומיים + פאגינציה (slice) ---
+  applyLocalFiltersAndPaginate(): void {
+    this.allFilteredData = this.tableData.filter(item => {
+      if (this.onlyErrors && !(item.failed && item.failed > 0)) return false;
+      if (this.selectedSource && String(item.source) !== this.selectedSource) return false;
+      if (this.selectedSystem && String(item.system) !== this.selectedSystem) return false;
+      if (this.selectedStatus && String(item.status) !== this.selectedStatus) return false;
+      if (this.searchTerm && !String(item.fileName).toLowerCase().includes(this.searchTerm.toLowerCase())) return false;
+
+      // תאריכים (אם רצוי להשוות - התאמה לפי פורמט התאריך שמגיע מהשרת)
+      if (this.importStartDate && item.importStartDate) {
+        const from = new Date(this.importStartDate);
+        const itemDate = new Date(item.importStartDate);
+        if (itemDate < from) return false;
+      }
+      if (this.endDate && item.endDate) {
+        const to = new Date(this.endDate);
+        const itemDate = new Date(item.endDate);
+        if (itemDate > to) return false;
+      }
+
+      return true;
+    });
+
+    // pagination
+    const total = this.allFilteredData.length;
+    const maxPage = Math.max(1, Math.ceil(total / this.pageSize));
+    this.currentPage = Math.min(Math.max(1, this.currentPage), maxPage);
+    const start = (this.currentPage - 1) * this.pageSize;
+    this.filteredData = this.allFilteredData.slice(start, start + this.pageSize);
+  }
+
+  // --- כפתורים / אירועים UI ---
+  onSearchButtonClick(): void {
+    // שולח את הפילטרים לשרת; השרת מחזיר DTO מוכן
+    this.searchImportDataSources();
+  }
+
+  applyFilters(): void {
+    // במקרה שמפעילים פילטרים מקומיים בלבד (כבר יש tableData) - עדכון תצוגה
+    this.currentPage = 1;
+    this.applyLocalFiltersAndPaginate();
+  }
+
+  resetFilters(): void {
+    this.importStartDate = '';
+    this.endDate = '';
+    this.selectedSystem = '';
+    this.selectedSource = '';
+    this.selectedStatus = '';
+    this.searchTerm = '';
+    this.onlyErrors = false;
+    this.searchImportDataSources();
+  }
+
+  // --- pagination helpers (התבנית משתמשת ב־pages כ־property) ---
+  get totalItems(): number { return this.allFilteredData.length; }
+  get totalPages(): number { return Math.max(1, Math.ceil(this.totalItems / this.pageSize)); }
+  get startItem(): number { return this.totalItems === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1; }
+  get endItem(): number { return Math.min(this.currentPage * this.pageSize, this.totalItems); }
+
+  get pagesArray(): (number | string)[] {
+    const pages: (number | string)[] = [];
+    if (this.totalPages <= 7) {
+      for (let i = 1; i <= this.totalPages; i++) pages.push(i);
+      return pages;
+    }
+    pages.push(1);
+    if (this.currentPage > 3) pages.push('...');
+    const start = Math.max(2, this.currentPage - 1);
+    const end = Math.min(this.totalPages - 1, this.currentPage + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (this.currentPage < this.totalPages - 2) pages.push('...');
+    pages.push(this.totalPages);
+    return pages;
+  }
+
+  changePage(page: number | string): void {
+    if (typeof page !== 'number') return;
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+      this.currentPage = page;
+      this.applyLocalFiltersAndPaginate();
+    }
+  }
+
+  prevPage(): void { if (this.currentPage > 1) { this.currentPage--; this.applyLocalFiltersAndPaginate(); } }
+  nextPage(): void { if (this.currentPage < this.totalPages) { this.currentPage++; this.applyLocalFiltersAndPaginate(); } }
+
+  changePageSize(e: Event): void {
+    const v = +(e.target as HTMLSelectElement).value;
+    if (v > 0) {
+      this.pageSize = v;
+      this.currentPage = 1;
+      this.applyLocalFiltersAndPaginate();
+    }
+  }
+
+//   // --- context menu / row actions ---
+//   onContextMenu(event: MouseEvent, row: TableRow): void {
+//     event.preventDefault();
+//     this.contextMenuVisible = true;
+//     this.contextMenuX = event.clientX;
+//     this.contextMenuY = event.clientY;
+//     this.contextMenuRow = row;
 //   }
-  
 
-  // פתיחת תפריט קונטקסט
+//   onDocumentClick(_: MouseEvent): void {
+//     this.contextMenuVisible = false;
+//   }
+
+//   viewDetails(): void { console.log('viewDetails', this.contextMenuRow); this.contextMenuVisible = false; }
+//   viewRows(): void {
+//     if (!this.contextMenuRow) return;
+//     this.router.navigate(['/view-control'], { state: { captureId: this.contextMenuRow.id } });
+//     this.contextMenuVisible = false;
+//   }
+//   viewErrors(): void { console.log('viewErrors', this.contextMenuRow); this.contextMenuVisible = false; }
+//   downloadErrorReport(): void { console.log('downloadErrorReport', this.contextMenuRow); this.contextMenuVisible = false; }
+//   openFilePath(): void { console.log('openFilePath', this.contextMenuRow); this.contextMenuVisible = false; }
+//   showLogs(): void { console.log('showLogs', this.contextMenuRow); this.contextMenuVisible = false; }
+//   onRowDoubleClick(row: TableRow): void { this.viewRows(); }
+
+//  exportToExcel(): void {
+//     // שמתי לוג בלבד — אם תרצי, אוסיף יצוא מלא כמו קודם
+//     console.log('exportToExcel - total items', this.allFilteredData.length);
+//   }
+
+
+
+  //שני
+ // פתיחת תפריט קונטקסט
   onContextMenu(event: MouseEvent, row: any) {
     event.preventDefault();
     this.contextMenuVisible = true;
@@ -183,138 +323,6 @@ console.log("importStatusId", captures[0].importStatusId); // בדיקה שהנ�
       this.closeContextMenu();
     }
   }
-
-// ngOnInit(): void {
-//   this.ImportControlService.getAll().subscribe(data => {
-//       this.statuses= data.map(item => item.importStatusDesc)
-//   .filter((t): t is string => t !== undefined);
-//   console.log(data)
-//     });}
-
-//  capture = [
-//     {
-//       id: 1001,
-//       source: 'קליטת עובדים סוציאליים',
-//       system: 'מערכת עובדים',
-//       fileName: 'social_workers_2024.xlsx',
-//       importStartDate: '15.01.2025 09:30',
-//       endDate: '15.01.2025 09:45',
-//       total: 250,
-//       loaded: 248,
-//       failed: 0,
-//       status: 'success',
-//       statusLabel: 'הצלחה'
-//     },]
-
-  importStartDate = '';
-  endDate = '';
-  selectedSystem = '';
-  selectedSource = '';
-  selectedStatus = '';
-  searchTerm = '';
-  onlyErrors = false;
-
-  // data = [
-  //   {
-  //     id: 1001,
-  //     source: 'קליטת עובדים סוציאליים',
-  //     system: 'מערכת עובדים',
-  //     fileName: 'social_workers_2024.xlsx',
-  //     importStartDate: '15.01.2025 09:30',
-  //     endDate: '15.01.2025 09:45',
-  //     total: 250,
-  //     loaded: 248,
-  //     failed: 0,
-  //     status: 'success',
-  //     statusLabel: 'הצלחה'
-  //   },
-  //   {
-  //     id: 1002,
-  //     source: 'קליטת משמרות',
-  //     system: 'מערכת חירום',
-  //     fileName: 'emergency_shifts.csv',
-  //     importStartDate: '20.01.2025 14:15',
-  //     endDate: '20.01.2025 14:20',
-  //     total: 180,
-  //     loaded: 180,
-  //     failed: 0,
-  //     status: 'success',
-  //     statusLabel: 'הצלחה'
-  //   },
-  //   {
-  //     id: 1003,
-  //     source: 'קליטת בתי מלון',
-  //     system: 'מערכת תיירות',
-  //     fileName: 'hotels_data.xlsx',
-  //     importStartDate: '05.02.2025 11:00',
-  //     endDate: '-',
-  //     total: 320,
-  //     loaded: 15,
-  //     failed: 0,
-  //     status: 'in-progress',
-  //     statusLabel: 'בתהליך'
-  //   },
-  //   {
-  //     id: 1004,
-  //     source: 'קליטת נתוני חירום',
-  //     system: 'מערכת חירום',
-  //     fileName: 'emergency_data_corrupt.csv',
-  //     importStartDate: '10.12.2024 16:30',
-  //     endDate: '10.12.2024 16:35',
-  //     total: 450,
-  //     loaded: 0,
-  //     failed: 450,
-  //     status: 'error',
-  //     statusLabel: 'כישלון'
-  //   }
-  // ];
-
-
-
-get filteredData() {
-  console.log("data2", this.data2); // בדיקה שהנתונים מגיעים
-
-  return this.data2.filter(item => {
-    let ok = true;
-
-    // טווח תאריכים
-    if (this.importStartDate && item.importStartDate) {
-      const itemStart = new Date(item.importStartDate.split(' ')[0].split('.').reverse().join('-'));
-      const filterStart = new Date(this.importStartDate);
-      if (itemStart < filterStart) ok = false;
-    }
-
-    if (this.endDate && item.endDate && item.endDate !== '-') {
-      const itemEnd = new Date(item.endDate.split(' ')[0].split('.').reverse().join('-'));
-      const filterEnd = new Date(this.endDate);
-      if (itemEnd > filterEnd) ok = false;
-      
-    }
-
-    // מערכת
-    if (this.selectedSystem && item.system !== this.selectedSystem) ok = false;
-
-    // מקור
-    if (this.selectedSource && item.source !== this.selectedSource) ok = false;
-
-    // סטטוס
-    if (this.selectedStatus && item.status !== this.selectedStatus) ok = false;
-
-    // שגיאות בלבד
-    if (this.onlyErrors && item.failed <= 0) ok = false;
-
-    // חיפוש טקסט
-    if (this.searchTerm &&
-        !item.fileName.includes(this.searchTerm) &&
-        !item.source.includes(this.searchTerm)) {
-      ok = false;
-    }
-
-    return ok;
-  });
-}
-
- 
   exportToExcel(): void {
     const headers = [
       'מ"ז קליטה',
@@ -372,90 +380,7 @@ get filteredData() {
   XLSX.writeFile(wb, 'דו"ח_קליטות_עברית.xlsx');
 }
 
-   applyFilters(): void {
-    // קריאה מחדש ל־getter filteredData (שומר State)
-    console.log('פילטרים הופעלו');
-  }
-
-  resetFilters(): void {
-    this.importStartDate = '';
-    this.endDate = '';
-    this.selectedSystem = '';
-    this.selectedSource = '';
-    this.selectedStatus = '';
-    this.searchTerm = '';
-    this.onlyErrors = false;
-    console.log('הפילטרים אופסו');
-  }
 
 
-  pageSizeOptions: number[] = [5, 10, 20, 50];
-
-  get totalPages(): number {
-    return Math.ceil(this.totalItems / this.pageSize);
-  }
-
-  get pages(): (number | string)[] {
-    const pages: (number | string)[] = [];
-
-    if (this.totalPages <= 7) {
-      for (let i = 1; i <= this.totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      pages.push(1);
-      if (this.currentPage > 3) {
-        pages.push('...');
-      }
-
-      const start = Math.max(2, this.currentPage - 1);
-      const end = Math.min(this.totalPages - 1, this.currentPage + 1);
-
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-
-      if (this.currentPage < this.totalPages - 2) {
-        pages.push('...');
-      }
-      pages.push(this.totalPages);
-    }
-
-    return pages;
-  }
-
-  get startItem(): number {
-    return (this.currentPage - 1) * this.pageSize + 1;
-  }
-
-  get endItem(): number {
-    return Math.min(this.currentPage * this.pageSize, this.totalItems);
-  }
-
-  changePage(page: number | string) {
-    if (typeof page === 'number' && page !== this.currentPage) {
-      this.pageChange.emit(page);
-    }
-  }
-
-  prevPage() {
-    if (this.currentPage > 1) {
-      this.pageChange.emit(this.currentPage - 1);
-    }
-  }
-
-  nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.pageChange.emit(this.currentPage + 1);
-    }
-  }
-
-  changePageSize(event: Event) {
-  const value = (event.target as HTMLSelectElement).value;
-  this.pageSizeChange.emit(+value); // ממיר ל-number
-}
 
 }
-
-
-
