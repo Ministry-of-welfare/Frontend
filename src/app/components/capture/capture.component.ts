@@ -142,10 +142,15 @@ console.log("importStatusId", captures[0].importStatusId); // בדיקה שהנ�
     this.closeContextMenu();
   }
   viewErrors() {
-    // צפיה בשגיאות
-    alert('צפיה בשגיאות: ' + this.contextMenuRow.fileName);
-    this.closeContextMenu();
-  }
+  this.router.navigate(['/view-control'], {
+    state: {
+      captureId: this.contextMenuRow.id,
+      captureName: this.contextMenuRow.source,
+      tab: 'errors' // <<< חדש
+    }
+  });
+  this.closeContextMenu();
+}
   downloadErrorReport() {
     // הורדת דוח שגיאות
     if (this.contextMenuRow.failed > 0) {
