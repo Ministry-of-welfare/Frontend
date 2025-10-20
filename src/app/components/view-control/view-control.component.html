@@ -30,10 +30,10 @@
   <!-- הכרטסת -->
   <div class="tabs">
     <button [class.active]="selectedTab === 'all'" (click)="selectedTab = 'all'">
-      📊 כל השורות (250)
+      📊 כל השורות ({{ totalRowsCount }})
     </button>
     <button [class.active]="selectedTab === 'errors'" (click)="selectedTab = 'errors'">
-      ⚠️ שורות שגויות (2)
+      ⚠️ שורות שגויות ({{ errorRowsCount }})
     </button>
     <button [class.active]="selectedTab === 'success'" (click)="selectedTab = 'success'">
       📉 סיכום שגיאות
@@ -259,7 +259,7 @@
   <div class="error-sidebar" (click)="$event.stopPropagation()">
 
     <div class="error-header">
-      <h2>פרטי שגיאות - שורה #{{ selectedErrorRow?.id }}</h2>
+      <h2>פרטי שגיאות - שורה #{{ selectedErrorRow.id }}</h2>
       <button class="close-btn" (click)="closeErrorOverlay()">✕</button>
     </div>
 
