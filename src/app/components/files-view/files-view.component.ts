@@ -100,6 +100,7 @@ export class FilesViewComponent implements OnChanges {
   }
 
   ngOnChanges(): void {
+    console.log('FilesViewComponent.ngOnChanges - searchCriteria:', this.searchCriteria, 'processes.length:', this.processes?.length);
     this.filterProcesses();
     if (this.systems && this.systems.length > 0) {
       this.systemsMap = {};
@@ -156,7 +157,10 @@ export class FilesViewComponent implements OnChanges {
           }
         });
         // apply mapping to any already-loaded processes
-        this.applyStatusMapping();
+          this.applyStatusMapping();
+          // Re-run the filter after status labels are applied so default view (active/בהקמה)
+          // shows the correct items without requiring the user to click Search.
+          this.filterProcesses();
       },
       error: (err) => {
         console.error('שגיאה בטעינת סטטוסים:', err);
