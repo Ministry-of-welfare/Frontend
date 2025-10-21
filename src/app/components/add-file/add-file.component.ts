@@ -481,6 +481,7 @@ currentStep = 1;
         orderId: col.order,
         columnName: col.nameEng,
         formatColumnId:3,
+
         columnNameHebDescription: col.nameHeb
       };
       
