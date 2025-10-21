@@ -351,20 +351,62 @@ export class CaptureComponent implements OnInit {
 
     try {
       // אם זה כתובת http/https פשוט נפתח בלשונית חדשה
-      if (/^https?:\/\//i.test(url)) {
+      const isHttp = /^https?:\/\//i.test(url);
+      const isFileProto = /^file:\/\//i.test(url);
+      const isUNC = /^\\\\/.test(url) || /^\/\//.test(url);
+      const isWindowsAbs = /^[a-zA-Z]:[\\\/]/.test(url);
+
+      if (isHttp) {
         window.open(url, '_blank');
-      } else if (/^file:\/\//i.test(url)) {
-        // קישור מסוג file:// - נסה לפתוח ישירות (מדפדפן ייתכן שיחסום)
-        window.open(url);
+      } else if (isFileProto || isUNC || isWindowsAbs) {
+        // נסה להמיר למסלול file:/// תקני
+        let fileUrl = url;
+        if (!isFileProto) {
+          if (isUNC) {
+            // UNC: \\server\share\path  -> file:///\\server\share\path OR file://///server/share/path
+            // נחלץ את החלק אחרי הסלאשים ונמיר ל-forward-slashes
+            const trimmed = url.replace(/^\\\\|^\/\//, '');
+            fileUrl = 'file:///' + trimmed.replace(/\\\\/g, '/').replace(/\\/g, '/');
+          } else if (isWindowsAbs) {
+            // C:\path\to\file -> file:///C:/path/to/file
+            fileUrl = 'file:///' + url.replace(/\\/g, '/');
+          }
+        }
+
+        // נסה לפתוח את ה-file URL (ייתכן והדפדפן יחסום, אבל זה ניסיון תקין בסביבות סגורות)
+        const opened = window.open(fileUrl, '_blank');
+
+        // אם לא הצלחנו לפתוח (popup blocked או דפדפן חוסם), נסה לפתוח את התיקיה המכילה
+        if (!opened) {
+          // נבנה URL של התיקיה (חלק לפני הקובץ האחרון)
+          try {
+            const decoded = fileUrl;
+            const idx = decoded.lastIndexOf('/');
+            const folderUrl = idx > 0 ? decoded.substring(0, idx + 1) : decoded;
+            window.open(folderUrl, '_blank');
+          } catch (e) {
+            // fallback handled below
+          }
+        }
       } else {
-        // מסלול יחס/מקומי - אם השרת משרת את הקבצים ניתן לנסות להוסיף base URL
-        // נניח שהקבצים נגישים דרך '/files/' על השרת
+        // מסלול יחס/מקומי שנראה כמו נתיב על השרת - נסה לפתוח עם base '/files/'
         const maybeUrl = url.startsWith('/') ? url : '/files/' + url;
         window.open(maybeUrl, '_blank');
       }
     } catch (e) {
       console.error('שגיאה בניסיון לפתוח נתיב קובץ:', e);
-      alert('לא ניתן לפתוח את נתיב הקובץ באופן אוטומטי. הנתיב: ' + url);
+      // נסיון לפתיחה נכשל - העתק את הנתיב ללוח והצג הוראות ידניות
+      try {
+        if (navigator && (navigator as any).clipboard && (navigator as any).clipboard.writeText) {
+          (navigator as any).clipboard.writeText(url);
+          alert('לא ניתן לפתוח את נתיב הקובץ אוטומטית. הנתיב הועתק ללוח. הדבק/י אותו בסייר הקבצים לפתיחה: ' + url);
+        } else {
+          alert('לא ניתן לפתוח את נתיב הקובץ אוטומטית. העתק/הדבק את הנתיב בסייר הקבצים: ' + url);
+        }
+      } catch (copyErr) {
+        console.error('fallback copy failed', copyErr);
+        alert('לא ניתן לפתוח את נתיב הקובץ באופן אוטומטי. הנתיב: ' + url);
+      }
     }
 
     this.closeContextMenu();

@@ -19,12 +19,13 @@ interface Column {
 @Component({
   selector: 'app-add-file',
   standalone: true,
-  imports: [NgClass,FormsModule, CommonModule],
+  imports: [NgClass, FormsModule, CommonModule],
   templateUrl: './add-file.component.html',
   styleUrl: './add-file.component.css'
 })
 export class AddFileComponent implements OnInit {
   urlFileAfterCustomWarning: string = '';
+  emailErrors: string[] = [];
 
   onUrlFileAfterInput = (value: string) => {
     if (!value) {
@@ -102,7 +103,7 @@ export class AddFileComponent implements OnInit {
   }
   tableNameWarning: string = '';
   urlFileCustomWarning: string = '';
-    requiredFieldsWarning: string = '';
+  requiredFieldsWarning: string = '';
 
   checkPath(field: 'urlFile' | 'urlFileAfter') {
     // פונקציה זו אינה נדרשת עוד כי הודעות השגיאה מוצגות דרך urlFileCustomWarning בלבד
@@ -111,11 +112,12 @@ export class AddFileComponent implements OnInit {
   }
   hebrewEmailWarning: boolean = false;
 
-  checkHebrewEmail(event: Event) {
-    const value = (event.target as HTMLTextAreaElement).value;
-    const hebrewRegex = /[א-ת]/;
-    this.hebrewEmailWarning = hebrewRegex.test(value);
-  }
+  onEmailInput(event: Event) {
+  this.errorRecipients = (event.target as HTMLTextAreaElement).value;
+  this.emailErrors = this.validateEmails();
+  this.hebrewEmailWarning = this.emailErrors.some(e => e.includes('עברית'));
+}
+
   getInputValue(event: Event): string {
     const target = event.target as HTMLInputElement | null;
     return target?.value ?? '';
@@ -144,7 +146,7 @@ export class AddFileComponent implements OnInit {
     private importDSColumn: ImportDataSourceColumnService,
     private systemsService: SystemsService,
     private dataSourceTypeService: DataSourceTypeService
-  ) {}
+  ) { }
 
   submitGeneralDetails() {
     // Validate required fields
@@ -156,6 +158,11 @@ export class AddFileComponent implements OnInit {
       this.requiredFieldsWarning = 'אנא מלא את כל השדות החובה';
       return;
     }
+    this.emailErrors = this.validateEmails();
+    if (this.emailErrors.length > 0) {
+      alert('יש שגיאות בכתובות המייל. נא תקן לפני המשך.');
+      return;
+    }
     // Prevent continue if urlFile or urlFileAfter have validation errors
     this.onUrlFileInput(this.urlFile);
     this.onUrlFileAfterInput(this.urlFileAfter);
@@ -164,8 +171,8 @@ export class AddFileComponent implements OnInit {
     }
     // Table name validation: English only
     const tableNameRegex = /^[A-Za-z0-9_]+$/;
-      if (!tableNameRegex.test(this.tableName)) {
-        this.tableNameWarning = 'שם הטבלה חייב להכיל אותיות באנגלית, מספרים וקו תחתון בלבד';
+    if (!tableNameRegex.test(this.tableName)) {
+      this.tableNameWarning = 'שם הטבלה חייב להכיל אותיות באנגלית, מספרים וקו תחתון בלבד';
       return;
     } else {
       this.tableNameWarning = '';
@@ -201,7 +208,7 @@ export class AddFileComponent implements OnInit {
     }
     // Build the object according to ImportDataSources model
     const newFile: ImportDataSources = {
-     importDataSourceDesc: this.description,
+      importDataSourceDesc: this.description,
       dataSourceTypeId: Number(this.dataSourceType),
       systemId: Number(this.systemType),
       jobName: this.jobName,
@@ -220,7 +227,7 @@ export class AddFileComponent implements OnInit {
       },
     });
   }
-currentStep = 1;
+  currentStep = 1;
 
   // Step 1 fields
   description = '';
@@ -282,7 +289,7 @@ currentStep = 1;
 
   initColumns() {
     this.columns = [];
-  this.columnErrors = [];
+    this.columnErrors = [];
     for (let i = 0; i < this.columnCount; i++) {
       this.columns.push({ order: i + 1, nameEng: '', nameHeb: '', type: 'VARCHAR' });
       this.columnErrors.push({ nameEng: '', nameHeb: '' });
@@ -314,8 +321,8 @@ currentStep = 1;
       }
     }
     if (this.currentStep === 2) {
-  let valid = true;
-  this.columnErrors = [];
+      let valid = true;
+      this.columnErrors = [];
       const hebrewRegex = /^[א-ת\s\-_,.()\[\]{}0-9]+$/;
       const englishRegex = /^[A-Za-z\s\-_,.()\[\]{}0-9]+$/;
       this.columns.forEach((col, idx) => {
@@ -376,9 +383,9 @@ currentStep = 1;
   }
 
   addColumn() {
-  this.columns.push({ order: this.columns.length + 1, nameEng: '', nameHeb: '', type: 'VARCHAR' });
-  this.columnErrors.push({ nameEng: '', nameHeb: '' });
-  this.columnCount = this.columns.length;
+    this.columns.push({ order: this.columns.length + 1, nameEng: '', nameHeb: '', type: 'VARCHAR' });
+    this.columnErrors.push({ nameEng: '', nameHeb: '' });
+    this.columnCount = this.columns.length;
   }
 
   deleteColumn(index: number) {
@@ -394,8 +401,28 @@ currentStep = 1;
     // preview is bound in template using Angular bindings
   }
 
-  
-  
+
+  validateEmails(): string[] {
+    if (!this.errorRecipients) return [];
+
+    const emails = this.errorRecipients.split(/[,;\s]+/).filter(e => e);
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    const hebrewRegex = /[א-ת]/;
+
+    const errors: string[] = [];
+
+    emails.forEach(email => {
+      if (!emailRegex.test(email)) {
+        errors.push(`כתובת לא תקינה: ${email}`);
+      }
+      if (hebrewRegex.test(email)) {
+        errors.push(`כתובת מכילה עברית: ${email}`);
+      }
+    });
+
+    return errors;
+  }
+
 
   createFile() {
     console.log('createFile: התחלת תהליך יצירת קובץ');
@@ -404,20 +431,25 @@ currentStep = 1;
     console.log('systemType:', this.systemType);
     console.log('Number(dataSourceType):', Number(this.dataSourceType));
     console.log('Number(systemType):', Number(this.systemType));
-    
+
     if (!this.dataSourceType || !this.systemType) {
       alert('אנא בחר סוג מקור נתונים ומערכת');
       return;
     }
-    
+    this.emailErrors = this.validateEmails();
+    if (this.emailErrors.length > 0) {
+      alert('יש שגיאות בכתובות המייל. נא תקן לפני המשך.');
+      return;
+    }
+
     console.log('בדיקת שדות:');
     console.log('dataSourceType:', this.dataSourceType, 'Number:', Number(this.dataSourceType));
     console.log('systemType:', this.systemType, 'Number:', Number(this.systemType));
     console.log('dataSourceOptions:', this.dataSourceOptions);
     console.log('systemOptions:', this.systemOptions);
-    
+
     const newFile: ImportDataSources = {
-    importDataSourceDesc: this.description,
+      importDataSourceDesc: this.description,
       dataSourceTypeId: Number(this.dataSourceType),
       systemId: Number(this.systemType),
       jobName: this.jobName,
@@ -446,7 +478,7 @@ currentStep = 1;
         console.log('res.id:', res.id);
         console.log('res.ImportDataSourceId:', res.ImportDataSourceId);
         console.log('מספר עמודות:', this.columns.length);
-        
+
         if (importDataSourceId && this.columns.length > 0) {
           console.log('קורא ל-saveColumns עם ID:', importDataSourceId);
           this.saveColumns(importDataSourceId);
@@ -471,22 +503,22 @@ currentStep = 1;
     console.log('=== התחלת saveColumns ===');
     console.log('importDataSourceId:', importDataSourceId);
     console.log('columns:', this.columns);
-    
+
     let savedCount = 0;
     const totalColumns = this.columns.length;
-    
+
     this.columns.forEach((col, index) => {
       const columnData: ImportDataSourceColumn = {
         importDataSourceId: importDataSourceId,
         orderId: col.order,
         columnName: col.nameEng,
-        formatColumnId:3,
+        formatColumnId: 3,
 
         columnNameHebDescription: col.nameHeb
       };
-      
+
       console.log(`שולח עמודה ${index + 1}:`, columnData);
-      
+
       this.importDSColumn.addImportDataSource(columnData).subscribe({
         next: (res) => {
           savedCount++;

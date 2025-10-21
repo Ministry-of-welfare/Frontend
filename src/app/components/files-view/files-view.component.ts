@@ -17,11 +17,13 @@ import { FileStatus } from '../../models/filleStatus.model';
 })
 export class FilesViewComponent implements OnChanges {
   viewMode: 'cards' | 'table' = 'cards';
+
   processes: any[] = [];
   filteredProcesses: any[] = [];
   loading = true;
   systemsMap: { [key: string]: string } = {}; 
   DataSourceTypeMap: { [key: string]: string } = {}; 
+
   fileStatuses: FileStatus[] = [];
   fileStatusMap: { [key: number]: string } = {};
   @Input() systems: any[] = [];
@@ -81,6 +83,16 @@ export class FilesViewComponent implements OnChanges {
   ) {}
 
   ngOnInit(): void {
+    // ברירת-מחדל: הצג את 'כל הסטטוסים' כבר בטעינת העמוד
+    if (!this.searchCriteria) {
+      this.searchCriteria = {
+        query: '',
+        system: 'כל המערכות',
+        type: 'כל הסוגים',
+        status: 'כל הסטטוסים'
+      };
+    }
+
     this.loadProcesses();
     this.loadSystems();
     this.lloadDataSourceType();
@@ -88,6 +100,7 @@ export class FilesViewComponent implements OnChanges {
   }
 
   ngOnChanges(): void {
+    console.log('FilesViewComponent.ngOnChanges - searchCriteria:', this.searchCriteria, 'processes.length:', this.processes?.length);
     this.filterProcesses();
     if (this.systems && this.systems.length > 0) {
       this.systemsMap = {};
@@ -144,7 +157,10 @@ export class FilesViewComponent implements OnChanges {
           }
         });
         // apply mapping to any already-loaded processes
-        this.applyStatusMapping();
+          this.applyStatusMapping();
+          // Re-run the filter after status labels are applied so default view (active/בהקמה)
+          // shows the correct items without requiring the user to click Search.
+          this.filterProcesses();
       },
       error: (err) => {
         console.error('שגיאה בטעינת סטטוסים:', err);
