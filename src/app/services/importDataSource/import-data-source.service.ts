@@ -78,4 +78,3 @@ updateStatusOnly(id: number, newStatusId: number): Observable<any> {
 
 }
 
-}
