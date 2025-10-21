@@ -537,9 +537,10 @@ confirmStatusChange() {
     fileStatusId: this.selectedStatus
   };
 
-  this.importDS.updateStatusOnly(updatedProcess.importDataSourceId, updatedProcess).subscribe({
+  // ⬅️ כאן התיקון: שולחים רק את ה-statusId ולא את כל האובייקט
+  this.importDS.updateStatusOnly(updatedProcess.importDataSourceId, updatedProcess.fileStatusId).subscribe({
     next: () => {
-      alert('עודכן בהצלחה'),
+     
       this.loadProcesses(); // טען מחדש
       this.closeStatusDialog();
     },
@@ -549,4 +550,5 @@ confirmStatusChange() {
     }
   });
 }
+
 }
