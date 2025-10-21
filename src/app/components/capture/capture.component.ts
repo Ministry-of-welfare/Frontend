@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { ExportService } from '../../services/export/export.service';
+import { CaptureService } from '../../services/capture/capture.service';
 import { catchError, of } from 'rxjs';
 import * as XLSX from 'xlsx';
 
@@ -70,12 +71,34 @@ export class CaptureComponent implements OnInit {
     private importDataSourceService: ImportDataSourceService,
     private router: Router,
     private exportService: ExportService
+    , private captureService: CaptureService
   ) {}
 
   ngOnInit(): void {
     // התחלה: בקשת search עם פילטרים ריקים => השרת יחזיר את כל ה־DTO/מוזג
     this.searchImportDataSources();
+    // קאש של נתיבי קבצים מתוך ה-ImportControl (urlFileAfterProcess)
+    this.captureService.getAll().pipe(
+      catchError(err => {
+        console.warn('capture.getAll failed', err);
+        return of([] as any[]);
+      })
+    ).subscribe((list: any[]) => {
+      try {
+        // בונה מפת id -> path
+        this._filePathMap = {};
+        for (const it of list || []) {
+          const id = it.importControlId ?? it.id ?? null;
+          const path = it.urlFileAfterProcess ?? it.urlFileAfterProcess ?? it.errorReportPath ?? null;
+          if (id != null && path) this._filePathMap[id] = path;
+        }
+      } catch (e) {
+        console.warn('failed mapping capture paths', e);
+      }
+    });
   }
+  // map of importControlId -> urlFileAfterProcess
+  private _filePathMap: Record<number, string> = {};
 
   // --- קריאה לשרת (רק search) ---
   searchImportDataSources(overrides?: any): void {
@@ -349,80 +372,110 @@ export class CaptureComponent implements OnInit {
     this.closeContextMenu();
   }
   openFilePath() {
-    // פתיחת נתיב הקובץ לאחר עיבוד
     const row = this.contextMenuRow;
     if (!row) {
-      alert('לא נבחרה שורה לפתיחה');
+      alert('לא נבחרה שורה להורדה');
       return this.closeContextMenu();
     }
 
-    const url = row.urlFileAfterProcess || row.url || null;
-    if (!url) {
-      alert('אין נתיב קובץ לאחר עיבוד עבור פריט זה');
+    // נסה לקבל נתיב מה-mapping קודם כל, ואז משדות השורה
+    const id = row.id ?? row.importControlId ?? null;
+    let path: string | null = null;
+    if (id != null && this._filePathMap && this._filePathMap[id]) path = this._filePathMap[id];
+    path = path || row.urlFileAfterProcess || row.errorReportPath || row.filePath || null;
+
+    if (!path) {
+      alert('לא נמצא נתיב לקובץ עבור הפריט הנבחר');
       return this.closeContextMenu();
-    }
-
-    try {
-      // אם זה כתובת http/https פשוט נפתח בלשונית חדשה
-      const isHttp = /^https?:\/\//i.test(url);
-      const isFileProto = /^file:\/\//i.test(url);
-      const isUNC = /^\\\\/.test(url) || /^\/\//.test(url);
-      const isWindowsAbs = /^[a-zA-Z]:[\\\/]/.test(url);
-
-      if (isHttp) {
-        window.open(url, '_blank');
-      } else if (isFileProto || isUNC || isWindowsAbs) {
-        // נסה להמיר למסלול file:/// תקני
-        let fileUrl = url;
-        if (!isFileProto) {
-          if (isUNC) {
-            // UNC: \\server\share\path  -> file:///\\server\share\path OR file://///server/share/path
-            // נחלץ את החלק אחרי הסלאשים ונמיר ל-forward-slashes
-            const trimmed = url.replace(/^\\\\|^\/\//, '');
-            fileUrl = 'file:///' + trimmed.replace(/\\\\/g, '/').replace(/\\/g, '/');
-          } else if (isWindowsAbs) {
-            // C:\path\to\file -> file:///C:/path/to/file
-            fileUrl = 'file:///' + url.replace(/\\/g, '/');
-          }
-        }
-
-        // נסה לפתוח את ה-file URL (ייתכן והדפדפן יחסום, אבל זה ניסיון תקין בסביבות סגורות)
-        const opened = window.open(fileUrl, '_blank');
-
-        // אם לא הצלחנו לפתוח (popup blocked או דפדפן חוסם), נסה לפתוח את התיקיה המכילה
-        if (!opened) {
-          // נבנה URL של התיקיה (חלק לפני הקובץ האחרון)
-          try {
-            const decoded = fileUrl;
-            const idx = decoded.lastIndexOf('/');
-            const folderUrl = idx > 0 ? decoded.substring(0, idx + 1) : decoded;
-            window.open(folderUrl, '_blank');
-          } catch (e) {
-            // fallback handled below
-          }
-        }
-      } else {
-        // מסלול יחס/מקומי שנראה כמו נתיב על השרת - נסה לפתוח עם base '/files/'
-        const maybeUrl = url.startsWith('/') ? url : '/files/' + url;
-        window.open(maybeUrl, '_blank');
-      }
-    } catch (e) {
-      console.error('שגיאה בניסיון לפתוח נתיב קובץ:', e);
-      // נסיון לפתיחה נכשל - העתק את הנתיב ללוח והצג הוראות ידניות
-      try {
-        if (navigator && (navigator as any).clipboard && (navigator as any).clipboard.writeText) {
-          (navigator as any).clipboard.writeText(url);
-          alert('לא ניתן לפתוח את נתיב הקובץ אוטומטית. הנתיב הועתק ללוח. הדבק/י אותו בסייר הקבצים לפתיחה: ' + url);
-        } else {
-          alert('לא ניתן לפתוח את נתיב הקובץ אוטומטית. העתק/הדבק את הנתיב בסייר הקבצים: ' + url);
-        }
-      } catch (copyErr) {
-        console.error('fallback copy failed', copyErr);
-        alert('לא ניתן לפתוח את נתיב הקובץ באופן אוטומטי. הנתיב: ' + url);
-      }
     }
 
     this.closeContextMenu();
+    this.loading = true;
+
+    const isWindowsLocal = /^([a-zA-Z]:\\|\\\\)/.test(path);
+    const isHttpUrl = /^https?:\/\//i.test(path);
+
+    const finalizeBlobSave = (blob: Blob, suggestedName?: string) => {
+      const filename = suggestedName || (row.fileName && String(row.fileName).trim()) || 'download';
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    };
+
+    if (isWindowsLocal) {
+      // ניסיון ראשון — נסה לפתוח ישירות כ-file:// (ייתכן שהדפדפן יחסום את זה)
+      try {
+        const fileUrl = 'file:///' + path.replace(/\\/g, '/');
+        // ניסיון יצירת לינק ולחיצה עליו
+        const a = document.createElement('a');
+        a.href = fileUrl;
+        a.target = '_blank';
+        a.rel = 'noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        // נסה גם window.open — אם היא מחזירה null סימן שהדפדפן חסם את הפתיחה
+        const w = window.open(fileUrl, '_blank');
+        if (!w) {
+          // אם נחסם, נמשיך ל-fallback של קריאת הקובץ מהשרת
+          throw new Error('window.open blocked');
+        }
+        // הצלחנו לפתוח את הקובץ ישירות
+        this.loading = false;
+        return;
+      } catch (e) {
+        console.warn('direct file:// open blocked or failed, falling back to server read', e);
+        // אם הפתיחה הישירה נחסמה — ניסוי fallback לקריאה מהשרת (צריך שהשרת יקרא מהדיסק המקומי)
+        this.captureService.downloadFileByPath(path).subscribe({
+          next: (blob: Blob) => {
+            finalizeBlobSave(blob, row.fileName || (path.split('\\').pop() || undefined));
+          },
+          error: (err) => {
+            console.error('downloadFileByPath failed', err);
+            alert('הורדה מהשרת נכשלה: ' + (err && err.message ? err.message : String(err)));
+          }
+        }).add(() => { this.loading = false; });
+        return;
+      }
+    }
+
+    // אם זה URL חיצוני/HTTP נשתמש ב-fetch כמו לפני
+    let url = String(path || '');
+    if (!isHttpUrl) {
+      if (url.startsWith('/')) url = window.location.origin + url;
+      else url = window.location.origin + '/' + url;
+    }
+
+    fetch(url, { method: 'GET' })
+      .then(async (resp) => {
+        if (!resp.ok) throw new Error('שגיאת רשת: ' + resp.status + ' ' + resp.statusText);
+        const disposition = resp.headers ? resp.headers.get('content-disposition') || '' : '';
+        let filename = (row.fileName && String(row.fileName).trim()) || '';
+        if (!filename) {
+          const m1 = /filename\*=[^']*'[^']*'([^;\n]+)/i.exec(disposition);
+          const m2 = /filename=\"?([^;\"\n]+)\"?/i.exec(disposition);
+          const candidate = (m1 && m1[1]) || (m2 && m2[1]) || '';
+          if (candidate) {
+            try { filename = decodeURIComponent(candidate); } catch (e) { filename = candidate; }
+          }
+        }
+        if (!filename) {
+          try { filename = (new URL(resp.url)).pathname.split('/').pop() || 'download'; } catch (e) { filename = 'download'; }
+        }
+        const blob = await resp.blob();
+        finalizeBlobSave(blob, filename);
+      })
+      .catch((err) => {
+        console.error('openFilePath download failed', err);
+        try { window.open(url, '_blank'); } catch (e) { alert('הורדה נכשלה: ' + (err && err.message ? err.message : String(err))); }
+      })
+      .finally(() => { this.loading = false; });
   }
   showLogs() {
     // הצגת לוגים
