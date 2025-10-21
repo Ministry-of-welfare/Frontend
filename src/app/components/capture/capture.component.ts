@@ -374,85 +374,108 @@ export class CaptureComponent implements OnInit {
   openFilePath() {
     const row = this.contextMenuRow;
     if (!row) {
-      alert('לא נבחרה שורה');
+      alert('לא נבחרה שורה להורדה');
       return this.closeContextMenu();
     }
 
-    const importControlId = row.id ?? row.importControlId ?? null;
-    // prefer map value, fallback to row fields
+    // נסה לקבל נתיב מה-mapping קודם כל, ואז משדות השורה
+    const id = row.id ?? row.importControlId ?? null;
     let path: string | null = null;
-    if (importControlId != null && this._filePathMap[importControlId]) {
-      path = this._filePathMap[importControlId];
-    }
-    if (!path) {
-      path = row.urlFileAfterProcess ?? row.urlFileAfterProcess ?? row.errorReportPath ?? null;
-    }
+    if (id != null && this._filePathMap && this._filePathMap[id]) path = this._filePathMap[id];
+    path = path || row.urlFileAfterProcess || row.errorReportPath || row.filePath || null;
 
     if (!path) {
-      alert('אין נתיב קובץ זמין לפריט זה');
+      alert('לא נמצא נתיב לקובץ עבור הפריט הנבחר');
       return this.closeContextMenu();
-    }
-
-    // If a modern preload-exposed API is present, use it (recommended for Electron)
-    try {
-      const win = window as any;
-      if (win && win.electronAPI && typeof win.electronAPI.openPath === 'function') {
-        win.electronAPI.openPath(path).then((res: any) => {
-          // res may contain ok/message depending on handler
-          // optionally handle failure
-          this.closeContextMenu();
-        }).catch((err: any) => {
-          console.warn('electronAPI.openPath failed', err);
-          // fallthrough to older electron or browser fallback below
-        });
-        return;
-      }
-
-      // older renderer may expose electron via window.require
-      const electron = (win && (win.require ? win.require('electron') : win.electron)) as any;
-      if (electron && electron.shell) {
-        if (/\\|\//.test(path)) {
-          if (electron.shell.showItemInFolder) electron.shell.showItemInFolder(path);
-          else if (electron.shell.openPath) electron.shell.openPath(path);
-          else electron.shell.openExternal('file://' + path);
-          this.closeContextMenu();
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn('electron handling failed', e);
-    }
-
-    // Browser fallback: try opening file:// URL (may be blocked by browser)
-    try {
-      const fileUrl = 'file:///' + path.replace(/\\/g, '/');
-      console.warn('Attempting browser fallback open for', fileUrl);
-      const newWin = window.open(fileUrl, '_blank');
-      if (!newWin) {
-        // likely blocked by popup blocker / not allowed to load local resource
-        throw new Error('window.open blocked or failed');
-      }
-    } catch (e) {
-      console.warn('failed to open file url', e);
-      // Fallback: copy path to clipboard and tell the user to paste into Explorer
-      try {
-        if (navigator && (navigator as any).clipboard && (navigator as any).clipboard.writeText) {
-          (navigator as any).clipboard.writeText(path).then(() => {
-            alert('לא ניתן לפתוח אוטומטית. הנתיב הועתק ללוח. הדבק ב-Explorer כדי לגשת אליו:\n' + path);
-          }).catch((clipErr: any) => {
-            console.warn('clipboard write failed', clipErr);
-            alert('לא ניתן לפתוח אוטומטית ואת ההעתקה ללוח נכשלה. הנתיב: ' + path);
-          });
-        } else {
-          alert('לא ניתן לפתוח אוטומטית. העתק באופן ידני את הנתיב ופתח ב-Explorer:\n' + path);
-        }
-      } catch (clipEx) {
-        console.warn('clipboard fallback failed', clipEx);
-        alert('לא ניתן לפתוח את הנתיב במצב זה. נתיב: ' + path);
-      }
     }
 
     this.closeContextMenu();
+    this.loading = true;
+
+    const isWindowsLocal = /^([a-zA-Z]:\\|\\\\)/.test(path);
+    const isHttpUrl = /^https?:\/\//i.test(path);
+
+    const finalizeBlobSave = (blob: Blob, suggestedName?: string) => {
+      const filename = suggestedName || (row.fileName && String(row.fileName).trim()) || 'download';
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    };
+
+    if (isWindowsLocal) {
+      // ניסיון ראשון — נסה לפתוח ישירות כ-file:// (ייתכן שהדפדפן יחסום את זה)
+      try {
+        const fileUrl = 'file:///' + path.replace(/\\/g, '/');
+        // ניסיון יצירת לינק ולחיצה עליו
+        const a = document.createElement('a');
+        a.href = fileUrl;
+        a.target = '_blank';
+        a.rel = 'noreferrer';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        // נסה גם window.open — אם היא מחזירה null סימן שהדפדפן חסם את הפתיחה
+        const w = window.open(fileUrl, '_blank');
+        if (!w) {
+          // אם נחסם, נמשיך ל-fallback של קריאת הקובץ מהשרת
+          throw new Error('window.open blocked');
+        }
+        // הצלחנו לפתוח את הקובץ ישירות
+        this.loading = false;
+        return;
+      } catch (e) {
+        console.warn('direct file:// open blocked or failed, falling back to server read', e);
+        // אם הפתיחה הישירה נחסמה — ניסוי fallback לקריאה מהשרת (צריך שהשרת יקרא מהדיסק המקומי)
+        this.captureService.downloadFileByPath(path).subscribe({
+          next: (blob: Blob) => {
+            finalizeBlobSave(blob, row.fileName || (path.split('\\').pop() || undefined));
+          },
+          error: (err) => {
+            console.error('downloadFileByPath failed', err);
+            alert('הורדה מהשרת נכשלה: ' + (err && err.message ? err.message : String(err)));
+          }
+        }).add(() => { this.loading = false; });
+        return;
+      }
+    }
+
+    // אם זה URL חיצוני/HTTP נשתמש ב-fetch כמו לפני
+    let url = String(path || '');
+    if (!isHttpUrl) {
+      if (url.startsWith('/')) url = window.location.origin + url;
+      else url = window.location.origin + '/' + url;
+    }
+
+    fetch(url, { method: 'GET' })
+      .then(async (resp) => {
+        if (!resp.ok) throw new Error('שגיאת רשת: ' + resp.status + ' ' + resp.statusText);
+        const disposition = resp.headers ? resp.headers.get('content-disposition') || '' : '';
+        let filename = (row.fileName && String(row.fileName).trim()) || '';
+        if (!filename) {
+          const m1 = /filename\*=[^']*'[^']*'([^;\n]+)/i.exec(disposition);
+          const m2 = /filename=\"?([^;\"\n]+)\"?/i.exec(disposition);
+          const candidate = (m1 && m1[1]) || (m2 && m2[1]) || '';
+          if (candidate) {
+            try { filename = decodeURIComponent(candidate); } catch (e) { filename = candidate; }
+          }
+        }
+        if (!filename) {
+          try { filename = (new URL(resp.url)).pathname.split('/').pop() || 'download'; } catch (e) { filename = 'download'; }
+        }
+        const blob = await resp.blob();
+        finalizeBlobSave(blob, filename);
+      })
+      .catch((err) => {
+        console.error('openFilePath download failed', err);
+        try { window.open(url, '_blank'); } catch (e) { alert('הורדה נכשלה: ' + (err && err.message ? err.message : String(err))); }
+      })
+      .finally(() => { this.loading = false; });
   }
   showLogs() {
     // הצגת לוגים

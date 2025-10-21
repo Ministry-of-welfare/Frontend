@@ -22,4 +22,20 @@ export class CaptureService {
       catchError(() => of([]))
     );
   }
+
+  // Downloads a file by providing the absolute local path on the server machine.
+  // NOTE: The backend must expose an endpoint to stream files from disk. Example:
+  // GET https://.../api/ImportControl/download-by-path?path={encodedPath}
+  // The endpoint should return the file bytes with appropriate Content-Type and Content-Disposition.
+  downloadFileByPath(path: string) {
+    const url = `${this.BASE_URL}/download-by-path?path=${encodeURIComponent(path)}`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
+  // Downloads a file associated with a specific ImportControl id.
+  // Example endpoint: GET https://.../api/ImportControl/{id}/file
+  downloadFileById(id: number) {
+    const url = `${this.BASE_URL}/${id}/file`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
 }
