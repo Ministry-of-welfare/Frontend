@@ -104,11 +104,11 @@ export class AddFileComponent implements OnInit {
   urlFileCustomWarning: string = '';
     requiredFieldsWarning: string = '';
 
-  checkPath(field: 'urlFile' | 'urlFileAfter') {
-    // פונקציה זו אינה נדרשת עוד כי הודעות השגיאה מוצגות דרך urlFileCustomWarning בלבד
-    // אפשר למחוק או להשאיר ריק למניעת שגיאות קומפילציה
-    return;
-  }
+  // checkPath(field: 'urlFile' | 'urlFileAfter') {
+  //   // פונקציה זו אינה נדרשת עוד כי הודעות השגיאה מוצגות דרך urlFileCustomWarning בלבד
+  //   // אפשר למחוק או להשאיר ריק למניעת שגיאות קומפילציה
+  //   return;
+  // }
   hebrewEmailWarning: boolean = false;
 
   checkHebrewEmail(event: Event) {
@@ -398,24 +398,12 @@ currentStep = 1;
   
 
   createFile() {
-    console.log('createFile: התחלת תהליך יצירת קובץ');
-    console.log('בדיקת שדות:');
-    console.log('dataSourceType:', this.dataSourceType);
-    console.log('systemType:', this.systemType);
-    console.log('Number(dataSourceType):', Number(this.dataSourceType));
-    console.log('Number(systemType):', Number(this.systemType));
-    
     if (!this.dataSourceType || !this.systemType) {
       alert('אנא בחר סוג מקור נתונים ומערכת');
       return;
     }
     
-    console.log('בדיקת שדות:');
-    console.log('dataSourceType:', this.dataSourceType, 'Number:', Number(this.dataSourceType));
-    console.log('systemType:', this.systemType, 'Number:', Number(this.systemType));
-    console.log('dataSourceOptions:', this.dataSourceOptions);
-    console.log('systemOptions:', this.systemOptions);
-    
+
     const newFile: ImportDataSources = {
     importDataSourceDesc: this.description,
       dataSourceTypeId: Number(this.dataSourceType),
@@ -435,17 +423,7 @@ currentStep = 1;
     this.errorMessageVisible = false;
     this.importDS.addImportDataSource(newFile).subscribe({
       next: (res: any) => {
-        console.log('=== תשובת שרת מלאה ===');
-        console.log('res:', res);
-        console.log('typeof res:', typeof res);
-        console.log('Object.keys(res):', Object.keys(res));
-        console.log('=== ניסיון לחלץ ID ===');
         const importDataSourceId = res.importDataSourceId || res || res.ImportDataSourceId;
-        console.log('importDataSourceId שהתקבל:', importDataSourceId);
-        console.log('res.importDataSourceId:', res.importDataSourceId);
-        console.log('res.id:', res.id);
-        console.log('res.ImportDataSourceId:', res.ImportDataSourceId);
-        console.log('מספר עמודות:', this.columns.length);
         
         if (importDataSourceId && this.columns.length > 0) {
           console.log('קורא ל-saveColumns עם ID:', importDataSourceId);
@@ -468,9 +446,7 @@ currentStep = 1;
   }
 
   saveColumns(importDataSourceId: number) {
-    console.log('=== התחלת saveColumns ===');
-    console.log('importDataSourceId:', importDataSourceId);
-    console.log('columns:', this.columns);
+
     
     let savedCount = 0;
     const totalColumns = this.columns.length;
@@ -492,11 +468,25 @@ currentStep = 1;
           savedCount++;
           console.log(`עמודה ${savedCount}/${totalColumns} נשמרה:`, res);
           if (savedCount === totalColumns) {
-            this.successMessageVisible = true;
-            this.creatingFile = false;
-            if (confirm('הקובץ והעמודות נוצרו בהצלחה! האם תרצה לחזור לרשימת הקבצים?')) {
-              window.location.href = '/files';
-            }
+            console.log('כל העמודות נשמרו, קורא ל-createTable');
+            this.importDS.createTable(importDataSourceId).subscribe({
+              next: (res) => {
+                console.log('טבלה נוצרה בהצלחה:', res);
+                this.successMessageVisible = true;
+                this.creatingFile = false;
+                if (confirm('הקובץ, העמודות והטבלה נוצרו בהצלחה! האם תרצה לחזור לרשימת הקבצים?')) {
+                  window.location.href = '/files';
+                }
+              },
+              error: (err) => {
+                console.error('שגיאה ביצירת טבלה:', err);
+                console.error('פרטי השגיאה:', err.error);
+                console.error('סטטוס:', err.status);
+                console.error('הודעה:', err.message);
+                this.errorMessageVisible = true;
+                this.creatingFile = false;
+              }
+            });
           }
         },
         error: (err) => {
