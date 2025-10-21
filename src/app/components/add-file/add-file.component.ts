@@ -113,10 +113,10 @@ export class AddFileComponent implements OnInit {
   hebrewEmailWarning: boolean = false;
 
   onEmailInput(event: Event) {
-  this.errorRecipients = (event.target as HTMLTextAreaElement).value;
-  this.emailErrors = this.validateEmails();
-  this.hebrewEmailWarning = this.emailErrors.some(e => e.includes('עברית'));
-}
+    this.errorRecipients = (event.target as HTMLTextAreaElement).value;
+    this.emailErrors = this.validateEmails();
+    this.hebrewEmailWarning = this.emailErrors.some(e => e.includes('עברית'));
+  }
 
   getInputValue(event: Event): string {
     const target = event.target as HTMLInputElement | null;
