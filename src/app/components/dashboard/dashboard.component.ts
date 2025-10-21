@@ -46,10 +46,16 @@ export class DashboardComponent implements OnInit {
   };
 
   recentAlerts = [
-    { id: 'alert1', message: 'עומס גבוה במערכת', time: 'לפני 5 דק\'', severity: 'warning', selected: false },
-    { id: 'alert2', message: 'שגיאה בעיבוד קובץ', time: 'לפני 12 דק\'', severity: 'error', selected: false },
-    { id: 'alert3', message: 'עדכון מערכת הושלם', time: 'לפני 25 דק\'', severity: 'info', selected: false }
+    { id: 'alert1', message: 'עומס גבוה במערכת', time: '09:34', severity: 'warning', recipient: 'admin@company.com', selected: false },
+    { id: 'alert2', message: 'שגיאה בעיבוד קובץ', time: '08:58', severity: 'error', recipient: 'ops@company.com', selected: false },
+    { id: 'alert3', message: 'עדכון מערכת הושלם', time: '07:40', severity: 'info', recipient: '', selected: false }
   ];
+
+  // מחזיר את חמש ההתראות האחרונות — מסודר מהחדש לישן
+  get lastFiveAlerts() {
+    // הנחה: recentAlerts מסודר מהישן לחדש; כדי להציג מהחדש לישן והגבלת 5
+    return [...this.recentAlerts].slice(-5).reverse();
+  }
 
   problematicAreas = [
     { id: 'area1', location: 'שרת עיבוד #2', description: 'ביצועים איטיים', severity: 'medium', selected: false },

@@ -1,13 +1,12 @@
-
 <div class="header">
   <div class="header-content">
     <div>
       <h1>📄 הוספת קובץ חדש</h1>
       <div class="breadcrumb">
-        <a href="#dashboard">דשבורד</a> 
-        <span>←</span> 
-        <a href="#files">ניהול קבצים</a> 
-        <span>←</span> 
+        <a href="#dashboard">דשבורד</a>
+        <span>←</span>
+        <a href="#files">ניהול קבצים</a>
+        <span>←</span>
         <span>הוספת קובץ חדש</span>
       </div>
     </div>
@@ -19,19 +18,19 @@
     <!-- צעדי האשף -->
     <div class="wizard-steps">
       <div class="step" [ngClass]="{'active': currentStep===1, 'completed': currentStep>1}">
-              <span *ngIf="currentStep>1" class="step-check">✓</span>
+        <span *ngIf="currentStep>1" class="step-check">✓</span>
         <div class="step-number">1</div>
 
         <div class="step-title">פרטים כלליים</div>
-        
+
       </div>
       <div class="step" [ngClass]="{'active': currentStep===2, 'completed': currentStep>2}">
-                     <span *ngIf="currentStep>2" class="step-check">✓</span>
+        <span *ngIf="currentStep>2" class="step-check">✓</span>
         <div class="step-number">2</div>
         <div class="step-title">הגדרת עמודות</div>
       </div>
       <div class="step" [ngClass]="{'active': currentStep===3}">
-                      <span *ngIf="currentStep>3" class="step-check">✓</span>
+        <span *ngIf="currentStep>3" class="step-check">✓</span>
         <div class="step-number">3</div>
         <div class="step-title">אישור ויצירה</div>
       </div>
@@ -41,7 +40,8 @@
       <!-- שלב 1: פרטים כלליים -->
       <div *ngIf="currentStep===1" class="step-content">
         <div class="form-section">
-          <div *ngIf="requiredFieldsWarning" class="error-message" style="color: #d32f2f; font-weight: bold; margin-bottom: 10px;">
+          <div *ngIf="requiredFieldsWarning" class="error-message"
+            style="color: #d32f2f; font-weight: bold; margin-bottom: 10px;">
             {{requiredFieldsWarning}}
           </div>
           <div class="section-title">⚙️ הגדרות בסיסיות</div>
@@ -56,7 +56,8 @@
               <label class="form-label">סוג קליטה <span class="required">*</span></label>
               <select class="form-select" [(ngModel)]="dataSourceType" (ngModelChange)="onDataSourceTypeChange()">
                 <option value="">בחר סוג קליטה</option>
-                <option *ngFor="let option of dataSourceOptions" [value]="option.DataSourceTypeId">{{option.dataSourceTypeDesc}}</option>
+                <option *ngFor="let option of dataSourceOptions" [value]="option.DataSourceTypeId">
+                  {{option.dataSourceTypeDesc}}</option>
               </select>
               <div class="help-text">קובע את רמת הוולידציה שתתבצע על הקובץ</div>
             </div>
@@ -77,37 +78,49 @@
             </div>
             <div class="form-field">
               <label class="form-label">שם טבלה <span class="required">*</span></label>
-              <input type="text" class="form-input" [(ngModel)]="tableName" (input)="onTableNameInput(getInputValue($event))" placeholder="הכנס שם טבלה">
+              <input type="text" class="form-input" [(ngModel)]="tableName"
+                (input)="onTableNameInput(getInputValue($event))" placeholder="הכנס שם טבלה">
               <div class="help-text">שם הטבלה שתיווצר במסד הנתונים</div>
-              <div *ngIf="tableNameWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">{{tableNameWarning}}</div>
+              <div *ngIf="tableNameWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">
+                {{tableNameWarning}}</div>
             </div>
 
             <div class="form-field full-width">
               <label class="form-label">נתיב קבצי מקור <span class="required">*</span></label>
-              <input type="text" class="form-input" [(ngModel)]="urlFile" (input)="onUrlFileInput(getInputValue($event))" placeholder="\\server\shared\import\">
+              <input type="text" class="form-input" [(ngModel)]="urlFile"
+                (input)="onUrlFileInput(getInputValue($event))" placeholder="\\server\shared\import\">
               <div class="help-text">הנתיב בו קיימים הקבצים המיועדים לקליטה</div>
-              <div *ngIf="urlFileCustomWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">{{urlFileCustomWarning}}</div>
+              <div *ngIf="urlFileCustomWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">
+                {{urlFileCustomWarning}}</div>
             </div>
 
             <div class="form-field full-width">
               <label class="form-label">נתיב קבצים מעובדים <span class="required">*</span></label>
-              <input type="text" class="form-input" [(ngModel)]="urlFileAfter" (input)="onUrlFileAfterInput(getInputValue($event))" placeholder="\\server\shared\processed\">
+              <input type="text" class="form-input" [(ngModel)]="urlFileAfter"
+                (input)="onUrlFileAfterInput(getInputValue($event))" placeholder="\\server\shared\processed\">
               <div class="help-text">הנתיב אליו יועברו הקבצים לאחר עיבוד</div>
-              <div *ngIf="urlFileAfterCustomWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">{{urlFileAfterCustomWarning}}</div>
+              <div *ngIf="urlFileAfterCustomWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">
+                {{urlFileAfterCustomWarning}}</div>
             </div>
 
             <div class="form-field full-width">
               <label class="form-label">כתובות מייל לשגיאות</label>
-              <textarea class="form-textarea" [(ngModel)]="errorRecipients" (input)="checkHebrewEmail($event)" placeholder="admin@company.com, it@company.com"></textarea>
+              <textarea class="form-textarea" [(ngModel)]="errorRecipients" (input)="onEmailInput($event)"
+                placeholder="admin@company.com, it@company.com"></textarea>
+              <div *ngIf="emailErrors.length > 0" class="error-message" style="color: #d32f2f; font-weight: bold;">
+                <div *ngFor="let err of emailErrors">{{ err }}</div>
+              </div>
+
               <div class="help-text">כתובות מייל המופרדות בפסיק, שיקבלו התראות על שגיאות</div>
-              <div *ngIf="hebrewEmailWarning" class="error-message" style="color: #d32f2f; font-weight: bold;">אזהרה: כתובת מייל מכילה אותיות בעברית!</div>
+             
             </div>
           </div>
         </div>
 
         <div class="actions-section">
           <div></div>
-          <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="urlFileCustomWarning || urlFileAfterCustomWarning">המשך לשלב הבא ➡️</button>
+          <button type="button" class="btn btn-primary" (click)="nextStep()"
+            [disabled]="urlFileCustomWarning || urlFileAfterCustomWarning">המשך לשלב הבא ➡️</button>
         </div>
       </div>
 
@@ -118,7 +131,8 @@
 
           <div class="form-field" style="margin-bottom: 20px;">
             <label class="form-label">מספר עמודות בקובץ <span class="required">*</span></label>
-            <input type="number" class="form-input" [(ngModel)]="columnCount" (change)="updateColumnCount()" style="max-width:200px"min="1">
+            <input type="number" class="form-input" [(ngModel)]="columnCount" (change)="updateColumnCount()"
+              style="max-width:200px" min="1">
             <div class="help-text">הכנס את מספר העמודות והטבלה תתעדכן אוטומטיה</div>
           </div>
 
@@ -148,12 +162,11 @@
                 </div>
                 <div>
                   <input type="text" class="table-input" [(ngModel)]="col.nameHeb" placeholder="שם עמודה בעברית"
-                      (input)="onColumnInput(i, 'nameHeb', getInputValue($event))"
-                      [class.error-input]="columnErrors[i] && columnErrors[i].nameHeb">
-                    <div *ngIf="columnErrors[i] && columnErrors[i].nameHeb"
-                         class="error-message">
-                      {{columnErrors[i].nameHeb}}
-                    </div>
+                    (input)="onColumnInput(i, 'nameHeb', getInputValue($event))"
+                    [class.error-input]="columnErrors[i] && columnErrors[i].nameHeb">
+                  <div *ngIf="columnErrors[i] && columnErrors[i].nameHeb" class="error-message">
+                    {{columnErrors[i].nameHeb}}
+                  </div>
                 </div>
                 <div>
                   <select class="table-select" [(ngModel)]="col.type">
@@ -172,7 +185,8 @@
 
         <div class="actions-section">
           <button type="button" class="btn btn-secondary" (click)="prevStep()">⬅️ חזרה</button>
-          <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isColumnsValid()">המשך לאישור ➡️</button>
+          <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isColumnsValid()">המשך לאישור
+            ➡️</button>
         </div>
       </div>
 
@@ -197,7 +211,7 @@
               <div class="preview-item">
                 <div class="preview-label">מערכת:</div>
                 <div class="preview-value">
-                 {{getSystemLabel()}}
+                  {{getSystemLabel()}}
                 </div>
               </div>
               <div class="preview-item">
@@ -219,12 +233,13 @@
             </div>
           </div>
 
-          <div class="preview-card" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-color: rgba(33, 150, 243, 0.2);">
+          <div class="preview-card"
+            style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-color: rgba(33, 150, 243, 0.2);">
             <div class="preview-title" style="color: #1565c0;">🗂️ פרטי הטבלה שתיווצר</div>
             <div class="preview-info">
               <div class="preview-item">
                 <div class="preview-label">שם טבלה:</div>
-             <div class="preview-value">{{tableName}}</div>
+                <div class="preview-value">{{tableName}}</div>
               </div>
               <div class="preview-item">
                 <div class="preview-label">מספר עמודות:</div>
@@ -256,5 +271,3 @@
     </div>
   </div>
 </div>
-
-

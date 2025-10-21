@@ -108,8 +108,14 @@
       <!-- התראות אחרונות -->
       <div class="card">
         <div class="card-title">🔔 התראות אחרונות</div>
-        <div class="alert-list">
-          <div class="alert-item"><div class="alert-time">09:34</div><div class="alert-content"><div class="alert-message">כישלון בקליטת קובץ משכורות</div><div class="alert-recipient">נשלח ל: adminאcompany.com</div></div></div>
+        <div class="alert-list" [attr.data-count]="recentAlerts.length">
+          <div class="alert-item" *ngFor="let alert of recentAlerts">
+            <div class="alert-time">{{ alert.time }}</div>
+            <div class="alert-content">
+              <div class="alert-message">{{ alert.message }}</div>
+              <div class="alert-recipient" *ngIf="alert.recipient">נשלח ל: {{ alert.recipient }}</div>
+            </div>
+          </div>
         </div>
       </div>
 

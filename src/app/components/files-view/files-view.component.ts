@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { NgClass, CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { EditProcessDialogComponent, EditProcessData } from '../edit-process-dialog/edit-process-dialog.component';
 import { SystemsService } from '../../services/systems/systems.service';
@@ -11,17 +12,22 @@ import { FileStatus } from '../../models/filleStatus.model';
 @Component({
   selector: 'app-files-view',
   standalone: true,
-  imports: [NgClass, CommonModule, EditProcessDialogComponent],
+  imports: [NgClass, CommonModule, EditProcessDialogComponent,FormsModule],
   templateUrl: './files-view.component.html',
   styleUrls: ['./files-view.component.css']
 })
+
 export class FilesViewComponent implements OnChanges {
   viewMode: 'cards' | 'table' = 'cards';
+
   processes: any[] = [];
   filteredProcesses: any[] = [];
   loading = true;
   systemsMap: { [key: string]: string } = {}; 
   DataSourceTypeMap: { [key: string]: string } = {}; 
+statusDialogVisible = false;
+selectedProcessToUpdate: any = null;
+selectedStatus: number | null = null;
   fileStatuses: FileStatus[] = [];
   fileStatusMap: { [key: number]: string } = {};
   @Input() systems: any[] = [];
@@ -81,6 +87,16 @@ export class FilesViewComponent implements OnChanges {
   ) {}
 
   ngOnInit(): void {
+    // ברירת-מחדל: הצג את 'כל הסטטוסים' כבר בטעינת העמוד
+    if (!this.searchCriteria) {
+      this.searchCriteria = {
+        query: '',
+        system: 'כל המערכות',
+        type: 'כל הסוגים',
+        status: 'כל הסטטוסים'
+      };
+    }
+
     this.loadProcesses();
     this.loadSystems();
     this.lloadDataSourceType();
@@ -88,6 +104,7 @@ export class FilesViewComponent implements OnChanges {
   }
 
   ngOnChanges(): void {
+    console.log('FilesViewComponent.ngOnChanges - searchCriteria:', this.searchCriteria, 'processes.length:', this.processes?.length);
     this.filterProcesses();
     if (this.systems && this.systems.length > 0) {
       this.systemsMap = {};
@@ -144,7 +161,10 @@ export class FilesViewComponent implements OnChanges {
           }
         });
         // apply mapping to any already-loaded processes
-        this.applyStatusMapping();
+          this.applyStatusMapping();
+          // Re-run the filter after status labels are applied so default view (active/בהקמה)
+          // shows the correct items without requiring the user to click Search.
+          this.filterProcesses();
       },
       error: (err) => {
         console.error('שגיאה בטעינת סטטוסים:', err);
@@ -496,4 +516,39 @@ startDate: this.formatDateForInput(
       }
     });
   }
+  
+openStatusDialog(process: any) {
+  this.selectedProcessToUpdate = process;
+  this.selectedStatus = process.fileStatusId ?? null;
+  this.statusDialogVisible = true;
+}
+
+closeStatusDialog() {
+  this.statusDialogVisible = false;
+  this.selectedProcessToUpdate = null;
+  this.selectedStatus = null;
+}
+
+confirmStatusChange() {
+  if (!this.selectedProcessToUpdate || this.selectedStatus === null) return;
+
+  const updatedProcess = {
+    ...this.selectedProcessToUpdate,
+    fileStatusId: this.selectedStatus
+  };
+
+  // ⬅️ כאן התיקון: שולחים רק את ה-statusId ולא את כל האובייקט
+  this.importDS.updateStatusOnly(updatedProcess.importDataSourceId, updatedProcess.fileStatusId).subscribe({
+    next: () => {
+     
+      this.loadProcesses(); // טען מחדש
+      this.closeStatusDialog();
+    },
+    error: () => {
+      alert('שגיאה בעדכון הסטטוס');
+      this.closeStatusDialog();
+    }
+  });
+}
+
 }

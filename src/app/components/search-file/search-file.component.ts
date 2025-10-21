@@ -14,7 +14,7 @@ import { FileStatusService } from '../../services/fileStatus/file-status.service
   imports: [FormsModule,ReactiveFormsModule ,CommonModule],
     
   templateUrl: './search-file.component.html',
-  styleUrl: './search-file.component.css'
+  styleUrls: ['./search-file.component.css']
 })
  export class SearchFileComponent {
 
@@ -113,6 +113,8 @@ import { FileStatusService } from '../../services/fileStatus/file-status.service
       this.types = data.map(item => ({ id: item.DataSourceTypeId, name: item.dataSourceTypeDesc }));
     });
   
+    // Emit the initial/default search so the parent shows results on page load
+    this.searchEvent.emit(this.form.value);
   }
 
   onSearch() {
