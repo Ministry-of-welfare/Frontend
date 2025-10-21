@@ -505,3 +505,11 @@ body {
 .status-badge {
   cursor: pointer;
 }
+.status-badge {
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.status-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
+}
