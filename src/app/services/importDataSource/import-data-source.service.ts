@@ -9,10 +9,6 @@ import { ImportStatus } from '../../models/importStatus.model';
   providedIn: 'root'
 })
 export class ImportDataSourceService {
-  createTable(importDataSourceId: number): Observable<any> {
-    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {});
-  }
-
   private BASE_URL = 'https://localhost:54525/api/ImportDataSources';
 
   constructor(private http: HttpClient) { }
@@ -53,5 +49,9 @@ export class ImportDataSourceService {
     if (filters.search) params = params.set('search', filters.search);
     
     return this.http.get<ImportDataSources[]>(`${this.BASE_URL}/search`, { params });
+  }
+
+  createTable(importDataSourceId: number): Observable<any> {
+    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {});
   }
 }
