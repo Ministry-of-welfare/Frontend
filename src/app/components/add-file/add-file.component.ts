@@ -524,11 +524,25 @@ export class AddFileComponent implements OnInit {
           savedCount++;
           console.log(`עמודה ${savedCount}/${totalColumns} נשמרה:`, res);
           if (savedCount === totalColumns) {
-            this.successMessageVisible = true;
-            this.creatingFile = false;
-            if (confirm('הקובץ והעמודות נוצרו בהצלחה! האם תרצה לחזור לרשימת הקבצים?')) {
-              window.location.href = '/files';
-            }
+            console.log('כל העמודות נשמרו, קורא ל-createTable');
+            this.importDS.createTable(importDataSourceId).subscribe({
+              next: (res) => {
+                console.log('טבלה נוצרה בהצלחה:', res);
+                this.successMessageVisible = true;
+                this.creatingFile = false;
+                if (confirm('הקובץ, העמודות והטבלה נוצרו בהצלחה! האם תרצה לחזור לרשימת הקבצים?')) {
+                  window.location.href = '/files';
+                }
+              },
+              error: (err) => {
+                console.error('שגיאה ביצירת טבלה:', err);
+                console.error('פרטי השגיאה:', err.error);
+                console.error('סטטוס:', err.status);
+                console.error('הודעה:', err.message);
+                this.errorMessageVisible = true;
+                this.creatingFile = false;
+              }
+            });
           }
         },
         error: (err) => {

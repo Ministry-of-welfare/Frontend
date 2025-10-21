@@ -9,10 +9,14 @@ import { ImportStatus } from '../../models/importStatus.model';
   providedIn: 'root'
 })
 export class ImportDataSourceService {
+
   private BASE_URL = 'https://localhost:54525/api/ImportDataSources';
 
   constructor(private http: HttpClient) { }
 
+ createTable(importDataSourceId: number): Observable<any> {
+    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
+  }
   getAll(): Observable<ImportDataSources[]> {
     return this.http.get<ImportDataSources[]>(this.BASE_URL);
   }
