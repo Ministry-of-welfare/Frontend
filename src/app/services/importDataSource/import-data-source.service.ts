@@ -9,20 +9,21 @@ import { ImportStatus } from '../../models/importStatus.model';
   providedIn: 'root'
 })
 export class ImportDataSourceService {
-  createTable(importDataSourceId: number): Observable<any> {
-    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {});
-  }
+  
 
   private BASE_URL = 'https://localhost:54525/api/ImportDataSources';
 
   constructor(private http: HttpClient) { }
 
+ createTable(importDataSourceId: number): Observable<any> {
+    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
+  }
   getAll(): Observable<ImportDataSources[]> {
     return this.http.get<ImportDataSources[]>(this.BASE_URL);
   }
 
-  addImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
-    return this.http.post<ImportDataSources>(`${this.BASE_URL}/create`, importDataSource);
+  addImportDataSource(importDataSource: ImportDataSources): Observable<Number> {
+    return this.http.post<Number>(`${this.BASE_URL}/CreateAndReturnId`, importDataSource);
   }
 
   updateImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {

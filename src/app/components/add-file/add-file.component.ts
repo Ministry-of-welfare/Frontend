@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { ImportDataSources } from '../../models/importDataSources.model';
+import { ImportDataSourceColumn } from '../../models/importDataSourceColumn.model';
+import { ImportDataSourceColumnService } from '../../services/importDataSourceColumn/import-data-source-column.service';
 import { SystemsService } from '../../services/systems/systems.service';
 import { DataSourceTypeService } from '../../services/dataSuorceType/data-source-type.service';
 import { Systems } from '../../models/systems.model';
@@ -51,12 +53,12 @@ export class AddFileComponent implements OnInit {
   }
   getDataSourceLabel(): string {
     const opt = this.dataSourceOptions?.find(opt => String(opt.DataSourceTypeId) === this.dataSourceType);
-    return opt ? (opt.dataSourceTypeDesc || String(opt.DataSourceTypeId)) : '';
+    return opt ? (opt.dataSourceTypeDesc || '') : '';
   }
 
   getSystemLabel(): string {
     const opt = this.systemOptions?.find(opt => String(opt.SystemId) === this.systemType);
-    return opt ? (opt.systemName || String(opt.SystemId)) : '';
+    return opt ? (opt.systemName || '') : '';
   }
   onTableNameInput(value: string) {
     const tableNameRegex = /^[A-Za-z0-9_]+$/;
@@ -102,11 +104,11 @@ export class AddFileComponent implements OnInit {
   urlFileCustomWarning: string = '';
     requiredFieldsWarning: string = '';
 
-  checkPath(field: 'urlFile' | 'urlFileAfter') {
-    // פונקציה זו אינה נדרשת עוד כי הודעות השגיאה מוצגות דרך urlFileCustomWarning בלבד
-    // אפשר למחוק או להשאיר ריק למניעת שגיאות קומפילציה
-    return;
-  }
+  // checkPath(field: 'urlFile' | 'urlFileAfter') {
+  //   // פונקציה זו אינה נדרשת עוד כי הודעות השגיאה מוצגות דרך urlFileCustomWarning בלבד
+  //   // אפשר למחוק או להשאיר ריק למניעת שגיאות קומפילציה
+  //   return;
+  // }
   hebrewEmailWarning: boolean = false;
 
   checkHebrewEmail(event: Event) {
@@ -139,6 +141,7 @@ export class AddFileComponent implements OnInit {
   systemOptions: Systems[] = [];
   constructor(
     private importDS: ImportDataSourceService,
+    private importDSColumn: ImportDataSourceColumnService,
     private systemsService: SystemsService,
     private dataSourceTypeService: DataSourceTypeService
   ) {}
@@ -246,17 +249,30 @@ currentStep = 1;
   }
 
   loadOptionsFromServer() {
+    console.log('טוען אפשרויות מהשרת...');
     this.systemsService.getAll().subscribe({
-      next: (data: Systems[]) => {
-        this.systemOptions = data;
+      next: (data: any[]) => {
+        console.log('מערכות שנטענו:', data);
+        // המרת נתונים מהשרת למודל
+        this.systemOptions = data.map(item => ({
+          SystemId: item.systemId,
+          systemCode: item.systemCode,
+          systemName: item.systemName,
+          ownerEmail: item.ownerEmail
+        }));
       },
       error: (err: any) => {
         console.error('שגיאה בטעינת מערכות:', err);
       }
     });
     this.dataSourceTypeService.getAll().subscribe({
-      next: (data: DataSourceType[]) => {
-        this.dataSourceOptions = data;
+      next: (data: any[]) => {
+        console.log('סוגי קליטה שנטענו:', data);
+        // המרת נתונים מהשרת למודל
+        this.dataSourceOptions = data.map(item => ({
+          DataSourceTypeId: item.dataSourceTypeId,
+          dataSourceTypeDesc: item.dataSourceTypeDesc
+        }));
       },
       error: (err: any) => {
         console.error('שגיאה בטעינת סוגי קליטה:', err);
@@ -382,13 +398,18 @@ currentStep = 1;
   
 
   createFile() {
-    console.log('createFile: התחלת תהליך יצירת קובץ');
+    if (!this.dataSourceType || !this.systemType) {
+      alert('אנא בחר סוג מקור נתונים ומערכת');
+      return;
+    }
+    
+
     const newFile: ImportDataSources = {
     importDataSourceDesc: this.description,
       dataSourceTypeId: Number(this.dataSourceType),
       systemId: Number(this.systemType),
       jobName: this.jobName,
-      tableName: '',
+      tableName: this.tableName || this.jobName || 'DefaultTable',
       urlFile: this.urlFile,
       urlFileAfterProcess: this.urlFileAfter,
       errorRecipients: this.errorRecipients,
@@ -401,12 +422,19 @@ currentStep = 1;
     this.successMessageVisible = false;
     this.errorMessageVisible = false;
     this.importDS.addImportDataSource(newFile).subscribe({
-      next: (res) => {
-        console.log('createFile: תשובת שרת:', res);
-        this.successMessageVisible = true;
-        this.creatingFile = false;
-        if (confirm('הקובץ נוצר בהצלחה! האם תרצה לחזור לרשימת הקבצים?')) {
-          window.location.href = '/files';
+      next: (res: any) => {
+        const importDataSourceId = res.importDataSourceId || res || res.ImportDataSourceId;
+        
+        if (importDataSourceId && this.columns.length > 0) {
+          console.log('קורא ל-saveColumns עם ID:', importDataSourceId);
+          this.saveColumns(importDataSourceId);
+        } else {
+          console.log('לא קורא ל-saveColumns. ID:', importDataSourceId, 'עמודות:', this.columns.length);
+          this.successMessageVisible = true;
+          this.creatingFile = false;
+          if (confirm('הקובץ נוצר בהצלחה! האם תרצה לחזור לרשימת הקבצים?')) {
+            window.location.href = '/files';
+          }
         }
       },
       error: (err) => {
@@ -414,6 +442,60 @@ currentStep = 1;
         this.errorMessageVisible = true;
         this.creatingFile = false;
       }
+    });
+  }
+
+  saveColumns(importDataSourceId: number) {
+
+    
+    let savedCount = 0;
+    const totalColumns = this.columns.length;
+    
+    this.columns.forEach((col, index) => {
+      const columnData: ImportDataSourceColumn = {
+        importDataSourceId: importDataSourceId,
+        orderId: col.order,
+        columnName: col.nameEng,
+        formatColumnId:3,
+
+        columnNameHebDescription: col.nameHeb
+      };
+      
+      console.log(`שולח עמודה ${index + 1}:`, columnData);
+      
+      this.importDSColumn.addImportDataSource(columnData).subscribe({
+        next: (res) => {
+          savedCount++;
+          console.log(`עמודה ${savedCount}/${totalColumns} נשמרה:`, res);
+          if (savedCount === totalColumns) {
+            console.log('כל העמודות נשמרו, קורא ל-createTable');
+            this.importDS.createTable(importDataSourceId).subscribe({
+              next: (res) => {
+                console.log('טבלה נוצרה בהצלחה:', res);
+                this.successMessageVisible = true;
+                this.creatingFile = false;
+                if (confirm('הקובץ, העמודות והטבלה נוצרו בהצלחה! האם תרצה לחזור לרשימת הקבצים?')) {
+                  window.location.href = '/files';
+                }
+              },
+              error: (err) => {
+                console.error('שגיאה ביצירת טבלה:', err);
+                console.error('פרטי השגיאה:', err.error);
+                console.error('סטטוס:', err.status);
+                console.error('הודעה:', err.message);
+                this.errorMessageVisible = true;
+                this.creatingFile = false;
+              }
+            });
+          }
+        },
+        error: (err) => {
+          console.error(`שגיאה בשמירת עמודה ${index + 1}:`, err);
+          console.error('פרטי שגיאה:', err.error);
+          this.errorMessageVisible = true;
+          this.creatingFile = false;
+        }
+      });
     });
   }
 
@@ -428,5 +510,26 @@ currentStep = 1;
 
   loadDraft() {
     const draft = localStorage.getItem('file_creation_draft');
+    if (draft) {
+      const data = JSON.parse(draft);
+      if (confirm('נמצאה טיוטה שמורה. האם תרצה לטעון אותה?')) {
+        this.description = data.description || '';
+        if (data.columns) {
+          this.columns = data.columns;
+          this.columnCount = this.columns.length;
+        }
+      }
+    }
   }
+
+
+  onDataSourceTypeChange() {
+    console.log('סוג קליטה שונה ל:', this.dataSourceType);
+  }
+
+  onSystemTypeChange() {
+    console.log('מערכת שונתה ל:', this.systemType);
+  }
+
+
 }
