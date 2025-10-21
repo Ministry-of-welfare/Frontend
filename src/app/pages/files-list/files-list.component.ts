@@ -7,12 +7,18 @@ import { SearchFileComponent } from '../../components/search-file/search-file.co
 @Component({
   selector: 'app-files-list',
   standalone: true,
-  imports: [RouterLink, SearchFileComponent, FilesViewComponent],
+  imports: [SearchFileComponent, FilesViewComponent],
   templateUrl: './files-list.component.html',
   styleUrls: ['./files-list.component.css']
 })
 export class FilesListComponent {
-  searchCriteria: any = null;
+  // Initialize with the same defaults the FilesView expects so it shows results on first load
+  searchCriteria: any = {
+    query: '',
+    system: 'כל המערכות',
+    type: 'כל הסוגים',
+    status: 'כל הסטטוסים'
+  };
 systems: any[] = [];
 
 
@@ -40,6 +46,7 @@ onSystemsLoaded(systems: any[]) {
   this.systems = systems;
 }
   onSearch(criteria: any) {
+    console.log('FilesListComponent.onSearch called with:', criteria);
     this.searchCriteria = { ...criteria };
   }
 
