@@ -312,7 +312,7 @@ export class CaptureComponent implements OnInit {
     state: {
       captureId: this.contextMenuRow.id,
       captureName: this.contextMenuRow.source,
-      tab: 'errors' // <<< חדש
+      selectedTab: 'errors' // <<< עכשיו תואם ל-ViewControlComponent
     }
   });
   this.closeContextMenu();
@@ -325,14 +325,27 @@ export class CaptureComponent implements OnInit {
       return this.closeContextMenu();
     }
 
-    if (!row.failed || row.failed <= 0) {
+    // אם הערך קיים ומצביע על 0 - אין שגיאות
+    if (row.failed === 0) {
       alert('אין שגיאות לייצא עבור פריט זה');
       return this.closeContextMenu();
     }
 
     const importControlId = row.id;
-    // Request ViewControl (or any subscriber) to perform the export — fallbackToLocal = true
+    // הודעה למאזינים (אם יש כאלה פתוחים) לבצע ייצוא — עם fallback למקומי
     this.exportService.requestExportErrors(importControlId, true);
+
+    // בנוסף, ננווט לעמוד ה־ViewControl עם בקשת autoExport: כך גם אם ה־ViewControl
+    // לא היה פתוח בזמן הקריאה הוא ייטען ויבצע את הייצוא אוטומטית
+    this.router.navigate(['/view-control'], {
+      state: {
+        captureId: importControlId,
+        captureName: row.source,
+        selectedTab: 'errors',
+        autoExport: true
+      }
+    });
+
     this.closeContextMenu();
   }
   openFilePath() {

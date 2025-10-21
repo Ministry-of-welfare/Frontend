@@ -523,6 +523,9 @@ body {
 .alert-list {
     max-height: 180px;
     overflow-y: auto;
+    /* כדי שהסרגל גלילה יופיע בצד ימין נשתמש ב-LTR על המכולה,
+       אך נשמור את הפריטים בתוך ה-RLT כדי שהתוכן יישאר נכון */
+    direction: ltr;
 }
 
 .alert-item {
@@ -549,6 +552,13 @@ body {
     border-radius: 8px;
     text-align: center;
     font-weight: 600;
+}
+
+/* החזרת תוכן הפריטים לכיוון RTL בתוך המכולה LTR */
+.alert-item .alert-content,
+.alert-item .alert-message,
+.alert-item .alert-recipient {
+    direction: rtl;
 }
 
 .alert-content {
