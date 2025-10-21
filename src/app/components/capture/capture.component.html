@@ -6,26 +6,25 @@
   <!-- כרטיסי סטטוס -->
   <div class="status-cards">
     <div class="card border-blue">
-      <div class="value">12</div>
+      <div class="value">{{ statusCounts.waiting }}</div>
       <div class="label">ממתין</div>
     </div>
     <div class="card border-yellow">
-      <div class="value">3</div>
+      <div class="value">{{ statusCounts.inProgress }}</div>
       <div class="label">בתהליך</div>
     </div>
 
     <div class="card border-green">
-      <div class="value">145</div>
+      <div class="value">{{ statusCounts.success }}</div>
       <div class="label">הצלחה</div>
     </div>
 
     <div class="card border-red">
-      <div class="value">8</div>
+      <div class="value">{{ statusCounts.error }}</div>
       <div class="label">כישלון</div>
     </div>
   </div>
   <div class="card filters-card">
-    <!-- כאן הפילטרים -->
 
     <!-- פילטרים -->
     <div class="filters">
@@ -70,7 +69,7 @@
 
     <div class="actions">
       <button class="btn-reset" (click)="resetFilters()">🔄 איפוס פילטרים</button>
-      <button class="btn-search" (click)="applyFilters()">🔍 חיפוש</button>
+      <button class="btn-search" (click)="applyFilters();onSearchButtonClick()">🔍 חיפוש</button>
     </div>
   </div>
 
@@ -132,22 +131,23 @@
           <td >{{ item.source }}</td>
           <td >{{ item.system }}</td>
           <td c>{{ item.fileName }}</td>
-          <td >{{ item.importStartDate }}</td>
-          <td>{{ item.endDate }}</td>
+          <td>{{ item.importStartDate ? (item.importStartDate | date:'dd/MM/yyyy') : '-' }}</td>
+<td>{{ item.endDate ? (item.endDate | date:'dd/MM/yyyy') : '-' }}</td>
           <td>{{ item.total }}</td>
           <td>{{ item.loaded }}</td>
           <td>{{ item.failed }}</td>
           <td>
-            <span class="status-tag" [ngClass]="{
-                  'success': item.status === 'success',
-                  'error': item.status === 'error',
-                  'yellow': item.status === 'in-progress',
-                  'gray': item.status === 'pending'
-                }">
-              {{ item.statusLabel }}
-            </span>
+ <span class="status-tag" [ngClass]="{
+  'success': getStatusToken(item) === 'הצלחה',
+  'error':   getStatusToken(item) === 'כישלון',
+  'yellow':  getStatusToken(item) === 'בתהליך',
+  'gray':    getStatusToken(item) === 'ממתין',
+
+}">
+  {{ getStatusToken(item) }}
+</span>
           </td>
-          <td>קובץ שגיאות</td>
+          <td>קובץ שגיאות</td>  
         </tr>
         <!-- תפריט קונטקסט -->
         <div *ngIf="contextMenuVisible" class="context-menu"
@@ -196,14 +196,15 @@
   <div class="pagination">
     <button (click)="prevPage()" [disabled]="currentPage === 1">הקודם</button>
 
-    <button
-      *ngFor="let page of pages"
-      [disabled]="page === '...'"
-      [class.active]="page === currentPage"
-      (click)="changePage(page)"
-    >
-      {{ page }}
-    </button>
+<ng-container *ngFor="let p of pagesArray">
+  <button *ngIf="p !== '...'; else dots"
+          class="page-number"
+          [class.active]="p === currentPage"
+          (click)="changePage(p)">{{ p }}</button>
+  <ng-template #dots>
+    <button class="page-dots" disabled>...</button>
+  </ng-template>
+</ng-container>
 
     <button (click)="nextPage()" [disabled]="currentPage === totalPages">הבא</button>
   </div>
