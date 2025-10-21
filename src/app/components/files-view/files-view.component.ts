@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { NgClass, CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { EditProcessDialogComponent, EditProcessData } from '../edit-process-dialog/edit-process-dialog.component';
 import { SystemsService } from '../../services/systems/systems.service';
@@ -11,10 +12,11 @@ import { FileStatus } from '../../models/filleStatus.model';
 @Component({
   selector: 'app-files-view',
   standalone: true,
-  imports: [NgClass, CommonModule, EditProcessDialogComponent],
+  imports: [NgClass, CommonModule, EditProcessDialogComponent,FormsModule],
   templateUrl: './files-view.component.html',
   styleUrls: ['./files-view.component.css']
 })
+
 export class FilesViewComponent implements OnChanges {
   viewMode: 'cards' | 'table' = 'cards';
 
@@ -23,7 +25,9 @@ export class FilesViewComponent implements OnChanges {
   loading = true;
   systemsMap: { [key: string]: string } = {}; 
   DataSourceTypeMap: { [key: string]: string } = {}; 
-
+statusDialogVisible = false;
+selectedProcessToUpdate: any = null;
+selectedStatus: number | null = null;
   fileStatuses: FileStatus[] = [];
   fileStatusMap: { [key: number]: string } = {};
   @Input() systems: any[] = [];
@@ -512,4 +516,37 @@ startDate: this.formatDateForInput(
       }
     });
   }
+  
+openStatusDialog(process: any) {
+  this.selectedProcessToUpdate = process;
+  this.selectedStatus = process.fileStatusId ?? null;
+  this.statusDialogVisible = true;
+}
+
+closeStatusDialog() {
+  this.statusDialogVisible = false;
+  this.selectedProcessToUpdate = null;
+  this.selectedStatus = null;
+}
+
+confirmStatusChange() {
+  if (!this.selectedProcessToUpdate || this.selectedStatus === null) return;
+
+  const updatedProcess = {
+    ...this.selectedProcessToUpdate,
+    fileStatusId: this.selectedStatus
+  };
+
+  this.importDS.updateStatusOnly(updatedProcess.importDataSourceId, updatedProcess).subscribe({
+    next: () => {
+      alert('עודכן בהצלחה'),
+      this.loadProcesses(); // טען מחדש
+      this.closeStatusDialog();
+    },
+    error: () => {
+      alert('שגיאה בעדכון הסטטוס');
+      this.closeStatusDialog();
+    }
+  });
+}
 }

@@ -40,9 +40,13 @@
             <div class="card-title">{{ p.importDataSourceDesc || 'ללא תיאור' }}</div>
             <div class="card-subtitle">{{ p.jobName || p.tableName || '—' }}</div>
           </div>
-          <span class="status-badge" [ngClass]="p.statusClass || getStatusClass(p.status)">
-            {{ p.statusLabel || formatStatus(p.status) }}
-          </span>
+         <span 
+  class="status-badge"
+  [ngClass]="p.statusClass || getStatusClass(p.status)"
+  (click)="openStatusDialog(p)">
+  {{ p.statusLabel || formatStatus(p.status) }}
+</span>
+
         </div>
 
         <hr class="card-divider" />
@@ -86,6 +90,24 @@
         </div>
       </article>
     </div>
+<!-- דיאלוג שינוי סטטוס -->
+<div *ngIf="statusDialogVisible" class="status-backdrop" (click)="closeStatusDialog()">
+  <div class="status-modal" (click)="$event.stopPropagation()">
+    <h3>שינוי סטטוס</h3>
+    <p>בחר סטטוס חדש עבור<br>
+      <strong>{{ selectedProcessToUpdate?.importDataSourceDesc }}</strong>
+    </p>
+    <select [(ngModel)]="selectedStatus">
+      <option *ngFor="let s of fileStatuses" [value]="s.fileStatusId">
+        {{ s.fileStatusDesc }}
+      </option>
+    </select>
+    <div class="status-actions">
+      <button (click)="confirmStatusChange()">✓ עדכן</button>
+      <button (click)="closeStatusDialog()">✕ ביטול</button>
+    </div>
+  </div>
+</div>
 
     <!-- טבלה -->
     <div *ngIf="viewMode === 'table' && !loading" class="table-wrapper">

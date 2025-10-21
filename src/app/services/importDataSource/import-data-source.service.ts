@@ -14,9 +14,9 @@ export class ImportDataSourceService {
 
   constructor(private http: HttpClient) { }
 
- createTable(importDataSourceId: number): Observable<any> {
-    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
-  }
+//  createTable(importDataSourceId: number): Observable<any> {
+//     return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
+//   }
   getAll(): Observable<ImportDataSources[]> {
     return this.http.get<ImportDataSources[]>(this.BASE_URL);
   }
@@ -24,6 +24,19 @@ export class ImportDataSourceService {
   addImportDataSource(importDataSource: ImportDataSources): Observable<Number> {
     return this.http.post<Number>(`${this.BASE_URL}/CreateAndReturnId`, importDataSource);
   }
+
+updateStatusOnly(id: number, newStatusId: number): Observable<any> {
+  return this.http.put(`${this.BASE_URL}/update-status/${id}`, newStatusId, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+
+
+
+
+
+
 
   updateImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
     return this.http.put<ImportDataSources>(`${this.BASE_URL}/${importDataSource.importDataSourceId}`, importDataSource);
@@ -55,7 +68,8 @@ export class ImportDataSourceService {
     return this.http.get<ImportDataSources[]>(`${this.BASE_URL}/search`, { params });
   }
 
-  createTable(importDataSourceId: number): Observable<any> {
-    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {});
-  }
+ createTable(importDataSourceId: number): Observable<string> {
+  return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
+}
+
 }
