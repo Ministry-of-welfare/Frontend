@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { ExportService } from '../../services/export/export.service';
+import { CaptureService } from '../../services/capture/capture.service';
 import { catchError, of } from 'rxjs';
 import * as XLSX from 'xlsx';
 
@@ -70,12 +71,34 @@ export class CaptureComponent implements OnInit {
     private importDataSourceService: ImportDataSourceService,
     private router: Router,
     private exportService: ExportService
+    , private captureService: CaptureService
   ) {}
 
   ngOnInit(): void {
     // התחלה: בקשת search עם פילטרים ריקים => השרת יחזיר את כל ה־DTO/מוזג
     this.searchImportDataSources();
+    // קאש של נתיבי קבצים מתוך ה-ImportControl (urlFileAfterProcess)
+    this.captureService.getAll().pipe(
+      catchError(err => {
+        console.warn('capture.getAll failed', err);
+        return of([] as any[]);
+      })
+    ).subscribe((list: any[]) => {
+      try {
+        // בונה מפת id -> path
+        this._filePathMap = {};
+        for (const it of list || []) {
+          const id = it.importControlId ?? it.id ?? null;
+          const path = it.urlFileAfterProcess ?? it.urlFileAfterProcess ?? it.errorReportPath ?? null;
+          if (id != null && path) this._filePathMap[id] = path;
+        }
+      } catch (e) {
+        console.warn('failed mapping capture paths', e);
+      }
+    });
   }
+  // map of importControlId -> urlFileAfterProcess
+  private _filePathMap: Record<number, string> = {};
 
   // --- קריאה לשרת (רק search) ---
   searchImportDataSources(overrides?: any): void {
@@ -349,76 +372,83 @@ export class CaptureComponent implements OnInit {
     this.closeContextMenu();
   }
   openFilePath() {
-    // פתיחת נתיב הקובץ לאחר עיבוד
     const row = this.contextMenuRow;
     if (!row) {
-      alert('לא נבחרה שורה לפתיחה');
+      alert('לא נבחרה שורה');
       return this.closeContextMenu();
     }
 
-    const url = row.urlFileAfterProcess || row.url || null;
-    if (!url) {
-      alert('אין נתיב קובץ לאחר עיבוד עבור פריט זה');
+    const importControlId = row.id ?? row.importControlId ?? null;
+    // prefer map value, fallback to row fields
+    let path: string | null = null;
+    if (importControlId != null && this._filePathMap[importControlId]) {
+      path = this._filePathMap[importControlId];
+    }
+    if (!path) {
+      path = row.urlFileAfterProcess ?? row.urlFileAfterProcess ?? row.errorReportPath ?? null;
+    }
+
+    if (!path) {
+      alert('אין נתיב קובץ זמין לפריט זה');
       return this.closeContextMenu();
     }
 
+    // If a modern preload-exposed API is present, use it (recommended for Electron)
     try {
-      // אם זה כתובת http/https פשוט נפתח בלשונית חדשה
-      const isHttp = /^https?:\/\//i.test(url);
-      const isFileProto = /^file:\/\//i.test(url);
-      const isUNC = /^\\\\/.test(url) || /^\/\//.test(url);
-      const isWindowsAbs = /^[a-zA-Z]:[\\\/]/.test(url);
+      const win = window as any;
+      if (win && win.electronAPI && typeof win.electronAPI.openPath === 'function') {
+        win.electronAPI.openPath(path).then((res: any) => {
+          // res may contain ok/message depending on handler
+          // optionally handle failure
+          this.closeContextMenu();
+        }).catch((err: any) => {
+          console.warn('electronAPI.openPath failed', err);
+          // fallthrough to older electron or browser fallback below
+        });
+        return;
+      }
 
-      if (isHttp) {
-        window.open(url, '_blank');
-      } else if (isFileProto || isUNC || isWindowsAbs) {
-        // נסה להמיר למסלול file:/// תקני
-        let fileUrl = url;
-        if (!isFileProto) {
-          if (isUNC) {
-            // UNC: \\server\share\path  -> file:///\\server\share\path OR file://///server/share/path
-            // נחלץ את החלק אחרי הסלאשים ונמיר ל-forward-slashes
-            const trimmed = url.replace(/^\\\\|^\/\//, '');
-            fileUrl = 'file:///' + trimmed.replace(/\\\\/g, '/').replace(/\\/g, '/');
-          } else if (isWindowsAbs) {
-            // C:\path\to\file -> file:///C:/path/to/file
-            fileUrl = 'file:///' + url.replace(/\\/g, '/');
-          }
+      // older renderer may expose electron via window.require
+      const electron = (win && (win.require ? win.require('electron') : win.electron)) as any;
+      if (electron && electron.shell) {
+        if (/\\|\//.test(path)) {
+          if (electron.shell.showItemInFolder) electron.shell.showItemInFolder(path);
+          else if (electron.shell.openPath) electron.shell.openPath(path);
+          else electron.shell.openExternal('file://' + path);
+          this.closeContextMenu();
+          return;
         }
-
-        // נסה לפתוח את ה-file URL (ייתכן והדפדפן יחסום, אבל זה ניסיון תקין בסביבות סגורות)
-        const opened = window.open(fileUrl, '_blank');
-
-        // אם לא הצלחנו לפתוח (popup blocked או דפדפן חוסם), נסה לפתוח את התיקיה המכילה
-        if (!opened) {
-          // נבנה URL של התיקיה (חלק לפני הקובץ האחרון)
-          try {
-            const decoded = fileUrl;
-            const idx = decoded.lastIndexOf('/');
-            const folderUrl = idx > 0 ? decoded.substring(0, idx + 1) : decoded;
-            window.open(folderUrl, '_blank');
-          } catch (e) {
-            // fallback handled below
-          }
-        }
-      } else {
-        // מסלול יחס/מקומי שנראה כמו נתיב על השרת - נסה לפתוח עם base '/files/'
-        const maybeUrl = url.startsWith('/') ? url : '/files/' + url;
-        window.open(maybeUrl, '_blank');
       }
     } catch (e) {
-      console.error('שגיאה בניסיון לפתוח נתיב קובץ:', e);
-      // נסיון לפתיחה נכשל - העתק את הנתיב ללוח והצג הוראות ידניות
+      console.warn('electron handling failed', e);
+    }
+
+    // Browser fallback: try opening file:// URL (may be blocked by browser)
+    try {
+      const fileUrl = 'file:///' + path.replace(/\\/g, '/');
+      console.warn('Attempting browser fallback open for', fileUrl);
+      const newWin = window.open(fileUrl, '_blank');
+      if (!newWin) {
+        // likely blocked by popup blocker / not allowed to load local resource
+        throw new Error('window.open blocked or failed');
+      }
+    } catch (e) {
+      console.warn('failed to open file url', e);
+      // Fallback: copy path to clipboard and tell the user to paste into Explorer
       try {
         if (navigator && (navigator as any).clipboard && (navigator as any).clipboard.writeText) {
-          (navigator as any).clipboard.writeText(url);
-          alert('לא ניתן לפתוח את נתיב הקובץ אוטומטית. הנתיב הועתק ללוח. הדבק/י אותו בסייר הקבצים לפתיחה: ' + url);
+          (navigator as any).clipboard.writeText(path).then(() => {
+            alert('לא ניתן לפתוח אוטומטית. הנתיב הועתק ללוח. הדבק ב-Explorer כדי לגשת אליו:\n' + path);
+          }).catch((clipErr: any) => {
+            console.warn('clipboard write failed', clipErr);
+            alert('לא ניתן לפתוח אוטומטית ואת ההעתקה ללוח נכשלה. הנתיב: ' + path);
+          });
         } else {
-          alert('לא ניתן לפתוח את נתיב הקובץ אוטומטית. העתק/הדבק את הנתיב בסייר הקבצים: ' + url);
+          alert('לא ניתן לפתוח אוטומטית. העתק באופן ידני את הנתיב ופתח ב-Explorer:\n' + path);
         }
-      } catch (copyErr) {
-        console.error('fallback copy failed', copyErr);
-        alert('לא ניתן לפתוח את נתיב הקובץ באופן אוטומטי. הנתיב: ' + url);
+      } catch (clipEx) {
+        console.warn('clipboard fallback failed', clipEx);
+        alert('לא ניתן לפתוח את הנתיב במצב זה. נתיב: ' + path);
       }
     }
 

@@ -14,9 +14,9 @@ export class ImportControl {
  urlFileAfterProcess ?: string | null;
  emailSento ?: string | null;
  appImportProblems ?: any[];
-    importDataSource: any;
-    importStatus: any;
-  ImportFromDate ?: Date;
+ importDataSource: any;
+ importStatus: any;
+ ImportFromDate ?: Date;
 
 //  /// <summary>
 //  /// עד תאריך — עד מתי הקליטה בתוקף
