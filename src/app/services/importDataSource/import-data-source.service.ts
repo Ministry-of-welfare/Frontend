@@ -21,8 +21,8 @@ export class ImportDataSourceService {
     return this.http.get<ImportDataSources[]>(this.BASE_URL);
   }
 
-  addImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
-    return this.http.post<ImportDataSources>(`${this.BASE_URL}/create`, importDataSource);
+  addImportDataSource(importDataSource: ImportDataSources): Observable<Number> {
+    return this.http.post<Number>(`${this.BASE_URL}/CreateAndReturnId`, importDataSource);
   }
 
   updateImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
