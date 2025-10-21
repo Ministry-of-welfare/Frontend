@@ -14,9 +14,11 @@ export class ImportDataSourceService {
 
   constructor(private http: HttpClient) { }
 
+
 //  createTable(importDataSourceId: number): Observable<any> {
 //     return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
 //   }
+
   getAll(): Observable<ImportDataSources[]> {
     return this.http.get<ImportDataSources[]>(this.BASE_URL);
   }
@@ -68,8 +70,11 @@ updateStatusOnly(id: number, newStatusId: number): Observable<any> {
     return this.http.get<ImportDataSources[]>(`${this.BASE_URL}/search`, { params });
   }
 
+
  createTable(importDataSourceId: number): Observable<string> {
   return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
+}
+
 }
 
 }
