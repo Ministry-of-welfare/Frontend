@@ -72,6 +72,68 @@
       max-width: 1400px;
       margin: 0 auto;
     }
+      
+    /* Filters bar (single grouped container) */
+    .filters-wrapper {
+      background: rgba(255,255,255,0.95);
+      padding: 14px;
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(102,126,234,0.06);
+      border: 1px solid rgba(102,126,234,0.05);
+      margin: 18px 0 28px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      direction: rtl;
+    }
+
+    .filter-column {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-start; /* labels aligned to the other side */
+      min-width: 140px;
+    }
+
+    .filter-column label {
+      font-size: 13px;
+      color: #666;
+      text-align: left; /* label side flipped */
+      display: block;
+    }
+
+    .filter-column select,
+    .filter-column input[type="date"] {
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(248,249,255,1), rgba(243,246,255,1));
+      box-shadow: 0 4px 18px rgba(102,126,234,0.04) inset;
+      border: 1px solid rgba(102,126,234,0.06);
+      min-width: 160px;
+      text-align: right;
+    }
+
+    .filters .btn-refresh {
+      margin-right: 6px;
+      background: linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 30px rgba(118,75,162,0.18);
+      font-weight: 700;
+    }
        
     /* KPIs עליונים */
     .hero-kpis {
@@ -703,6 +765,54 @@
 
  
   <div class="dashboard">
+
+    <!-- Filters (restored as single grouped bar) -->
+    <div class="filters-wrapper">
+      <div class="filters" role="region" aria-label="סינון" >
+
+        <div class="filter-column">
+          <label for="status">סטטוס</label>
+          <select id="status" class="filter-select">
+            <option>כל הסטטוסים</option>
+            <option>ממתין</option>
+            <option>בתהליך</option>
+            <option>הסתיים</option>
+          </select>
+        </div>
+
+        <div class="filter-column">
+          <label for="source">מקור קליטה</label>
+          <select id="source" class="filter-select">
+            <option>כל המקורות</option>
+            <option>API</option>
+            <option>קובץ</option>
+          </select>
+        </div>
+
+        <div class="filter-column">
+          <label for="system">מערכת</label>
+          <select id="system" class="filter-select">
+            <option>כל המערכות</option>
+            <option>כספות ראשית</option>
+            <option>משאבי אנוש</option>
+          </select>
+        </div>
+
+        <div class="filter-column">
+          <label for="dateTo">טווח תאריכים</label>
+          <input id="dateTo" class="filter-date" type="date" />
+        </div>
+
+        <div class="filter-column">
+          <label for="dateFrom">עד תאריך</label>
+          <input id="dateFrom" class="filter-date" type="date" />
+        </div>
+
+        <div style="flex:1"></div>
+        <button class="btn-refresh" title="עדכן">🔄 רענן</button>
+
+      </div>
+    </div>
 
     <!-- KPIs עליונים -->
 
