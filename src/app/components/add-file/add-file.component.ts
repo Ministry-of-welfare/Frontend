@@ -425,35 +425,11 @@ export class AddFileComponent implements OnInit {
 
 
   createFile() {
-<<<<<<< HEAD
-=======
-    console.log('createFile: התחלת תהליך יצירת קובץ');
-    console.log('בדיקת שדות:');
-    console.log('dataSourceType:', this.dataSourceType);
-    console.log('systemType:', this.systemType);
-    console.log('Number(dataSourceType):', Number(this.dataSourceType));
-    console.log('Number(systemType):', Number(this.systemType));
-
->>>>>>> 4d26cc86c57238276b0fc3830869e5fd43c15d91
     if (!this.dataSourceType || !this.systemType) {
       alert('אנא בחר סוג מקור נתונים ומערכת');
       return;
     }
-<<<<<<< HEAD
     
-=======
-    this.emailErrors = this.validateEmails();
-    if (this.emailErrors.length > 0) {
-      alert('יש שגיאות בכתובות המייל. נא תקן לפני המשך.');
-      return;
-    }
-
-    console.log('בדיקת שדות:');
-    console.log('dataSourceType:', this.dataSourceType, 'Number:', Number(this.dataSourceType));
-    console.log('systemType:', this.systemType, 'Number:', Number(this.systemType));
-    console.log('dataSourceOptions:', this.dataSourceOptions);
-    console.log('systemOptions:', this.systemOptions);
->>>>>>> 4d26cc86c57238276b0fc3830869e5fd43c15d91
 
     const newFile: ImportDataSources = {
       importDataSourceDesc: this.description,
@@ -475,16 +451,7 @@ export class AddFileComponent implements OnInit {
     this.importDS.addImportDataSource(newFile).subscribe({
       next: (res: any) => {
         const importDataSourceId = res.importDataSourceId || res || res.ImportDataSourceId;
-<<<<<<< HEAD
         
-=======
-        console.log('importDataSourceId שהתקבל:', importDataSourceId);
-        console.log('res.importDataSourceId:', res.importDataSourceId);
-        console.log('res.id:', res.id);
-        console.log('res.ImportDataSourceId:', res.ImportDataSourceId);
-        console.log('מספר עמודות:', this.columns.length);
-
->>>>>>> 4d26cc86c57238276b0fc3830869e5fd43c15d91
         if (importDataSourceId && this.columns.length > 0) {
           console.log('קורא ל-saveColumns עם ID:', importDataSourceId);
           this.saveColumns(importDataSourceId);
@@ -506,15 +473,8 @@ export class AddFileComponent implements OnInit {
   }
 
   saveColumns(importDataSourceId: number) {
-<<<<<<< HEAD
 
     
-=======
-    console.log('=== התחלת saveColumns ===');
-    console.log('importDataSourceId:', importDataSourceId);
-    console.log('columns:', this.columns);
-
->>>>>>> 4d26cc86c57238276b0fc3830869e5fd43c15d91
     let savedCount = 0;
     const totalColumns = this.columns.length;
 

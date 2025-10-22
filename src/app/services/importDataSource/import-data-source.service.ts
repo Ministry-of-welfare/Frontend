@@ -9,26 +9,15 @@ import { ImportStatus } from '../../models/importStatus.model';
   providedIn: 'root'
 })
 export class ImportDataSourceService {
-<<<<<<< HEAD
-  
-=======
->>>>>>> 4d26cc86c57238276b0fc3830869e5fd43c15d91
+
 
   private BASE_URL = 'https://localhost:54525/api/ImportDataSources';
 
   constructor(private http: HttpClient) { }
 
-<<<<<<< HEAD
  createTable(importDataSourceId: number): Observable<any> {
     return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
   }
-=======
-
-  //  createTable(importDataSourceId: number): Observable<any> {
-  //     return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
-  //   }
-
->>>>>>> 4d26cc86c57238276b0fc3830869e5fd43c15d91
   getAll(): Observable<ImportDataSources[]> {
     return this.http.get<ImportDataSources[]>(this.BASE_URL);
   }
@@ -42,13 +31,6 @@ export class ImportDataSourceService {
       headers: { 'Content-Type': 'application/json' }
     });
   }
-
-
-
-
-
-
-
 
 
   updateImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
@@ -82,9 +64,9 @@ export class ImportDataSourceService {
   }
 
 
-  createTable(importDataSourceId: number): Observable<string> {
-    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
-  }
+  // createTable(importDataSourceId: number): Observable<string> {
+  //   return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
+  // }
 
 }
 
