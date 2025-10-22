@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-                direction: rtl;
+    direction: rtl;
 
 }
 
@@ -31,6 +31,18 @@ body {
     background-clip: text;
     font-weight: 700;
     text-align: right;
+}
+
+.welcome-message {
+    background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+    color: #1b5e20;
+    padding: 12px 20px;
+    border-radius: 12px;
+    margin: 15px 0;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    font-size: 14px;
+    font-weight: 600;
+    animation: slideInDown 0.8s ease-out;
 }
 
 .filters {
@@ -108,8 +120,6 @@ body {
 }
 
 .refresh-btn:hover {
-    /* transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4); */
      transform: translateY(-3px);
   box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
 }
