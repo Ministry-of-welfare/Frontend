@@ -362,19 +362,29 @@
     /* התפלגות סטטוסים */
     .status-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
+      grid-template-columns: repeat(2, 110px); /* slightly smaller square tiles to match mock */
+      gap: 14px;
+      align-items: center;
+      justify-content: center; /* center the grid inside the card */
     }
        
+    /* Make each status tile a square and vertically/horizontally center content */
     .status-item {
-      text-align: center;
-      padding: 20px 15px;
-      border-radius: 16px;
-      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1 / 1; /* keeps tiles square */
+      width: 100%;
+      max-width: 110px;
+      padding: 8px 6px;
+      border-radius: 12px;
+      transition: all 0.18s ease;
     }
         
     .status-item:hover {
-      transform: scale(1.05);
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
     }
        
     .status-waiting {
@@ -398,10 +408,18 @@
     }
        
     .status-number {
-      font-size: 28px;
-      font-weight: 800;
+      font-size: 22px;
+      font-weight: 900;
       display: block;
-      margin-bottom: 5px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .status-label { font-size: 12px; font-weight:700; color:#425062; }
+
+    @media (max-width: 720px) {
+      .status-grid { grid-template-columns: repeat(2, 1fr); }
+      .status-item { max-width: 100%; min-height: 80px; }
     }
        
     .status-label {
@@ -635,37 +653,61 @@
       color: #666;
     }
        
-    /* SLA Tracking */
+    /* SLA Tracking (precise tile styles to match spec) */
     .sla-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 15px;
+      display: flex;
+      gap: 18px;
+      justify-content: flex-start;
+      align-items: center;
+      margin-bottom: 18px;
+      padding: 4px 6px 0 6px;
     }
-       
+
     .sla-item {
-      text-align: center;
-      padding: 15px;
-      border-radius: 12px;
+      width: 140px;
+      height: 120px;
+      padding: 16px;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(102,126,234,0.04);
+      border: 1px solid rgba(0,0,0,0.03);
     }
-       
-    .sla-met {
-      background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
-    }
-       
-    .sla-missed {
-      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-    }
-       
+
+    .sla-item.sla-missed { background: linear-gradient(135deg,#fff0f1 0%, #ffe6e8 100%); }
+    .sla-item.sla-met { background: linear-gradient(135deg,#f0fbf4 0%, #e6f5ea 100%); }
+
     .sla-percentage {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 5px;
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 6px;
+      line-height: 1;
     }
-       
+
+    .sla-item.sla-missed .sla-percentage { color: #b71c1c; }
+    .sla-item.sla-met .sla-percentage { color: #1b5e20; }
+
     .sla-label {
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 4px;
+      color: rgba(0,0,0,0.65);
+    }
+
+    /* SLA card wrapper and top decorative bar */
+    .sla-card { position: relative; overflow: visible; }
+    .sla-card::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 18px;
+      right: 18px;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+      box-shadow: 0 4px 12px rgba(118,75,162,0.06);
     }
        
     .sla-list {
@@ -677,6 +719,22 @@
       padding: 8px;
       border-bottom: 1px solid rgba(0,0,0,0.05);
     }
+
+    /* Quality stat pills (sizes to match spec image) */
+    .quality-pills { width:100%; max-width:260px; display:flex; flex-direction:column; gap:12px; align-items:center; }
+    .stat-pill { width:100%; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(0,0,0,0.06); border:1px solid rgba(0,0,0,0.03); padding:0 18px; }
+    .stat-pill .stat-number { font-size:18px; font-weight:900; }
+    .stat-pill .stat-label { font-size:12px; color:#4b5563; margin-top:6px; }
+
+    /* size variants */
+    .stat-pill--large { height:76px; }
+    .stat-pill--medium { height:56px; }
+    .stat-pill--small { height:44px; }
+
+    /* color variants */
+    .stat-pill--green { background: linear-gradient(90deg,#e8fff0,#dff8e8); border-color: rgba(76,175,80,0.08); }
+    .stat-pill--red { background: linear-gradient(90deg,#fff0f2,#ffe6ea); border-color: rgba(244,67,54,0.06); }
+    .stat-pill--yellow { background: linear-gradient(90deg,#fffaf0,#fff3db); border-color: rgba(255,152,0,0.06); }
        
     /* גלילה מותאמת */
     ::-webkit-scrollbar {
@@ -1054,45 +1112,44 @@
       </div>
 
  
-      <!-- עמודה צדדית 2 - SLA -->
+      <!-- עמודה צדדית 2 - איכות הנתונים (מחליפה את כרטיס ה-SLA) -->
 
       <div class="side-column-2">
 
-        <div class="card">
+        <div class="card sla-card" aria-label="איכות נתונים">
 
-          <div class="card-title">
+          <div class="card-title">💠 איכות נתונים</div>
 
-            ⏱️ עמידה ב-SLA
+          <!-- Centered gauge with stacked stat pills below to match the mock -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:8px;">
 
-          </div>
-
-          <div class="sla-stats">
-
-            <div class="sla-item sla-met">
-
-              <div class="sla-percentage" style="color: #1b5e20;">89%</div>
-
-              <div class="sla-label" style="color: #1b5e20;">עמדו ב-SLA</div>
-
+            <!-- Gauge (large, centered) -->
+            <div style="width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 10px 30px rgba(0,0,0,0.08);background:conic-gradient(#4caf50 0 94.2%, #e9eef6 0 100%);">
+              <div style="width:100px;height:100px;border-radius:50%;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(102,126,234,0.06);">
+                <div style="font-size:20px;font-weight:900;color:#1b5e20;">94.2%</div>
+                <div style="font-size:12px;color:#6b7280;margin-top:4px;font-weight:700;">תקין</div>
+              </div>
             </div>
 
-            <div class="sla-item sla-missed">
+            <!-- Stacked rounded stat pills (centered, full-width limited) -->
+            <div class="quality-pills">
 
-              <div class="sla-percentage" style="color: #b71c1c;">11%</div>
+              <div class="stat-pill stat-pill--large stat-pill--green">
+                <div class="stat-number">231,456</div>
+                <div class="stat-label">רשומות תקינות</div>
+              </div>
 
-              <div class="sla-label" style="color: #b71c1c;">באיחור</div>
+              <div class="stat-pill stat-pill--medium stat-pill--red">
+                <div class="stat-number">14,435</div>
+                <div class="stat-label">רשומות כושלות</div>
+              </div>
+
+              <div class="stat-pill stat-pill--small stat-pill--yellow">
+                <div class="stat-number">127</div>
+                <div class="stat-label">שגיאות קריטיות</div>
+              </div>
 
             </div>
-
-          </div>
-
-          <div class="sla-list">
-
-            <div class="sla-list-item">⏰ זמן איחור ממוצע: 8 דקות</div>
-
-            <div class="sla-list-item">🎯 יעד SLA: 95% עד 10 דקות</div>
-
-            <div class="sla-list-item">📊 מגמה: שיפור של 3% החודש</div>
 
           </div>
 
