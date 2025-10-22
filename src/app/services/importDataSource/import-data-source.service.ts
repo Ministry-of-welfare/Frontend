@@ -24,9 +24,9 @@ export class ImportDataSourceService {
   }
 =======
 
-//  createTable(importDataSourceId: number): Observable<any> {
-//     return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
-//   }
+  //  createTable(importDataSourceId: number): Observable<any> {
+  //     return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
+  //   }
 
 >>>>>>> 4d26cc86c57238276b0fc3830869e5fd43c15d91
   getAll(): Observable<ImportDataSources[]> {
@@ -37,11 +37,11 @@ export class ImportDataSourceService {
     return this.http.post<Number>(`${this.BASE_URL}/CreateAndReturnId`, importDataSource);
   }
 
-updateStatusOnly(id: number, newStatusId: number): Observable<any> {
-  return this.http.put(`${this.BASE_URL}/update-status/${id}`, newStatusId, {
-    headers: { 'Content-Type': 'application/json' }
-  });
-}
+  updateStatusOnly(id: number, newStatusId: number): Observable<any> {
+    return this.http.put(`${this.BASE_URL}/update-status/${id}`, newStatusId, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 
 
 
@@ -58,34 +58,33 @@ updateStatusOnly(id: number, newStatusId: number): Observable<any> {
   updateTheEndDate(id: number): Observable<void> {
     return this.http.put<void>(`${this.BASE_URL}/updateJustEndDate/${id}`, {});
   }
-  
+
   getStatuses(): Observable<any[]> {
     return this.http.get<any[]>(`${this.BASE_URL}/statuses`);
   }
-  
+
   getTypes(): Observable<any[]> {
     return this.http.get<any[]>(`${this.BASE_URL}/types`);
   }
-  
+
   getSystems(): Observable<any[]> {
     return this.http.get<any[]>(`${this.BASE_URL}/systems`);
   }
-  
+
   search(filters: any): Observable<ImportDataSources[]> {
     let params = new HttpParams();
     if (filters.status) params = params.set('status', filters.status);
     if (filters.type) params = params.set('type', filters.type);
     if (filters.system) params = params.set('system', filters.system);
     if (filters.search) params = params.set('search', filters.search);
-    
+
     return this.http.get<ImportDataSources[]>(`${this.BASE_URL}/search`, { params });
   }
 
 
- createTable(importDataSourceId: number): Observable<string> {
-  return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
-}
+  createTable(importDataSourceId: number): Observable<string> {
+    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
+  }
 
 }
 
-}

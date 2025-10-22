@@ -432,8 +432,10 @@ startDate: this.formatDateForInput(
       startDate: this.selectedProcessToDelete.startDate,
       status: 'inactive'
     };
+    // Call server to perform the update. On success, reload processes from the server so the client reflects the authoritative state.
     this.importDS.updateTheEndDate(updated.importDataSourceId).subscribe({
       next: () => {
+        // Reload from server to ensure the client shows the authoritative, up-to-date data
         this.loadProcesses();
         this.closeDeleteDialog();
       },

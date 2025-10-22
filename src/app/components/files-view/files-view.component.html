@@ -9,12 +9,12 @@
   </div>
 
   <!-- פאנל שליטה -->
-  <section class="panel">   
-       <div class="section-title">🗒️ רשימת הקבצים  </div>
-          
+  <section class="panel">
+    <div class="section-title">🗒️ רשימת הקבצים </div>
+
 
     <div class="controls-row">
-      
+
       <div class="right">
 
         <button class="toggle-btn" [class.active]="viewMode === 'table'" (click)="setView('table')">
@@ -40,12 +40,10 @@
             <div class="card-title">{{ p.importDataSourceDesc || 'ללא תיאור' }}</div>
             <div class="card-subtitle">{{ p.jobName || p.tableName || '—' }}</div>
           </div>
-         <span 
-  class="status-badge"
-  [ngClass]="p.statusClass || getStatusClass(p.status)"
-  (click)="openStatusDialog(p)">
-  {{ p.statusLabel || formatStatus(p.status) }}
-</span>
+          <span class="status-badge" [ngClass]="p.statusClass || getStatusClass(p.status)"
+            (click)="openStatusDialog(p)">
+            {{ p.statusLabel || formatStatus(p.status) }}
+          </span>
 
         </div>
 
@@ -59,8 +57,8 @@
               <td class="value">{{ getSystemName(p.systemId) || '—' }}</td>
 
             </tr>
-          <tr>
-            <td class="label">סוג קליטה</td>
+            <tr>
+              <td class="label">סוג קליטה</td>
               <td class="value">{{ getDataSourceTypeName(p.dataSourceTypeId) || '—' }}</td>
 
             </tr>
@@ -90,24 +88,24 @@
         </div>
       </article>
     </div>
-<!-- דיאלוג שינוי סטטוס -->
-<div *ngIf="statusDialogVisible" class="status-backdrop" (click)="closeStatusDialog()">
-  <div class="status-modal" (click)="$event.stopPropagation()">
-    <h3>שינוי סטטוס</h3>
-    <p>בחר סטטוס חדש עבור<br>
-      <strong>{{ selectedProcessToUpdate?.importDataSourceDesc }}</strong>
-    </p>
-    <select [(ngModel)]="selectedStatus">
-      <option *ngFor="let s of fileStatuses" [value]="s.fileStatusId">
-        {{ s.fileStatusDesc }}
-      </option>
-    </select>
-    <div class="status-actions">
-      <button (click)="confirmStatusChange()">✓ עדכן</button>
-      <button (click)="closeStatusDialog()">✕ ביטול</button>
+    <!-- דיאלוג שינוי סטטוס -->
+    <div *ngIf="statusDialogVisible" class="status-backdrop" (click)="closeStatusDialog()">
+      <div class="status-modal" (click)="$event.stopPropagation()">
+        <h3>שינוי סטטוס</h3>
+        <p>בחר סטטוס חדש עבור<br>
+          <strong>{{ selectedProcessToUpdate?.importDataSourceDesc }}</strong>
+        </p>
+        <select [(ngModel)]="selectedStatus">
+          <option *ngFor="let s of fileStatuses" [value]="s.fileStatusId">
+            {{ s.fileStatusDesc }}
+          </option>
+        </select>
+        <div class="status-actions">
+          <button (click)="confirmStatusChange()">✓ עדכן</button>
+          <button (click)="closeStatusDialog()">✕ ביטול</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
     <!-- טבלה -->
     <div *ngIf="viewMode === 'table' && !loading" class="table-wrapper">
@@ -137,11 +135,15 @@
             <td>{{ p.endDate || '—' }}</td>
             <td>{{ p.createdDate || p.startDate || '—' }}</td>
             <td>
-              <span class="status-badge" [ngClass]="p.statusClass || getStatusClass(p.status)">
+              <span class="status-badge" [ngClass]="p.statusClass || getStatusClass(p.status)"
+                (click)="openStatusDialog(p)">
                 {{ p.statusLabel || formatStatus(p.status) }}
               </span>
             </td>
-            <td>{{ getDataSourceTypeName(p.dataSourceTypeId) || '—  ' }}</td>
+
+
+
+            <td>{{ getDataSourceTypeName(p.dataSourceTypeId) || '— ' }}</td>
             <td>{{ getSystemName(p.systemId) || '—' }}</td>
             <td>{{ p.jobName || p.tableName || '—' }}</td>
             <td>{{ p.importDataSourceDesc || '—' }}</td>
