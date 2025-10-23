@@ -1114,48 +1114,51 @@
  
       <!-- עמודה צדדית 2 - איכות הנתונים (מחליפה את כרטיס ה-SLA) -->
 
-      <div class="side-column-2">
+ <!-- כרטיס איכות נתונים -->
+<div class="card">
+  <div class="card-title">🎯 איכות נתונים</div>
 
-        <div class="card sla-card" aria-label="איכות נתונים">
+  <!-- עיגול אחוז הצלחה -->
+  <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:16px 0;">
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="50" stroke="#f0f0f0" stroke-width="12" fill="none"/>
+      <circle cx="60" cy="60" r="50" 
+              [attr.stroke]="dataQualityStats.successRate >= 90 ? '#4caf50' : '#ff9800'" 
+              stroke-width="12"
+              fill="none"
+              [attr.stroke-dasharray]="calcCircleDash(dataQualityStats.successRate)"
+              stroke-linecap="round"
+              transform="rotate(-90 60 60)" />
+      <text x="60" y="60" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
+        {{ dataQualityStats.successRate }}%
+      </text>
+    </svg>
+    <div class="kpi-label">תקינות</div>
+  </div>
 
-          <div class="card-title">💠 איכות נתונים</div>
+  <!-- נתונים -->
+  <div class="quality-pills">
+    <div class="stat-pill stat-pill--large stat-pill--green">
+      <div class="stat-number">{{ dataQualityStats.totalValid | number }}</div>
+      <div class="stat-label">רשומות תקינות</div>
+    </div>
 
-          <!-- Centered gauge with stacked stat pills below to match the mock -->
-          <div style="display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:8px;">
+    <div class="stat-pill stat-pill--medium stat-pill--red">
+      <div class="stat-number">{{ dataQualityStats.totalInvalid | number }}</div>
+      <div class="stat-label">רשומות שגויות</div>
+    </div>
 
-            <!-- Gauge (large, centered) -->
-            <div style="width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 10px 30px rgba(0,0,0,0.08);background:conic-gradient(#4caf50 0 94.2%, #e9eef6 0 100%);">
-              <div style="width:100px;height:100px;border-radius:50%;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(102,126,234,0.06);">
-                <div style="font-size:20px;font-weight:900;color:#1b5e20;">94.2%</div>
-                <div style="font-size:12px;color:#6b7280;margin-top:4px;font-weight:700;">תקין</div>
-              </div>
-            </div>
+    <div class="stat-pill stat-pill--small stat-pill--yellow">
+      <div class="stat-number">{{ dataQualityStats.totalRows | number }}</div>
+      <div class="stat-label">סה"כ רשומות</div>
+    </div>
+  </div>
+</div>
 
-            <!-- Stacked rounded stat pills (centered, full-width limited) -->
-            <div class="quality-pills">
 
-              <div class="stat-pill stat-pill--large stat-pill--green">
-                <div class="stat-number">231,456</div>
-                <div class="stat-label">רשומות תקינות</div>
-              </div>
 
-              <div class="stat-pill stat-pill--medium stat-pill--red">
-                <div class="stat-number">14,435</div>
-                <div class="stat-label">רשומות כושלות</div>
-              </div>
 
-              <div class="stat-pill stat-pill--small stat-pill--yellow">
-                <div class="stat-number">127</div>
-                <div class="stat-label">שגיאות קריטיות</div>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
+         
 
     </div>
 

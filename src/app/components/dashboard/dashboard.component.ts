@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -81,7 +82,20 @@ export class DashboardComponent implements OnInit {
     targetMinutes: 10,
     trend: 'שיפור של 3% החודש'
   };
-
+ dataQualityStats: {
+    totalRows: number;
+    totalInvalid: number;
+    totalValid: number;
+    successRate: number;
+    statusCounts: Record<string, number>;
+  } = {
+    totalRows: 0,
+    totalInvalid: 0,
+    totalValid: 0,
+    successRate: 0,
+    statusCounts: {}
+  };
+  
   problematicFiles = [
     { name: 'קליטת עובדים סוציאליים - מחוז דרום', badgeText: '25% כישלון', badgeClass: 'badge-critical', note: 'זמן עיבוד: 15.2 דק׳' },
     { name: 'נתוני מפונים - עדכון שבועי', badgeText: '18% שגיאות', badgeClass: 'badge-warning', note: 'סטיית נפח: +45%' },
@@ -104,6 +118,7 @@ export class DashboardComponent implements OnInit {
     { id: 'alert2', message: 'שגיאה בעיבוד קובץ', time: '08:58', severity: 'error', recipient: 'ops@company.com', selected: false },
     { id: 'alert3', message: 'עדכון מערכת הושלם', time: '07:40', severity: 'info', recipient: '', selected: false }
   ];
+constructor(private importControlService: ImportControlService) {}
 
   // מחזיר את חמש ההתראות האחרונות — מסודר מהחדש לישן
   get lastFiveAlerts() {
@@ -119,7 +134,37 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.startLiveUpdates();
+      this.importControlService.getAll().subscribe(data => {
+    console.log('קיבלתי מהשרת:', data);
+    
+    const totalRows = data.length;
+    const totalInvalid = 0; // אם אין לך שדות שמחזיקים rowsInvalid, תשאיר 0 או תחשב
+    const totalValid = totalRows - totalInvalid;
+    const successRate = totalRows > 0 ? ((totalValid / totalRows) * 100) : 0;
+
+    this.dataQualityStats = {
+      totalRows,
+      totalInvalid,
+      totalValid,
+      successRate,
+      statusCounts: this.countStatuses(data)
+    };
+  });
   }
+private countStatuses(data: ImportControl[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const item of data) {
+    const status = item.importControlId || 'unknown'; // אם יש שדה status
+    counts[status] = (counts[status] || 0) + 1;
+  }
+  return counts;
+}
+calcCircleDash(percent: number): string {
+  const radius = 50;
+  const circumference = 2 * Math.PI * radius;
+  const filled = (percent / 100) * circumference;
+  return `${filled} ${circumference}`;
+}
 
   onFromDate(event: any) {
     // implement date filtering if needed
