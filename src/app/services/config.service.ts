@@ -12,7 +12,7 @@ export interface ServerConfig {
 })
 export class ConfigService {
   private config: ServerConfig = {
-    apiUrl: 'http://localhost:8080/api',
+    apiUrl: 'http://localhost:54525/api',
     timeout: 10000,
     retryAttempts: 2,
     refreshInterval: 30000

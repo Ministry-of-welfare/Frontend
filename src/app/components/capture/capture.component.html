@@ -135,7 +135,10 @@
 <td>{{ item.endDate ? (item.endDate | date:'dd/MM/yyyy') : '-' }}</td>
           <td>{{ item.total }}</td>
           <td>{{ item.loaded }}</td>
+<td>{{ item.importStatusId }}</td>
+
           <td>{{ item.failed }}</td>
+
           <td>
  <span class="status-tag" [ngClass]="{
   'success': getStatusToken(item) === 'הצלחה',
