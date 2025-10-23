@@ -21,7 +21,6 @@ interface TableRow {
   failed: number;
   status?: string;
   statusLabel?: string;
-  importStatusId?: number;
   [key: string]: any;
 }
 
@@ -135,9 +134,8 @@ export class CaptureComponent implements OnInit {
         loaded: r.totalRowsAffected ?? r.loaded ?? 0,
         failed: r.rowsInvalid ?? r.failed ?? 0,
         status: r.importStatus ?? r.status ?? '',
-        statusLabel: r.importStatusDesc ?? r.statusLabel ?? '',
-        importStatusId: r.importStatusId ?? r.importStatusID ?? null  // 👈 הוספה נדרשת
-
+        statusLabel: r.importStatusDesc ?? r.statusLabel ?? ''
+        
       } as TableRow));
 
       // החלת פילטרים מקומיים (onlyErrors וכו') ועידכון פאגינציה

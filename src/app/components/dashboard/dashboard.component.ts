@@ -137,28 +137,30 @@ constructor(private importControlService: ImportControlService) {}
       this.importControlService.getAll().subscribe(data => {
     console.log('קיבלתי מהשרת:', data);
     
-    const totalRows = data.length;
-    const totalInvalid = 0; // אם אין לך שדות שמחזיקים rowsInvalid, תשאיר 0 או תחשב
-    const totalValid = totalRows - totalInvalid;
-    const successRate = totalRows > 0 ? ((totalValid / totalRows) * 100) : 0;
+  const totalRows = data.length;
+  const totalInvalid = data.filter(item => !item.importStatus || item.importStatus.trim() === '').length;
+  const totalValid = totalRows - totalInvalid;
+  const successRate = totalRows > 0 ? ((totalValid / totalRows) * 100) : 0;
 
     this.dataQualityStats = {
       totalRows,
-      totalInvalid,
-      totalValid,
-      successRate,
-      statusCounts: this.countStatuses(data)
+    totalInvalid,
+    totalValid,
+    successRate: +successRate.toFixed(1),
+    statusCounts: this.countStatuses(data)
     };
   });
   }
+
 private countStatuses(data: ImportControl[]): Record<string, number> {
   const counts: Record<string, number> = {};
   for (const item of data) {
-    const status = item.importControlId || 'unknown'; // אם יש שדה status
+    const status = item.importStatus?.trim() || 'ללא סטטוס';
     counts[status] = (counts[status] || 0) + 1;
   }
   return counts;
 }
+
 calcCircleDash(percent: number): string {
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
