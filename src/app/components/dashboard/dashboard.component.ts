@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
+import { DashboardApiService } from '../../services/dashboard/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -61,11 +62,14 @@ export class DashboardComponent implements OnInit {
     avgProcessTime: 3.2
   };
 
-  dataQuality = {
-    completeness: 94,
-    accuracy: 87,
-    consistency: 91
-  };
+dataQuality: {
+  ImportStatusId: number;
+  ImportControlId: number;
+  TotalRows: number;
+  RowsInvalid: number;
+  ValidRowsPercentage: number;
+}[] = [];
+
 
   statuses = {
     waiting: 5,
@@ -82,19 +86,13 @@ export class DashboardComponent implements OnInit {
     targetMinutes: 10,
     trend: 'שיפור של 3% החודש'
   };
- dataQualityStats: {
-    totalRows: number;
-    totalInvalid: number;
-    totalValid: number;
-    successRate: number;
-    statusCounts: Record<string, number>;
-  } = {
-    totalRows: 0,
-    totalInvalid: 0,
-    totalValid: 0,
-    successRate: 0,
-    statusCounts: {}
-  };
+dataQualityStats: any = {
+  successRate: 0,
+  totalValid: 0,
+  totalInvalid: 0,
+  totalRows: 0
+};
+
   
   problematicFiles = [
     { name: 'קליטת עובדים סוציאליים - מחוז דרום', badgeText: '25% כישלון', badgeClass: 'badge-critical', note: 'זמן עיבוד: 15.2 דק׳' },
@@ -118,7 +116,7 @@ export class DashboardComponent implements OnInit {
     { id: 'alert2', message: 'שגיאה בעיבוד קובץ', time: '08:58', severity: 'error', recipient: 'ops@company.com', selected: false },
     { id: 'alert3', message: 'עדכון מערכת הושלם', time: '07:40', severity: 'info', recipient: '', selected: false }
   ];
-constructor(private importControlService: ImportControlService) {}
+  constructor(private dashboardService: DashboardApiService) {}
 
   // מחזיר את חמש ההתראות האחרונות — מסודר מהחדש לישן
   get lastFiveAlerts() {
@@ -133,32 +131,36 @@ constructor(private importControlService: ImportControlService) {}
   ];
 
   ngOnInit(): void {
+      console.log('DashboardComponent initialized'); // 🔍 בדיקה
+
     this.startLiveUpdates();
-      this.importControlService.getAll().subscribe(data => {
-    console.log('קיבלתי מהשרת:', data);
+
+ this.dashboardService.getDataQualityKpis().subscribe({
+  next: (data) => {
+    console.log('Data received', data);
     
-  const totalRows = data.length;
-  const totalInvalid = data.filter(item => !item.importStatus || item.importStatus.trim() === '').length;
-  const totalValid = totalRows - totalInvalid;
-  const successRate = totalRows > 0 ? ((totalValid / totalRows) * 100) : 0;
+    if (data && data.length > 0) {
+      // כאן עושים חישובים והצגה
+      const totalRows = data.reduce((sum, kpi) => sum + kpi.totalRows, 0);
+      const totalInvalid = data.reduce((sum, kpi) => sum + kpi.rowsInvalid, 0);
+      const totalValid = totalRows - totalInvalid;
+      const successRate = totalRows === 0 ? 0 : Math.round((totalValid / totalRows) * 100);
 
-    this.dataQualityStats = {
-      totalRows,
-    totalInvalid,
-    totalValid,
-    successRate: +successRate.toFixed(1),
-    statusCounts: this.countStatuses(data)
-    };
-  });
+      this.dataQualityStats = {
+        totalRows,
+        totalInvalid,
+        totalValid,
+        successRate
+      };
+    } else {
+      console.warn('אין נתונים להצגה');
+      // את יכולה להסתיר את הגרף או להציג "אין נתונים"
+    }
+  },
+  error: (err) => {
+    console.error('שגיאה בהבאת הנתונים', err);
   }
-
-private countStatuses(data: ImportControl[]): Record<string, number> {
-  const counts: Record<string, number> = {};
-  for (const item of data) {
-    const status = item.importStatus?.trim() || 'ללא סטטוס';
-    counts[status] = (counts[status] || 0) + 1;
-  }
-  return counts;
+});
 }
 
 calcCircleDash(percent: number): string {
