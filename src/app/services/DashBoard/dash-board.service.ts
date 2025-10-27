@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+export interface DataQualityKpi {
+  importControlId: number;
+  totalRows: number;
+  rowsInvalid: number;
+  validRowsPercentage: number;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -23,4 +28,7 @@ export class DashBoardService {
 
     return this.http.get(`${this.apiUrl}/top-errors`, { params });
   }
+  getDataQualityKpis(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/data-quality-simple`);
+}
 }

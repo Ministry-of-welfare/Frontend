@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'
+
+
 import { DashBoardService } from '../../services/DashBoard/dash-board.service';
+
+import { CommonModule } from '@angular/common';
+import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
+
+import { SystemsService } from '../../services/systems/systems.service';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -50,7 +57,10 @@ export class DashboardComponent implements OnInit {
     { id: 'file3', name: 'דוח חודשי.pdf', waitTime: '18 דק\'', position: 3, selected: false }
   ];
 
+
   topErrors: any[] = [];
+
+
 
   throughputStats = {
     currentRate: 45,
@@ -58,11 +68,16 @@ export class DashboardComponent implements OnInit {
     avgProcessTime: 3.2
   };
 
-  dataQuality = {
-    completeness: 94,
-    accuracy: 87,
-    consistency: 91
-  };
+dataQuality: {
+  ImportStatusId: number;
+  ImportControlId: number;
+  TotalRows: number;
+  RowsInvalid: number;
+  ValidRowsPercentage: number;
+}[] = [];
+
+
+ 
 
   statuses = {
     waiting: 5,
@@ -70,6 +85,7 @@ export class DashboardComponent implements OnInit {
     success: 47,
     error: 2
   };
+
 
   sla = {
     met: 89,
@@ -79,6 +95,16 @@ export class DashboardComponent implements OnInit {
     targetMinutes: 10,
     trend: 'שיפור של 3% החודש'
   };
+
+
+
+dataQualityStats: any = {
+  successRate: 0,
+  totalValid: 0,
+  totalInvalid: 0,
+  totalRows: 0
+};
+
 
   problematicFiles = [
     { name: 'קליטת עובדים סוציאליים - מחוז דרום', badgeText: '25% כישלון', badgeClass: 'badge-critical', note: 'זמן עיבוד: 15.2 דק׳' },
@@ -103,6 +129,7 @@ export class DashboardComponent implements OnInit {
     { id: 'alert3', message: 'עדכון מערכת הושלם', time: '07:40', severity: 'info', recipient: '', selected: false }
   ];
 
+
   // מחזיר את חמש ההתראות האחרונות — מסודר מהחדש לישן
   get lastFiveAlerts() {
     // הנחה: recentAlerts מסודר מהישן לחדש; כדי להציג מהחדש לישן והגבלת 5
@@ -115,13 +142,55 @@ export class DashboardComponent implements OnInit {
     { id: 'area3', location: 'רשת פנימית', description: 'חיבור לא יציב', severity: 'low', selected: false }
   ];
 
-  constructor(private dashBoardService: DashBoardService) { }
+  constructor(private dashBoardService: DashBoardService,
+    private systemsService: SystemsService
+  ) { }
 
   ngOnInit(): void {
+
     this.loadTopErrors();
+
+    console.log('DashboardComponent initialized'); // 🔍 בדיקה
+
     this.startLiveUpdates();
+    this.loadSystemPerformanceData();
+
+    this.dashBoardService.getDataQualityKpis().subscribe({
+      next: (data) => {
+        console.log('Data received', data);
+        
+        if (data && data.length > 0) {
+          // כאן עושים חישובים והצגה
+          const totalRows = data.reduce((sum, kpi) => sum + kpi.totalRows, 0);
+          const totalInvalid = data.reduce((sum, kpi) => sum + kpi.rowsInvalid, 0);
+          const totalValid = totalRows - totalInvalid;
+          const successRate = totalRows === 0 ? 0 : Math.round((totalValid / totalRows) * 100);
+
+          this.dataQualityStats = {
+            totalRows,
+            totalInvalid,
+            totalValid,
+            successRate
+          };
+        } else {
+          console.warn('אין נתונים להצגה');
+          // את יכולה להסתיר את הגרף או להציג "אין נתונים"
+        }
+      },
+      error: (err) => {
+        console.error('שגיאה בהבאת הנתונים', err);
+      }
+    });
   }
 
+calcCircleDash(percent: number): string {
+  const radius = 50;
+  const circumference = 2 * Math.PI * radius;
+  const filled = (percent / 100) * circumference;
+  return `${filled} ${circumference}`;
+}
+
+  
   loadTopErrors(): void {
     const searchParams = this.getSearchParams();
     this.dashBoardService.getTopErrors(searchParams).subscribe({
@@ -309,8 +378,75 @@ export class DashboardComponent implements OnInit {
       .forEach((item: any) => (item as any).selected = false);
   }
 
+
   trackByErrorId(index: number, error: any): string {
     return error.id;
   
   } 
+
+  loadSystemPerformanceData(): void {
+    this.systemsService.getSystemPerformance().subscribe({
+      next: (data) => {
+        console.log('System performance data received:', data);
+        
+        if (data && data.length > 0) {
+          // צבעים לגרף העוגה
+          const colors = ['#667eea', '#4caf50', '#ff9800', '#2196f3', '#e91e63', '#9c27b0'];
+          
+          // עדכון נתוני המערכות עם הנתונים מהשרת
+          this.systemStats = data.map((system, index) => ({
+            name: system.systemName,
+            count: system.totalFiles,
+            success: system.successRate,
+            color: colors[index % colors.length]
+          }));
+
+          // חישוב סה"כ קבצים לגרף העוגה
+          const totalFiles = data.reduce((sum, system) => sum + system.totalFiles, 0);
+          console.log('Total files:', totalFiles);
+          
+        } else {
+          console.warn('אין נתוני ביצועים מערכות להצגה');
+        }
+      },
+      error: (err) => {
+        console.error('שגיאה בטעינת נתוני ביצועים מערכות:', err);
+      }
+    });
+  }
+
+  getColorClass(index: number): string {
+    const colorClasses = ['purple', 'green', 'orange', 'blue', 'pink', 'indigo'];
+    return colorClasses[index % colorClasses.length];
+  }
+
+  getTotalFiles(): number {
+    return this.systemStats.reduce((sum, system) => sum + system.count, 0);
+  }
+
+  getSegmentDashArray(count: number): string {
+    const totalFiles = this.getTotalFiles();
+    if (totalFiles === 0) return '0 440';
+    
+    const circumference = 2 * Math.PI * 70; // radius = 70
+    const segmentLength = (count / totalFiles) * circumference;
+    return `${segmentLength} ${circumference}`;
+  }
+
+  getSegmentOffset(index: number): number {
+    if (index === 0) return 0;
+    
+    const totalFiles = this.getTotalFiles();
+    if (totalFiles === 0) return 0;
+    
+    const circumference = 2 * Math.PI * 70;
+    let offset = 0;
+    
+    for (let i = 0; i < index; i++) {
+      const segmentLength = (this.systemStats[i].count / totalFiles) * circumference;
+      offset += segmentLength;
+    }
+    
+    return -offset;
+
   }

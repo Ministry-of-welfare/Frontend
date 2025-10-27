@@ -135,6 +135,7 @@ export class CaptureComponent implements OnInit {
         failed: r.rowsInvalid ?? r.failed ?? 0,
         status: r.importStatus ?? r.status ?? '',
         statusLabel: r.importStatusDesc ?? r.statusLabel ?? ''
+        
       } as TableRow));
 
       // החלת פילטרים מקומיים (onlyErrors וכו') ועידכון פאגינציה
