@@ -8,62 +8,10 @@
  
   <div class="dashboard">
 
-    <!-- Filters (restored as single grouped bar) -->
-    <div class="filters-wrapper">
-      <div class="filters" role="region" aria-label="סינון" >
-
-        <div class="filter-column">
-          <label for="status">סטטוס</label>
-          <select id="status" class="filter-select">
-            <option>כל הסטטוסים</option>
-            <option>ממתין</option>
-            <option>בתהליך</option>
-            <option>הסתיים</option>
-          </select>
-        </div>
-
-        <div class="filter-column">
-          <label for="source">מקור קליטה</label>
-          <select id="source" class="filter-select">
-            <option>כל המקורות</option>
-            <option>API</option>
-            <option>קובץ</option>
-          </select>
-        </div>
-
-        <div class="filter-column">
-          <label for="system">מערכת</label>
-          <select id="system" class="filter-select">
-            <option>כל המערכות</option>
-            <option>כספות ראשית</option>
-            <option>משאבי אנוש</option>
-          </select>
-        </div>
-
-        <div class="filter-column">
-          <label for="dateTo">טווח תאריכים</label>
-          <input id="dateTo" class="filter-date" type="date" />
-        </div>
-
-        <div class="filter-column">
-          <label for="dateFrom">עד תאריך</label>
-          <input id="dateFrom" class="filter-date" type="date" />
-        </div>
-
-  <div class="filters-spacer"></div>
-        <button class="btn-refresh" title="עדכן">🔄 רענן</button>
-
-      </div>
-    </div>
+    
 
     <!-- KPIs עליונים -->
 
-   <div class="header">
-  <h1>🏠 דשבורד מערכת קליטת קבצים מכספות</h1>
-  <div class="welcome-message" id="welcomeMessage">
-    🌅 בוקר טוב! יש לך 3 התראות חדשות ו-2 קבצים בהמתנה
-  </div>
-</div>
 
 <div class="dashboard">
   <!-- Filters -->
@@ -329,11 +277,21 @@
               [attr.stroke-dasharray]="calcCircleDash(dataQualityStats.successRate)"
               stroke-linecap="round"
               transform="rotate(-90 60 60)" />
-      <text x="60" y="60" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
+      <!-- <text x="60" y="60" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
         {{ dataQualityStats.successRate }}%
-      </text>
+      </text> -->
+
+    <text x="60" y="55" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
+  {{ dataQualityStats.successRate }}%
+</text>
+
+<text x="60" y="75" text-anchor="middle" font-size="14" fill="#555">
+  תקינות
+</text>
+
+
     </svg>
-    <div class="kpi-label">תקינות</div>
+    <!-- <div class="kpi-label">תקינות</div> -->
   </div>
 
   <!-- נתונים -->
