@@ -105,11 +105,11 @@ export class AddFileComponent implements OnInit {
   urlFileCustomWarning: string = '';
   requiredFieldsWarning: string = '';
 
-  checkPath(field: 'urlFile' | 'urlFileAfter') {
-    // פונקציה זו אינה נדרשת עוד כי הודעות השגיאה מוצגות דרך urlFileCustomWarning בלבד
-    // אפשר למחוק או להשאיר ריק למניעת שגיאות קומפילציה
-    return;
-  }
+  // checkPath(field: 'urlFile' | 'urlFileAfter') {
+  //   // פונקציה זו אינה נדרשת עוד כי הודעות השגיאה מוצגות דרך urlFileCustomWarning בלבד
+  //   // אפשר למחוק או להשאיר ריק למניעת שגיאות קומפילציה
+  //   return;
+  // }
   hebrewEmailWarning: boolean = false;
 
   onEmailInput(event: Event) {
@@ -428,28 +428,11 @@ export class AddFileComponent implements OnInit {
 
 
   createFile() {
-    console.log('createFile: התחלת תהליך יצירת קובץ');
-    console.log('בדיקת שדות:');
-    console.log('dataSourceType:', this.dataSourceType);
-    console.log('systemType:', this.systemType);
-    console.log('Number(dataSourceType):', Number(this.dataSourceType));
-    console.log('Number(systemType):', Number(this.systemType));
-
     if (!this.dataSourceType || !this.systemType) {
       alert('אנא בחר סוג מקור נתונים ומערכת');
       return;
     }
-    this.emailErrors = this.validateEmails();
-    if (this.emailErrors.length > 0) {
-      alert('יש שגיאות בכתובות המייל. נא תקן לפני המשך.');
-      return;
-    }
-
-    console.log('בדיקת שדות:');
-    console.log('dataSourceType:', this.dataSourceType, 'Number:', Number(this.dataSourceType));
-    console.log('systemType:', this.systemType, 'Number:', Number(this.systemType));
-    console.log('dataSourceOptions:', this.dataSourceOptions);
-    console.log('systemOptions:', this.systemOptions);
+    
 
     const newFile: ImportDataSources = {
       importDataSourceDesc: this.description,
@@ -470,18 +453,8 @@ export class AddFileComponent implements OnInit {
     this.errorMessageVisible = false;
     this.importDS.addImportDataSource(newFile).subscribe({
       next: (res: any) => {
-        console.log('=== תשובת שרת מלאה ===');
-        console.log('res:', res);
-        console.log('typeof res:', typeof res);
-        console.log('Object.keys(res):', Object.keys(res));
-        console.log('=== ניסיון לחלץ ID ===');
         const importDataSourceId = res.importDataSourceId || res || res.ImportDataSourceId;
-        console.log('importDataSourceId שהתקבל:', importDataSourceId);
-        console.log('res.importDataSourceId:', res.importDataSourceId);
-        console.log('res.id:', res.id);
-        console.log('res.ImportDataSourceId:', res.ImportDataSourceId);
-        console.log('מספר עמודות:', this.columns.length);
-
+        
         if (importDataSourceId && this.columns.length > 0) {
           console.log('קורא ל-saveColumns עם ID:', importDataSourceId);
           this.saveColumns(importDataSourceId);
@@ -503,10 +476,8 @@ export class AddFileComponent implements OnInit {
   }
 
   saveColumns(importDataSourceId: number) {
-    console.log('=== התחלת saveColumns ===');
-    console.log('importDataSourceId:', importDataSourceId);
-    console.log('columns:', this.columns);
 
+    
     let savedCount = 0;
     const totalColumns = this.columns.length;
 

@@ -164,19 +164,27 @@
 
                 <svg width="180" height="180" viewBox="0 0 180 180">
 
-                  <!-- גרף עוגה דינמי -->
-                  <circle *ngFor="let system of systemStats; let i = index"
-                          cx="90" cy="90" r="70" 
-                          fill="none" 
-                          [attr.stroke]="system.color" 
-                          stroke-width="40"
-                          [attr.stroke-dasharray]="getSegmentDashArray(system.count)"
-                          [attr.stroke-dashoffset]="getSegmentOffset(i)"
-                          transform="rotate(-90 90 90)" />
+                  <!-- גרף עוגה -->
+
+                  <circle cx="90" cy="90" r="70" fill="none" stroke="#667eea" stroke-width="40"
+
+                      stroke-dasharray="175 440" transform="rotate(-90 90 90)" />
+
+                  <circle cx="90" cy="90" r="70" fill="none" stroke="#4caf50" stroke-width="40"
+
+                      stroke-dasharray="110 440" stroke-dashoffset="-175" transform="rotate(-90 90 90)" />
+
+                  <circle cx="90" cy="90" r="70" fill="none" stroke="#ff9800" stroke-width="40"
+
+                      stroke-dasharray="88 440" stroke-dashoffset="-285" transform="rotate(-90 90 90)" />
+
+                  <circle cx="90" cy="90" r="70" fill="none" stroke="#2196f3" stroke-width="40"
+
+                      stroke-dasharray="67 440" stroke-dashoffset="-373" transform="rotate(-90 90 90)" />
 
                   <!-- טקסט באמצע -->
 
-                  <text x="90" y="85" text-anchor="middle" font-size="24" font-weight="700" fill="#333">{{ getTotalFiles() }}</text>
+                  <text x="90" y="85" text-anchor="middle" font-size="24" font-weight="700" fill="#333">127</text>
 
                   <text x="90" y="105" text-anchor="middle" font-size="12" fill="#666">סה"כ קבצים</text>
 
@@ -189,12 +197,38 @@
 
               <div class="chart-legend">
 
-                <div class="legend-item" *ngFor="let system of systemStats; let i = index" 
-                     [ngClass]="'legend-item--' + getColorClass(i)">
-                  <div class="legend-dot" [style.background-color]="system.color"></div>
+                <div class="legend-item legend-item--purple">
+                  <div class="legend-dot legend-dot--purple"></div>
                   <div class="legend-text">
-                    <div class="legend-title">{{ system.name }}</div>
-                    <div class="legend-subtitle">{{ system.count }} קליטות • {{ system.success }}% הצלחה</div>
+                    <div class="legend-title">כספות ראשית</div>
+                    <div class="legend-subtitle">45 קליטות • 98% הצלחה</div>
+                  </div>
+                </div>
+
+                               
+                <div class="legend-item legend-item--green">
+                  <div class="legend-dot legend-dot--green"></div>
+                  <div class="legend-text">
+                    <div class="legend-title">משאבי אנוש</div>
+                    <div class="legend-subtitle">35 קליטות • 95% הצלחה</div>
+                  </div>
+                </div>
+
+                               
+                <div class="legend-item legend-item--orange">
+                  <div class="legend-dot legend-dot--orange"></div>
+                  <div class="legend-text">
+                    <div class="legend-title">דיווחים</div>
+                    <div class="legend-subtitle">28 קליטות • 92% הצלחה</div>
+                  </div>
+                </div>
+
+                               
+                <div class="legend-item legend-item--blue">
+                  <div class="legend-dot legend-dot--blue"></div>
+                  <div class="legend-text">
+                    <div class="legend-title">גיבוי</div>
+                    <div class="legend-subtitle">19 קליטות • 100% הצלחה</div>
                   </div>
                 </div>
 
@@ -261,201 +295,47 @@
 
       </div>
 
- 
-      <!-- עמודה צדדית 2 - איכות הנתונים (מחליפה את כרטיס ה-SLA) -->
-
- <!-- כרטיס איכות נתונים -->
-<div class="card">
-  <div class="card-title">🎯 איכות נתונים</div>
-
-  <!-- עיגול אחוז הצלחה -->
-  <div class="quality-gauge-container">
-    <svg width="120" height="120" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="50" stroke="#f0f0f0" stroke-width="12" fill="none"/>
-      <circle cx="60" cy="60" r="50" 
-              [attr.stroke]="dataQualityStats.successRate >= 90 ? '#4caf50' : '#ff9800'" 
-              stroke-width="12"
-              fill="none"
-              [attr.stroke-dasharray]="calcCircleDash(dataQualityStats.successRate)"
-              stroke-linecap="round"
-              transform="rotate(-90 60 60)" />
-      <text x="60" y="60" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
-        {{ dataQualityStats.successRate }}%
-      </text>
-    </svg>
-    <div class="kpi-label">תקינות</div>
-  </div>
-
-  <!-- נתונים -->
-  <div class="quality-pills">
-    <div class="stat-pill stat-pill--large stat-pill--green">
-      <div class="stat-number">{{ dataQualityStats.totalValid | number }}</div>
-      <div class="stat-label">רשומות תקינות</div>
-    </div>
-
-    <div class="stat-pill stat-pill--medium stat-pill--red">
-      <div class="stat-number">{{ dataQualityStats.totalInvalid | number }}</div>
-      <div class="stat-label">רשומות שגויות</div>
-    </div>
-
-    <div class="stat-pill stat-pill--small stat-pill--yellow">
-      <div class="stat-number">{{ dataQualityStats.totalRows | number }}</div>
-      <div class="stat-label">סה"כ רשומות</div>
-    </div>
-  </div>
-</div>
-
-
-
-
-         
-
-    </div>
-
- 
-    <!-- שורה תחתונה - שגיאות וקבצים בעייתיים -->
-
-    <div class="bottom-row">
-
       <!-- שגיאות מובילות -->
-
       <div class="card">
-
-        <div class="card-title">
-
-          ⚠️ TOP 10 שגיאות נפוצות
-
-        </div>
-
+        <div class="card-title">⚠️ שגיאות מובילות (TOP 10)</div>
         <div class="error-list">
-
-          <div class="error-item">
-
-            <div class="error-info">
-
-              <div class="error-code">שדה חובה חסר</div>
-
-              <div class="error-details">עמודה: תאריך_לידה | קובץ: עובדים סוציאליים</div>
-
-            </div>
-
-            <span class="error-count">34</span>
-
-          </div>
-
-          <div class="error-item">
-
-            <div class="error-info">
-
-              <div class="error-code">פורמט תאריך שגוי</div>
-
-              <div class="error-details">עמודה: תאריך_תחילת_עבודה | קובץ: שעות OkToGo</div>
-
-            </div>
-
-            <span class="error-count">28</span>
-
-          </div>
-
-          <div class="error-item">
-
-            <div class="error-info">
-
-               <div class="error-code">ת.ז. לא קיימת במרשם</div>
-
-              <div class="error-details">עמודה: תעודת_זהות | קובץ: נתוני מפונים</div>
-
-            </div>
-
-            <span class="error-count">21</span>
-
-          </div>
-
-          <div class="error-item">
-
-            <div class="error-info">
-
-              <div class="error-code">כתובת מייל לא תקינה</div>
-
-              <div class="error-details">עמודה: email | קובץ: עובדים סוציאליים</div>
-
-            </div>
-
-            <span class="error-count">18</span>
-
-          </div>
-
-          <div class="error-item">
-
-            <div class="error-info">
-
-              <div class="error-code">ערך לא בטווח המותר</div>
-
-              <div class="error-details">עמודה: שעות_עבודה | קובץ: שעות OkToGo</div>
-
-            </div>
-
-            <span class="error-count">15</span>
-
-          </div>
-
+          <div class="error-item" (click)="showErrorDetails(4)"><div><div class="error-code">שדה אינו מספרי ייחודי</div><div class="error-desc">עמודה: מספר זהות</div></div><span class="error-count">23</span></div>
+          <div class="error-item" (click)="showErrorDetails(20)"><div><div class="error-code">שדה חובה אינו מלא</div><div class="error-desc">עמודה: תאריך לידה</div></div><span class="error-count">18</span></div>
+          <div class="error-item" (click)="showErrorDetails(10)"><div><div class="error-code">פורמט תאריך לא תקין</div><div class="error-desc">עמודה: תאריך התחלה</div></div><span class="error-count">15</span></div>
         </div>
-
       </div>
 
- 
-      <!-- קבצים בעייתיים -->
-
+      <!-- תור קבצים ממתינים -->
       <div class="card">
-
-        <div class="card-title">
-
-          🚨 קבצים דורשים תשומת לב
-
+        <div class="card-title">⏳ תור קבצים ממתינים</div>
+        <div class="queue-list">
+          <div class="queue-item"><div><div class="queue-source">קבצי משכורות - בנק הפועלים</div><div class="queue-eta">ETA: 5 דקות | SLA: 10 דקות</div></div><span class="queue-status on-time">בזמן</span></div>
+          <div class="queue-item"><div><div class="queue-source">דוחות יומיים - בנק לאומי</div><div class="queue-eta">ETA: 15 דקות | SLA: 10 דקות</div></div><span class="queue-status delayed">מתעכב</span></div>
         </div>
+      </div>
 
-        <div class="problem-files">
+      <!-- הודעה חשובה -->
+      <div class="card wide-card">
+        <div class="card-title">📢 הודעה חשובה יומית</div>
+        <div class="chart-container">אין קבצים חריגים לתאריך זה</div>
+      </div>
 
-          <div class="problem-item">
-
-            <div class="problem-name">קליטת עובדים סוציאליים - מחוז דרום</div>
-
-            <div class="problem-stats">
-
-              <span class="problem-badge badge-critical">25% כישלון</span>
-
-              <span>זמן עיבוד: 15.2 דק׳</span>
-
+  <!-- איכות נתונים -->
+      <div class="card">
+        <div class="card-title">🎯 איכות נתונים (KPIs)</div>
+        <div class="kpi-grid"><div class="kpi-item"><div class="kpi-value">94.2%</div><div class="kpi-label">איכות נתונים כללית</div></div><div class="kpi-item"><div class="kpi-value">5.8%</div><div class="kpi-label">שורות פגומות</div></div></div>
+      </div>
+    
+      <!-- התראות אחרונות -->
+      <div class="card">
+        <div class="card-title">🔔 התראות אחרונות</div>
+        <div class="alert-list" [attr.data-count]="recentAlerts.length">
+          <div class="alert-item" *ngFor="let alert of recentAlerts">
+            <div class="alert-time">{{ alert.time }}</div>
+            <div class="alert-content">
+              <div class="alert-message">{{ alert.message }}</div>
+              <div class="alert-recipient" *ngIf="alert.recipient">נשלח ל: {{ alert.recipient }}</div>
             </div>
-
-          </div>
-
-          <div class="problem-item">
-
-            <div class="problem-name">נתוני מפונים - עדכון שבועי</div>
-
-            <div class="problem-stats">
-
-              <span class="problem-badge badge-warning">18% שגיאות</span>
-
-              <span>סטיית נפח: +45%</span>
-
-            </div>
-
-          </div>
-
-          <div class="problem-item">
-
-            <div class="problem-name">שעות OkToGo - קבצי פברואר</div>
-
-            <div class="problem-stats">
-
-              <span class="problem-badge badge-warning">12% שגיאות</span>
-
-              <span>רשומות כפולות: 23</span>
-
-            </div>
-
           </div>
 
           <div class="problem-item">
@@ -472,15 +352,17 @@
 
           </div>
 
+        <!-- מקורות בעייתיים -->
+      <div class="card">
+        <div class="card-title">🚨 מקורות בעייתיים</div>
+        <div class="source-list">
+          <div class="source-item" (click)="goToSource(101)"><div><div class="source-name">קבצי משכורות - חברה א'</div><div class="source-desc">זמן קליטה: 15.2 דק'</div></div><span class="failure-rate high-risk">25%</span></div>
         </div>
 
       </div>
 
+    
+
     </div>
-
- 
-    <!-- שורה אחרונה - פעילות חיה וקיצורי דרך -->
-
-    <div class="bottom-row">
-
+  </div>
 

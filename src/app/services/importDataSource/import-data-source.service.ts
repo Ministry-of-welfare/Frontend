@@ -10,15 +10,14 @@ import { ImportStatus } from '../../models/importStatus.model';
 })
 export class ImportDataSourceService {
 
+
   private BASE_URL = 'https://localhost:54525/api/ImportDataSources';
 
   constructor(private http: HttpClient) { }
 
-
-  //  createTable(importDataSourceId: number): Observable<any> {
-  //     return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
-  //   }
-
+ createTable(importDataSourceId: number): Observable<any> {
+    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
+  }
   getAll(): Observable<ImportDataSources[]> {
     return this.http.get<ImportDataSources[]>(this.BASE_URL);
   }
@@ -32,13 +31,6 @@ export class ImportDataSourceService {
       headers: { 'Content-Type': 'application/json' }
     });
   }
-
-
-
-
-
-
-
 
 
   updateImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
@@ -72,9 +64,9 @@ export class ImportDataSourceService {
   }
 
 
-  createTable(importDataSourceId: number): Observable<string> {
-    return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
-  }
+  // createTable(importDataSourceId: number): Observable<string> {
+  //   return this.http.post(`${this.BASE_URL}/${importDataSourceId}/create-table`, {}, { responseType: 'text' });
+  // }
 
 }
 

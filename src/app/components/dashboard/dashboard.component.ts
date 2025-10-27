@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+
+
+import { DashBoardService } from '../../services/DashBoard/dash-board.service';
+
 import { CommonModule } from '@angular/common';
 import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
-import { DashboardApiService } from '../../services/dashboard/dashboard.service';
+
 import { SystemsService } from '../../services/systems/systems.service';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -13,6 +18,7 @@ import { SystemsService } from '../../services/systems/systems.service';
 })
 export class DashboardComponent implements OnInit {
 
+ 
   // מערכת בחירה
   selectedItems: Set<string> = new Set();
   selectAll = false;
@@ -51,11 +57,10 @@ export class DashboardComponent implements OnInit {
     { id: 'file3', name: 'דוח חודשי.pdf', waitTime: '18 דק\'', position: 3, selected: false }
   ];
 
-  topErrors = [
-    { id: 'error1', type: 'שגיאת פורמט CSV', count: 15, details: 'עמודה: שדהX | קובץ: data.csv', selected: false },
-    { id: 'error2', type: 'קובץ לא נמצא', count: 8, details: 'מקור: SFTP', selected: false },
-    { id: 'error3', type: 'שגיאת הרשאות', count: 5, details: 'משתמש: svc_import', selected: false }
-  ];
+
+  topErrors: any[] = [];
+
+
 
   throughputStats = {
     currentRate: 45,
@@ -72,12 +77,15 @@ dataQuality: {
 }[] = [];
 
 
+ 
+
   statuses = {
     waiting: 5,
     processing: 3,
     success: 47,
     error: 2
   };
+
 
   sla = {
     met: 89,
@@ -87,6 +95,9 @@ dataQuality: {
     targetMinutes: 10,
     trend: 'שיפור של 3% החודש'
   };
+
+
+
 dataQualityStats: any = {
   successRate: 0,
   totalValid: 0,
@@ -94,7 +105,7 @@ dataQualityStats: any = {
   totalRows: 0
 };
 
-  
+
   problematicFiles = [
     { name: 'קליטת עובדים סוציאליים - מחוז דרום', badgeText: '25% כישלון', badgeClass: 'badge-critical', note: 'זמן עיבוד: 15.2 דק׳' },
     { name: 'נתוני מפונים - עדכון שבועי', badgeText: '18% שגיאות', badgeClass: 'badge-warning', note: 'סטיית נפח: +45%' },
@@ -117,10 +128,7 @@ dataQualityStats: any = {
     { id: 'alert2', message: 'שגיאה בעיבוד קובץ', time: '08:58', severity: 'error', recipient: 'ops@company.com', selected: false },
     { id: 'alert3', message: 'עדכון מערכת הושלם', time: '07:40', severity: 'info', recipient: '', selected: false }
   ];
-  constructor(
-    private dashboardService: DashboardApiService,
-    private systemsService: SystemsService
-  ) {}
+
 
   // מחזיר את חמש ההתראות האחרונות — מסודר מהחדש לישן
   get lastFiveAlerts() {
@@ -134,13 +142,20 @@ dataQualityStats: any = {
     { id: 'area3', location: 'רשת פנימית', description: 'חיבור לא יציב', severity: 'low', selected: false }
   ];
 
+  constructor(private dashBoardService: DashBoardService,
+    private systemsService: SystemsService
+  ) { }
+
   ngOnInit(): void {
+
+    this.loadTopErrors();
+
     console.log('DashboardComponent initialized'); // 🔍 בדיקה
 
     this.startLiveUpdates();
     this.loadSystemPerformanceData();
 
-    this.dashboardService.getDataQualityKpis().subscribe({
+    this.dashBoardService.getDataQualityKpis().subscribe({
       next: (data) => {
         console.log('Data received', data);
         
@@ -175,21 +190,51 @@ calcCircleDash(percent: number): string {
   return `${filled} ${circumference}`;
 }
 
+  
+  loadTopErrors(): void {
+    const searchParams = this.getSearchParams();
+    this.dashBoardService.getTopErrors(searchParams).subscribe({
+      next: (data) => {
+        this.topErrors = data.map((error: any, index: number) => ({
+          id: `error${error.importErrorId}`,
+          type: error.errorDetail,
+          count: error.errorCount,
+          details: `עמודה: ${error.errorColumn} | ערך: ${error.errorValue}`,
+          selected: false
+        }));
+      },
+      error: (err) => {
+        console.error('שגיאה בטעינת השגיאות הנפוצות:', err);
+        this.topErrors = [
+          { id: 'error1', type: 'שגיאת פורמט CSV', count: 15, details: 'עמודה: שדהX | קובץ: data.csv', selected: false },
+          { id: 'error2', type: 'קובץ לא נמצא', count: 8, details: 'מקור: SFTP', selected: false },
+          { id: 'error3', type: 'שגיאת הרשאות', count: 5, details: 'משתמש: svc_import', selected: false }
+        ];
+      }
+    });
+  }
+
+  searchFilters = {
+    fromDate: '',
+    toDate: '',
+    systemId: '',
+    status: ''
+  };
+
   onFromDate(event: any) {
-    // implement date filtering if needed
-    console.log('from date', event.target.value);
+    this.searchFilters.fromDate = event.target.value;
   }
 
   onToDate(event: any) {
-    console.log('to date', event.target.value);
+    this.searchFilters.toDate = event.target.value;
   }
 
   onSystemChange(event: any) {
-    console.log('system changed', event.target.value);
+    this.searchFilters.systemId = event.target.value;
   }
 
   onStatusChange(event: any) {
-    console.log('status changed', event.target.value);
+    this.searchFilters.status = event.target.value;
   }
 
   openAddFile() {
@@ -222,8 +267,20 @@ calcCircleDash(percent: number): string {
   }
 
   refreshDashboard(): void {
-    console.log('רענון דשבורד...');
+    console.log('רענון דשבורד עם פרמטרי חיפוש:', this.searchFilters);
+    this.loadTopErrors();
     this.updateLiveData();
+  }
+
+  private getSearchParams(): any {
+    const params: any = {};
+    
+    if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
+    if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
+    if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
+    if (this.searchFilters.status) params.status = this.searchFilters.status;
+    
+    return Object.keys(params).length > 0 ? params : null;
   }
 
   showErrorDetails(errorId: number): void {
@@ -321,6 +378,12 @@ calcCircleDash(percent: number): string {
       .forEach((item: any) => (item as any).selected = false);
   }
 
+
+  trackByErrorId(index: number, error: any): string {
+    return error.id;
+  
+  } 
+
   loadSystemPerformanceData(): void {
     this.systemsService.getSystemPerformance().subscribe({
       next: (data) => {
@@ -385,5 +448,6 @@ calcCircleDash(percent: number): string {
     }
     
     return -offset;
+
   }
 }
