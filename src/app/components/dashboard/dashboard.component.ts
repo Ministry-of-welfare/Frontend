@@ -450,3 +450,4 @@ calcCircleDash(percent: number): string {
     return -offset;
 
   }
+}
