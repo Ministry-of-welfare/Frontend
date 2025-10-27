@@ -284,11 +284,18 @@
               [attr.stroke-dasharray]="calcCircleDash(dataQualityStats.successRate)"
               stroke-linecap="round"
               transform="rotate(-90 60 60)" />
-      <text x="60" y="60" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
+      <!-- <text x="60" y="60" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
         {{ dataQualityStats.successRate }}%
-      </text>
+      </text> -->
+          <text x="60" y="55" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
+  {{ dataQualityStats.successRate }}%
+</text>
+
+<text x="60" y="75" text-anchor="middle" font-size="14" fill="#555">
+  תקינות
+</text>
     </svg>
-    <div class="kpi-label">תקינות</div>
+    <!-- <div class="kpi-label">תקינות</div> -->
   </div>
 
   <!-- נתונים -->
@@ -303,10 +310,10 @@
       <div class="stat-label">רשומות שגויות</div>
     </div>
 
-    <div class="stat-pill stat-pill--small stat-pill--yellow">
-      <div class="stat-number">{{ dataQualityStats.totalRows | number }}</div>
-      <div class="stat-label">סה"כ רשומות</div>
-    </div>
+   <div class="stat-pill stat-pill--small stat-pill--yellow">
+  <div class="stat-number">{{ dataQualityStats.duplicateRecords | number }}</div>
+  <div class="stat-label">רשומות כפולות</div>
+</div>
   </div>
 </div>
 
