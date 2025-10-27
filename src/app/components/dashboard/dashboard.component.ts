@@ -16,7 +16,7 @@ import { SystemsService } from '../../services/systems/systems.service';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-
+  
   // מערכת בחירה
   selectedItems: Set<string> = new Set();
   selectAll = false;
@@ -67,6 +67,11 @@ export class DashboardComponent implements OnInit {
     dailyVolume: 2.3,
     avgProcessTime: 3.2
   };
+
+  // נפח נתונים מהשרת
+  dataVolume: { totalRows: number; dataVolumeInGB: string } = { totalRows: 0, dataVolumeInGB: '' };
+  dataVolumeLoading = false;
+  dataVolumeError: string | null = null;
 
 dataQuality: {
   ImportStatusId: number;
@@ -171,6 +176,22 @@ dataQualityStats: any = {
     console.error('שגיאה בהבאת הנתונים', err);
   }
 });
+
+    // קבלת נפח הנתונים מהשרת
+    this.dataVolumeLoading = true;
+    this.dashboardService.getDataVolume().subscribe({
+      next: (res) => {
+        if (res) {
+          this.dataVolume = res;
+        }
+        this.dataVolumeLoading = false;
+      },
+      error: (err) => {
+        console.error('שגיאה בהבאת נפח נתונים', err);
+        this.dataVolumeError = err?.message || 'שגיאה בהבאת נפח נתונים';
+        this.dataVolumeLoading = false;
+      }
+    });
 }
 
   loadSystemPerformance(): void {
