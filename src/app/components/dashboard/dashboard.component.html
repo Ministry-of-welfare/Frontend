@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html dir="rtl" lang="he">
@@ -85,54 +84,34 @@
     <div class="hero-kpis">
 
       <div class="kpi-card primary">
-
         <span class="kpi-icon">📈</span>
 
-        <div class="kpi-value" id="todayImports">47</div>
+        <!-- החלפתי את הערך הקשיח בערך דינמי שמגיע מהקומפוננטה -->
+        <div class="kpi-value" id="todayImports">{{ todayImports !== null ? todayImports : '—' }}</div>
 
         <div class="kpi-label">קליטות היום</div>
-
         <div class="kpi-change positive">↗️ +12% מאתמול</div>
-
       </div>
 
-           
       <div class="kpi-card success">
-
         <span class="kpi-icon">💯</span>
-
-        <div class="kpi-value">96.5%</div>
-
+        <div class="kpi-value">{{ dataQualityStats?.successRate !== undefined ? (dataQualityStats.successRate + '%') : '—' }}</div>
         <div class="kpi-label">אחוז הצלחה</div>
-
         <div class="kpi-change positive">↗️ +2.3% השבוע</div>
-
       </div>
 
-           
       <div class="kpi-card warning">
-
         <span class="kpi-icon">⚡</span>
-
-        <div class="kpi-value">4.2</div>
-
+        <div class="kpi-value">{{ throughputStats?.avgProcessTime !== undefined ? throughputStats.avgProcessTime : '—' }}</div>
         <div class="kpi-label">זמן ממוצע (דקות)</div>
-
         <div class="kpi-change negative">↘️ -8% מהממוצע</div>
-
       </div>
 
-           
       <div class="kpi-card info">
-
         <span class="kpi-icon">📦</span>
-
         <div class="kpi-value">{{ dataVolumeLoading ? '...' : (dataVolume.dataVolumeInGB || '—') }}</div>
-
-        <div class="kpi-label">נפח נתונים</div>
-
+        <div class="kpi-label">נפח נתונים היום</div>
         <div class="kpi-change positive">↗️ {{ dataVolume.totalRows | number }} רשומות</div>
-
       </div>
 
     </div>
