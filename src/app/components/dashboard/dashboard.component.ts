@@ -29,7 +29,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     successRate: 94
   };
 
-  // KPIs לממשק
+//  KPIs לממשק
   kpis = [
     { icon: '📈', value: '47', label: 'קליטות היום', change: '↗️ +12% מאתמול', changeType: 'positive', variant: 'primary' },
     { icon: '💯', value: '96.5%', label: 'אחוז הצלחה', change: '↗️ +2.3% השבוע', changeType: 'positive', variant: 'success' },
@@ -66,7 +66,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   throughputStats = {
     currentRate: 45,
     dailyVolume: 2.3,
-    avgProcessTime: 3.2
+    avgProcessTime: 3.2,
+    successRateRaw: null
+
   };
 
   // נפח נתונים מהשרת
@@ -108,6 +110,9 @@ dataQualityStats: any = {
   // KPI דינמי: קליטות היום
   todayImports: number | null = null;
   private importsSub?: Subscription;
+  private avgTimeSub?: Subscription;
+  private successRateSub?: Subscription;
+  successRateRaw: any = null;
 
   
   problematicFiles = [
@@ -226,6 +231,32 @@ dataQualityStats: any = {
       }
     });
 
+    // קבלת זמן עיבוד ממוצע מהשרת
+  
+  this.avgTimeSub = this.dashboardService.getAvgProcessingTime(this.getSearchParams()).subscribe({
+      next: (res: any) => {
+                console.log('avgProcessingTime:', res);
+
+        const avg = res?.averageMinutes ?? res; // פשוט קח averageMinutes אם קיים, אחרת כל ה-res
+        this.throughputStats.avgProcessTime = avg;
+      },
+      error: (err: any) => {
+        console.error('שגיאה ב-getAvgProcessingTime:', err);
+      }
+    });
+    
+this.successRateSub = this.dashboardService.getsuccessRate(this.getSearchParams()).subscribe({
+      next: (res: any) => {
+      const rate = res?.successRatePercent ?? res; // פשוט קח averageMinutes אם קיים, אחרת כל ה-res
+
+        console.log('successRateRaw:', res);
+        this.throughputStats.successRateRaw = rate;
+        console.log('Updated successRateRaw:', this.throughputStats.successRateRaw);
+      },
+      error: (err: any) => {
+        console.error('שגיאה ב-getsuccessRate:', err);
+      }
+    });
   
 }
 
@@ -472,8 +503,7 @@ calcCircleDash(percent: number): string {
     }
   }
 
-  exportSelected(): void {
-    if (this.selectedItems.size === 0) {
+  exportSelected(): void {    if (this.selectedItems.size === 0) {
       alert('לא נבחר אף פריט');
       return;
     }
@@ -502,6 +532,8 @@ calcCircleDash(percent: number): string {
   ngOnDestroy(): void {
     // ניקה מנויים שנוצרו בקומפוננטה
     this.importsSub?.unsubscribe();
+    this.avgTimeSub?.unsubscribe();
+    this.successRateSub?.unsubscribe();
     // אם נוספו מנויים נוספים בעתיד, יש להוסיף כאן ביטול גם להם
   }
 }
