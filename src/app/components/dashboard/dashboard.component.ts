@@ -142,15 +142,16 @@ dataQualityStats: any = {
     if (data && data.length > 0) {
       // כאן עושים חישובים והצגה
       const totalRows = data.reduce((sum, kpi) => sum + kpi.totalRows, 0);
-      const totalInvalid = data.reduce((sum, kpi) => sum + kpi.rowsInvalid, 0);
+      const totalInvalid = data.reduce((sum, kpi) => sum + kpi.rowsInvalid, 0); // 🟢 חשוב!
+      const duplicateRecords = data.reduce((sum, kpi) => sum + (kpi.duplicateRows || 0), 0);
       const totalValid = totalRows - totalInvalid;
       const successRate = totalRows === 0 ? 0 : Math.round((totalValid / totalRows) * 100);
-
       this.dataQualityStats = {
         totalRows,
         totalInvalid,
         totalValid,
-        successRate
+        successRate,
+        duplicateRecords
       };
     } else {
       console.warn('אין נתונים להצגה');
