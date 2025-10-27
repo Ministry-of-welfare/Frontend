@@ -303,10 +303,11 @@
       <div class="stat-label">רשומות שגויות</div>
     </div>
 
-    <div class="stat-pill stat-pill--small stat-pill--yellow">
-      <div class="stat-number">{{ dataQualityStats.totalRows | number }}</div>
-      <div class="stat-label">סה"כ רשומות</div>
-    </div>
+ <div class="stat-pill stat-pill--small stat-pill--yellow">
+  <div class="stat-number">{{ dataQualityStats.duplicateRecords | number }}</div>
+  <div class="stat-label">רשומות כפולות</div>
+</div>
+
   </div>
 </div>
 
