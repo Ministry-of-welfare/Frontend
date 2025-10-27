@@ -33,44 +33,44 @@
 
         <div class="filter-column">
           <label for="status">סטטוס</label>
-          <select id="status" class="filter-select">
-            <option>כל הסטטוסים</option>
-            <option>ממתין</option>
-            <option>בתהליך</option>
-            <option>הסתיים</option>
+          <select id="status" class="filter-select" (change)="onStatusChange($event)">
+            <option value="">כל הסטטוסים</option>
+            <option value="waiting">ממתין</option>
+            <option value="processing">בתהליך</option>
+            <option value="completed">הסתיים</option>
           </select>
         </div>
 
         <div class="filter-column">
           <label for="source">מקור קליטה</label>
           <select id="source" class="filter-select">
-            <option>כל המקורות</option>
-            <option>API</option>
-            <option>קובץ</option>
+            <option value="">כל המקורות</option>
+            <option value="api">API</option>
+            <option value="file">קובץ</option>
           </select>
         </div>
 
         <div class="filter-column">
           <label for="system">מערכת</label>
-          <select id="system" class="filter-select">
-            <option>כל המערכות</option>
-            <option>כספות ראשית</option>
-            <option>משאבי אנוש</option>
+          <select id="system" class="filter-select" (change)="onSystemChange($event)">
+            <option value="">כל המערכות</option>
+            <option value="1">כספות ראשית</option>
+            <option value="2">משאבי אנוש</option>
           </select>
         </div>
 
         <div class="filter-column">
-          <label for="dateTo">טווח תאריכים</label>
-          <input id="dateTo" class="filter-date" type="date" />
+          <label for="dateFrom">מתאריך</label>
+          <input id="dateFrom" class="filter-date" type="date" (change)="onFromDate($event)" />
         </div>
 
         <div class="filter-column">
-          <label for="dateFrom">עד תאריך</label>
-          <input id="dateFrom" class="filter-date" type="date" />
+          <label for="dateTo">עד תאריך</label>
+          <input id="dateTo" class="filter-date" type="date" (change)="onToDate($event)" />
         </div>
 
   <div class="filters-spacer"></div>
-        <button class="btn-refresh" title="עדכן">🔄 רענן</button>
+        <button class="btn-refresh" (click)="refreshDashboard()" title="עדכן">🔄 רענן</button>
 
       </div>
     </div>
