@@ -1,63 +1,88 @@
-<div class="header">
-  <h1>🏠 דשבורד מערכת קליטת קבצים מכספות</h1>
-  <div class="welcome-message" id="welcomeMessage">
-    🌅 בוקר טוב! יש לך 3 התראות חדשות ו-2 קבצים בהמתנה
+
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>דשבורד מערכת קליטת קבצים מכספות</title>
+
+  <!-- styles moved to dashboard.component.css -->
+
+</head>
+
+<body>
+
+  <div class="header">
+
+    <h1>🏠 דשבורד מערכת קליטת קבצים מכספות</h1>
+
+    <div class="welcome-message" id="welcomeMessage">
+
+      🌅 בוקר טוב! יש לך 3 התראות חדשות ו-2 קבצים בהמתנה
+
+    </div>
+
   </div>
-</div>
 
  
   <div class="dashboard">
 
-    
+    <!-- Filters (restored as single grouped bar) -->
+    <div class="filters-wrapper">
+      <div class="filters" role="region" aria-label="סינון" >
+
+        <div class="filter-column">
+          <label for="status">סטטוס</label>
+          <select id="status" class="filter-select">
+            <option>כל הסטטוסים</option>
+            <option>ממתין</option>
+            <option>בתהליך</option>
+            <option>הסתיים</option>
+          </select>
+        </div>
+
+        <div class="filter-column">
+          <label for="source">מקור קליטה</label>
+          <select id="source" class="filter-select">
+            <option>כל המקורות</option>
+            <option>API</option>
+            <option>קובץ</option>
+          </select>
+        </div>
+
+        <div class="filter-column">
+          <label for="system">מערכת</label>
+          <select id="system" class="filter-select">
+            <option>כל המערכות</option>
+            <option>כספות ראשית</option>
+            <option>משאבי אנוש</option>
+          </select>
+        </div>
+
+        <div class="filter-column">
+          <label for="dateTo">טווח תאריכים</label>
+          <input id="dateTo" class="filter-date" type="date" />
+        </div>
+
+        <div class="filter-column">
+          <label for="dateFrom">עד תאריך</label>
+          <input id="dateFrom" class="filter-date" type="date" />
+        </div>
+
+  <div class="filters-spacer"></div>
+        <button class="btn-refresh" title="עדכן">🔄 רענן</button>
+
+      </div>
+    </div>
 
     <!-- KPIs עליונים -->
 
-
-<div class="dashboard">
-  <!-- Filters -->
-  <div class="filters-wrapper">
-    <div class="filters" role="region" aria-label="סינון">
-      <div class="filter-column">
-        <label for="status">סטטוס</label>
-        <select id="status" class="filter-select">
-          <option>כל הסטטוסים</option>
-          <option>ממתין</option>
-          <option>בתהליך</option>
-          <option>הסתיים</option>
-        </select>
-      </div>
-      <div class="filter-column">
-        <label for="source">מקור קליטה</label>
-        <select id="source" class="filter-select">
-          <option>כל המקורות</option>
-          <option>API</option>
-          <option>קובץ</option>
-        </select>
-      </div>
-      <div class="filter-column">
-        <label for="system">מערכת</label>
-        <select id="system" class="filter-select">
-          <option>כל המערכות</option>
-          <option>כספות ראשית</option>
-          <option>משאבי אנוש</option>
-        </select>
-      </div>
-      <div class="filter-column">
-        <label for="dateTo">טווח תאריכים</label>
-        <input id="dateTo" class="filter-date" type="date" />
-      </div>
-      <div class="filter-column">
-        <label for="dateFrom">עד תאריך</label>
-        <input id="dateFrom" class="filter-date" type="date" />
-      </div>
-      <div class="filters-spacer"></div>
-      <button class="btn-refresh" (click)="refreshDashboard()" title="עדכן">🔄 רענן</button>
-      
-    </div>
-  </div>
-
-  <!-- KPIs עליונים -->
-  <div class="hero-kpis">
+    <div class="hero-kpis">
 
       <div class="kpi-card primary">
 
@@ -241,24 +266,6 @@
 
       </div>
 
-
-      <!-- עמודה צדדית 2 - שגיאות ותור -->
-      <div class="side-column-2">
-        <!-- שגיאות מובילות -->
-        <div class="card">
-          <div class="card-title"> ⚠️ TOP 10 שגיאות נפוצות</div>
-          <div class="error-list">
-            <div class="error-item" *ngFor="let error of topErrors" (click)="showErrorDetails(error.id)">
-              <div>
-                <div class="error-code">{{ error.type }}</div>
-                <div class="error-desc">{{ error.details }}</div>
-              </div>
-              <span class="error-count">{{ error.count }}</span>
-            </div>
-            <div *ngIf="topErrors.length === 0" class="no-data">אין שגיאות להצגה</div>
-          </div>
-        </div>
-
  
       <!-- עמודה צדדית 2 - איכות הנתונים (מחליפה את כרטיס ה-SLA) -->
 
@@ -277,21 +284,11 @@
               [attr.stroke-dasharray]="calcCircleDash(dataQualityStats.successRate)"
               stroke-linecap="round"
               transform="rotate(-90 60 60)" />
-      <!-- <text x="60" y="60" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
+      <text x="60" y="60" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
         {{ dataQualityStats.successRate }}%
-      </text> -->
-
-    <text x="60" y="55" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
-  {{ dataQualityStats.successRate }}%
-</text>
-
-<text x="60" y="75" text-anchor="middle" font-size="14" fill="#555">
-  תקינות
-</text>
-
-
+      </text>
     </svg>
-    <!-- <div class="kpi-label">תקינות</div> -->
+    <div class="kpi-label">תקינות</div>
   </div>
 
   <!-- נתונים -->
@@ -306,11 +303,10 @@
       <div class="stat-label">רשומות שגויות</div>
     </div>
 
- <div class="stat-pill stat-pill--small stat-pill--yellow">
-  <div class="stat-number">{{ dataQualityStats.duplicateRecords | number }}</div>
-  <div class="stat-label">רשומות כפולות</div>
-</div>
-
+    <div class="stat-pill stat-pill--small stat-pill--yellow">
+      <div class="stat-number">{{ dataQualityStats.totalRows | number }}</div>
+      <div class="stat-label">סה"כ רשומות</div>
+    </div>
   </div>
 </div>
 
@@ -325,6 +321,107 @@
     <!-- שורה תחתונה - שגיאות וקבצים בעייתיים -->
 
     <div class="bottom-row">
+
+      <!-- שגיאות מובילות -->
+
+      <!-- <div class="card">
+
+        <div class="card-title">
+
+          ⚠️ TOP 10 שגיאות נפוצות
+
+        </div>
+
+        <div class="error-list">
+
+          <div class="error-item">
+
+            <div class="error-info">
+
+              <div class="error-code">שדה חובה חסר</div>
+
+              <div class="error-details">עמודה: תאריך_לידה | קובץ: עובדים סוציאליים</div>
+
+            </div>
+
+            <span class="error-count">34</span>
+
+          </div>
+
+          <div class="error-item">
+
+            <div class="error-info">
+
+              <div class="error-code">פורמט תאריך שגוי</div>
+
+              <div class="error-details">עמודה: תאריך_תחילת_עבודה | קובץ: שעות OkToGo</div>
+
+            </div>
+
+            <span class="error-count">28</span>
+
+          </div>
+
+          <div class="error-item">
+
+            <div class="error-info">
+
+               <div class="error-code">ת.ז. לא קיימת במרשם</div>
+
+              <div class="error-details">עמודה: תעודת_זהות | קובץ: נתוני מפונים</div>
+
+            </div>
+
+            <span class="error-count">21</span>
+
+          </div>
+
+          <div class="error-item">
+
+            <div class="error-info">
+
+              <div class="error-code">כתובת מייל לא תקינה</div>
+
+              <div class="error-details">עמודה: email | קובץ: עובדים סוציאליים</div>
+
+            </div>
+
+            <span class="error-count">18</span>
+
+          </div>
+
+          <div class="error-item">
+
+            <div class="error-info">
+
+              <div class="error-code">ערך לא בטווח המותר</div>
+
+              <div class="error-details">עמודה: שעות_עבודה | קובץ: שעות OkToGo</div>
+
+            </div>
+
+            <span class="error-count">15</span>
+
+          </div>
+
+        </div>
+
+      </div> -->
+<!-- <div class="side-column-2"> -->
+        <!-- שגיאות מובילות -->
+        <div class="card">
+          <div class="card-title"> ⚠️ TOP 10 שגיאות נפוצות</div>
+          <div class="error-list">
+            <div class="error-item" *ngFor="let error of topErrors" (click)="showErrorDetails(error.id)">
+              <div>
+                <div class="error-code">{{ error.type }}</div>
+                <div class="error-desc">{{ error.details }}</div>
+              </div>
+              <span class="error-count">{{ error.count }}</span>
+            </div>
+            <div *ngIf="topErrors.length === 0" class="no-data">אין שגיאות להצגה</div>
+          </div>
+        </div>
 
  
       <!-- קבצים בעייתיים -->
@@ -398,9 +495,6 @@
         </div>
 
       </div>
-
-      </div>
-
 
     </div>
 
