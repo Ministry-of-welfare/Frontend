@@ -1,5 +1,6 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
 import { DashBoardService } from '../../services/DashBoard/dash-board.service';
 import { SystemsService } from '../../services/systems/systems.service';
@@ -15,7 +16,7 @@ import { SystemsService } from '../../services/systems/systems.service';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   
   // מערכת בחירה
   selectedItems: Set<string> = new Set();
@@ -103,6 +104,10 @@ dataQualityStats: any = {
   totalInvalid: 0,
   totalRows: 0
 };
+
+  // KPI דינמי: קליטות היום
+  todayImports: number | null = null;
+  private importsSub?: Subscription;
 
   
   problematicFiles = [
@@ -207,6 +212,21 @@ dataQualityStats: any = {
         this.dataVolumeLoading = false;
       }
     });
+
+    // קבלת "קליטות היום" מהשרת (משתמש ב-getTodayImports helper)
+    this.dashboardService.getImportsCount().subscribe({
+      next: (count) => {
+        this.todayImports = count;
+
+        
+      },
+      error: (err) => {
+        console.error('שגיאה בהבאת קליטות היום (imports-count):', err);
+        this.todayImports = null;
+      }
+    });
+
+  
 }
 
   loadSystemPerformance(): void {
@@ -473,5 +493,11 @@ calcCircleDash(percent: number): string {
     this.selectAll = false;
     [...this.pendingFiles, ...this.topErrors, ...this.recentAlerts, ...this.problematicAreas]
       .forEach((item: any) => (item as any).selected = false);
+  }
+
+  ngOnDestroy(): void {
+    // ניקה מנויים שנוצרו בקומפוננטה
+    this.importsSub?.unsubscribe();
+    // אם נוספו מנויים נוספים בעתיד, יש להוסיף כאן ביטול גם להם
   }
 }
