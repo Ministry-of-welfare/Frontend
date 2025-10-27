@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DashBoardService } from '../../services/DashBoard/dash-board.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,17 +22,34 @@ export class DashboardComponent implements OnInit {
     successRate: 94
   };
 
+  // KPIs לממשק
+  kpis = [
+    { icon: '📈', value: '47', label: 'קליטות היום', change: '↗️ +12% מאתמול', changeType: 'positive', variant: 'primary' },
+    { icon: '💯', value: '96.5%', label: 'אחוז הצלחה', change: '↗️ +2.3% השבוע', changeType: 'positive', variant: 'success' },
+    { icon: '⚡', value: '4.2', label: 'זמן ממוצע (דקות)', change: '↘️ -8% מהממוצע', changeType: 'negative', variant: 'warning' },
+    { icon: '📦', value: '2.4GB', label: 'נפח נתונים היום', change: '↗️ 245,891 רשומות', changeType: 'positive', variant: 'info' }
+  ];
+
+  systems = [
+    { id: 1, name: 'כספות ראשית' },
+    { id: 2, name: 'גיבוי' },
+    { id: 3, name: 'דיווחים' }
+  ];
+
+  systemStats = [
+    { name: 'כספות ראשית', count: 45, success: 98, color: '#667eea' },
+    { name: 'משאבי אנוש', count: 35, success: 95, color: '#4caf50' },
+    { name: 'דיווחים', count: 28, success: 92, color: '#ff9800' },
+    { name: 'גיבוי', count: 19, success: 100, color: '#2196f3' }
+  ];
+
   pendingFiles = [
     { id: 'file1', name: 'קובץ לקוחות.csv', waitTime: '5 דק\'', position: 1, selected: false },
     { id: 'file2', name: 'נתוני מכירות.xlsx', waitTime: '12 דק\'', position: 2, selected: false },
     { id: 'file3', name: 'דוח חודשי.pdf', waitTime: '18 דק\'', position: 3, selected: false }
   ];
 
-  topErrors = [
-    { id: 'error1', type: 'שגיאת פורמט CSV', count: 15, selected: false },
-    { id: 'error2', type: 'קובץ לא נמצא', count: 8, selected: false },
-    { id: 'error3', type: 'שגיאת הרשאות', count: 5, selected: false }
-  ];
+  topErrors: any[] = [];
 
   throughputStats = {
     currentRate: 45,
@@ -44,6 +62,39 @@ export class DashboardComponent implements OnInit {
     accuracy: 87,
     consistency: 91
   };
+
+  statuses = {
+    waiting: 5,
+    processing: 3,
+    success: 47,
+    error: 2
+  };
+
+  sla = {
+    met: 89,
+    missed: 11,
+    avgDelay: 8,
+    targetPercent: 95,
+    targetMinutes: 10,
+    trend: 'שיפור של 3% החודש'
+  };
+
+  problematicFiles = [
+    { name: 'קליטת עובדים סוציאליים - מחוז דרום', badgeText: '25% כישלון', badgeClass: 'badge-critical', note: 'זמן עיבוד: 15.2 דק׳' },
+    { name: 'נתוני מפונים - עדכון שבועי', badgeText: '18% שגיאות', badgeClass: 'badge-warning', note: 'סטיית נפח: +45%' },
+    { name: 'שעות OkToGo - קבצי פברואר', badgeText: '12% שגיאות', badgeClass: 'badge-warning', note: 'רשומות כפולות: 23' }
+  ];
+
+  liveFeed = [
+    { time: '09:34', message: 'עומס גבוה במערכת', details: 'תור: 12 עבודות' },
+    { time: '08:58', message: 'שגיאה בעיבוד קובץ', details: 'קובץ: נתוני לקוחות.csv' },
+    { time: '07:40', message: 'עדכון מערכת הושלם', details: '' }
+  ];
+
+  quickActions = [
+    { icon: '➕', title: 'הוספת קובץ', subtitle: 'העלה קובץ חדש', action: () => this.openAddFile() },
+    { icon: '📁', title: 'ניהול מקורות', subtitle: 'ערוך מקורות קליטה', action: () => this.goToSource(0) }
+  ];
 
   recentAlerts = [
     { id: 'alert1', message: 'עומס גבוה במערכת', time: '09:34', severity: 'warning', recipient: 'admin@company.com', selected: false },
@@ -63,8 +114,61 @@ export class DashboardComponent implements OnInit {
     { id: 'area3', location: 'רשת פנימית', description: 'חיבור לא יציב', severity: 'low', selected: false }
   ];
 
+  constructor(private dashBoardService: DashBoardService) { }
+
   ngOnInit(): void {
+    this.loadTopErrors();
     this.startLiveUpdates();
+  }
+
+  loadTopErrors(): void {
+    const searchParams = this.getSearchParams();
+    this.dashBoardService.getTopErrors(searchParams).subscribe({
+      next: (data) => {
+        this.topErrors = data.map((error: any, index: number) => ({
+          id: `error${error.importErrorId}`,
+          type: error.errorDetail,
+          count: error.errorCount,
+          details: `עמודה: ${error.errorColumn} | ערך: ${error.errorValue}`,
+          selected: false
+        }));
+      },
+      error: (err) => {
+        console.error('שגיאה בטעינת השגיאות הנפוצות:', err);
+        this.topErrors = [
+          { id: 'error1', type: 'שגיאת פורמט CSV', count: 15, details: 'עמודה: שדהX | קובץ: data.csv', selected: false },
+          { id: 'error2', type: 'קובץ לא נמצא', count: 8, details: 'מקור: SFTP', selected: false },
+          { id: 'error3', type: 'שגיאת הרשאות', count: 5, details: 'משתמש: svc_import', selected: false }
+        ];
+      }
+    });
+  }
+
+  searchFilters = {
+    fromDate: '',
+    toDate: '',
+    systemId: '',
+    status: ''
+  };
+
+  onFromDate(event: any) {
+    this.searchFilters.fromDate = event.target.value;
+  }
+
+  onToDate(event: any) {
+    this.searchFilters.toDate = event.target.value;
+  }
+
+  onSystemChange(event: any) {
+    this.searchFilters.systemId = event.target.value;
+  }
+
+  onStatusChange(event: any) {
+    this.searchFilters.status = event.target.value;
+  }
+
+  openAddFile() {
+    console.log('open add file dialog');
   }
 
   startLiveUpdates(): void {
@@ -93,8 +197,20 @@ export class DashboardComponent implements OnInit {
   }
 
   refreshDashboard(): void {
-    console.log('רענון דשבורד...');
+    console.log('רענון דשבורד עם פרמטרי חיפוש:', this.searchFilters);
+    this.loadTopErrors();
     this.updateLiveData();
+  }
+
+  private getSearchParams(): any {
+    const params: any = {};
+    
+    if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
+    if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
+    if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
+    if (this.searchFilters.status) params.status = this.searchFilters.status;
+    
+    return Object.keys(params).length > 0 ? params : null;
   }
 
   showErrorDetails(errorId: number): void {
@@ -114,13 +230,13 @@ export class DashboardComponent implements OnInit {
     
     if (this.selectAll) {
       [...this.pendingFiles, ...this.topErrors, ...this.recentAlerts, ...this.problematicAreas]
-        .forEach(item => {
-          item.selected = true;
-          this.selectedItems.add(item.id);
+        .forEach((item: any) => {
+          (item as any).selected = true;
+          this.selectedItems.add((item as any).id);
         });
     } else {
       [...this.pendingFiles, ...this.topErrors, ...this.recentAlerts, ...this.problematicAreas]
-        .forEach(item => item.selected = false);
+        .forEach((item: any) => (item as any).selected = false);
     }
   }
 
@@ -136,7 +252,7 @@ export class DashboardComponent implements OnInit {
     
     // בדיקה אם כל הפריטים נבחרו
     const allItems = [...this.pendingFiles, ...this.topErrors, ...this.recentAlerts, ...this.problematicAreas];
-    this.selectAll = allItems.every(i => i.selected);
+    this.selectAll = allItems.every((i: any) => (i as any).selected);
   }
 
   getSelectedCount(): number {
@@ -154,11 +270,11 @@ export class DashboardComponent implements OnInit {
       return;
     }
     
-    if (confirm(`האם אתה בטוח שברצונך למחוק ${this.selectedItems.size} פריטים?`)) {
-      this.pendingFiles = this.pendingFiles.filter(item => !item.selected);
-      this.topErrors = this.topErrors.filter(item => !item.selected);
-      this.recentAlerts = this.recentAlerts.filter(item => !item.selected);
-      this.problematicAreas = this.problematicAreas.filter(item => !item.selected);
+      if (confirm(`האם אתה בטוח שברצונך למחוק ${this.selectedItems.size} פריטים?`)) {
+      this.pendingFiles = this.pendingFiles.filter((item: any) => !(item as any).selected);
+      this.topErrors = this.topErrors.filter((item: any) => !(item as any).selected);
+      this.recentAlerts = this.recentAlerts.filter((item: any) => !(item as any).selected);
+      this.problematicAreas = this.problematicAreas.filter((item: any) => !(item as any).selected);
       
       this.selectedItems.clear();
       this.selectAll = false;
@@ -189,6 +305,10 @@ export class DashboardComponent implements OnInit {
     this.selectedItems.clear();
     this.selectAll = false;
     [...this.pendingFiles, ...this.topErrors, ...this.recentAlerts, ...this.problematicAreas]
-      .forEach(item => item.selected = false);
+      .forEach((item: any) => (item as any).selected = false);
   }
-}
+
+  trackByErrorId(index: number, error: any): string {
+    return error.id;
+  } 
+  }

@@ -1,134 +1,756 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>דשבורד מערכת קליטת קבצים מכספות</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+       
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f8faff 0%, #e8f2ff 50%, #f0f8ff 100%);
+      color: #333;
+      min-height: 100vh;
+    }
+       
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      color: #333;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+       
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+       
+    .welcome-message {
+      background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+      color: #1b5e20;
+      padding: 12px 20px;
+      border-radius: 12px;
+      margin: 15px 0;
+      border: 1px solid rgba(76, 175, 80, 0.2);
+      font-size: 14px;
+      font-weight: 600;
+      animation: slideInDown 0.8s ease-out;
+    }
+       
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+       
+    .dashboard {
+      padding: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+      
+    /* Filters bar (single grouped container) */
+    .filters-wrapper {
+      background: rgba(255,255,255,0.95);
+      padding: 14px;
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(102,126,234,0.06);
+      border: 1px solid rgba(102,126,234,0.05);
+      margin: 18px 0 28px;
+    }
 
+    .filters {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      direction: rtl;
+    }
+
+    .filter-column {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-start;
+      min-width: 140px;
+    }
+
+    .filter-column label {
+      font-size: 13px;
+      color: #666;
+      text-align: left;
+      display: block;
+    }
+
+    .filter-column select,
+    .filter-column input[type="date"] {
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(248,249,255,1), rgba(243,246,255,1));
+      box-shadow: 0 4px 18px rgba(102,126,234,0.04) inset;
+      border: 1px solid rgba(102,126,234,0.06);
+      min-width: 160px;
+      text-align: right;
+    }
+
+    .filters .btn-refresh {
+      margin-right: 6px;
+      background: linear-gradient(90deg,#667eea 0%,#764ba2 100%);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 30px rgba(118,75,162,0.18);
+      font-weight: 700;
+    }
+       
+    /* KPIs עליונים */
+    .hero-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+       
+    .kpi-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+       
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+       
+    .kpi-card.primary::before {
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+       
+    .kpi-card.success::before {
+      background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+    }
+       
+    .kpi-card.warning::before {
+      background: linear-gradient(90deg, #ff9800 0%, #ff5722 100%);
+    }
+       
+    .kpi-card.info::before {
+      background: linear-gradient(90deg, #2196f3 0%, #03a9f4 100%);
+    }
+       
+    .kpi-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+    }
+       
+    .kpi-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+      display: block;
+    }
+       
+    .kpi-value {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 5px;
+      background: linear-gradient(135deg, #333 0%, #666 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+       
+    .kpi-label {
+      font-size: 14px;
+      color: #666;
+      font-weight: 600;
+    }
+       
+    .kpi-change {
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+       
+    .kpi-change.positive {
+      background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+      color: #1b5e20;
+    }
+       
+    .kpi-change.negative {
+      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+      color: #b71c1c;
+    }
+       
+    /* Layout שלושה טורים */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+       
+    .main-column {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+       
+    .side-column-1 {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+       
+    .side-column-2 {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+       
+    /* שורה תחתונה לשני כרטיסים */
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+       
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+       
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+        
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+       
+    /* גרף קליטות */
+    .chart-container {
+      height: 280px;
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(102, 126, 234, 0.1);
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+    }
+       
+    /* התפלגות סטטוסים */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 110px);
+      gap: 14px;
+      align-items: center;
+      justify-content: center;
+    }
+       
+    .status-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      max-width: 110px;
+      padding: 8px 6px;
+      border-radius: 12px;
+      transition: all 0.18s ease;
+    }
+        
+    .status-item:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+       
+    .status-waiting {
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      color: #e65100;
+    }
+       
+    .status-processing {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      color: #0d47a1;
+    }
+       
+    .status-success {
+      background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+      color: #1b5e20;
+    }
+       
+    .status-error {
+      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+      color: #b71c1c;
+    }
+       
+    .status-number {
+      font-size: 22px;
+      font-weight: 900;
+      display: block;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .status-label { 
+      font-size: 12px; 
+      font-weight:700; 
+      color:#425062; 
+    }
+       
+    /* שגיאות מובילות */
+    .error-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+       
+    .error-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      transition: all 0.3s ease;
+      border-radius: 10px;
+      margin-bottom: 5px;
+    }
+       
+    .error-item:hover {
+      background: linear-gradient(135deg, #fff5f5 0%, #ffebee 100%);
+      transform: translateX(8px);
+    }
+       
+    .error-info {
+      flex: 1;
+    }
+       
+    .error-code {
+      font-weight: 600;
+      color: #d32f2f;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+       
+    .error-details {
+      font-size: 11px;
+      color: #666;
+    }
+       
+    .error-count {
+      background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 3px 15px rgba(244, 67, 54, 0.4);
+    }
+       
+    /* קבצים בעייתיים */
+    .problem-files {
+      max-height: 280px;
+      overflow-y: auto;
+    }
+       
+    .problem-item {
+      padding: 12px;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      transition: all 0.3s ease;
+      border-radius: 10px;
+      margin-bottom: 5px;
+    }
+       
+    .problem-item:hover {
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    }
+       
+    .problem-name {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+       
+    .problem-stats {
+      display: flex;
+      gap: 15px;
+      font-size: 11px;
+      color: #666;
+    }
+       
+    .problem-badge {
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+       
+    .badge-critical {
+      background: linear-gradient(135deg, #ffcdd2 0%, #f8bbd9 100%);
+      color: #b71c1c;
+    }
+       
+    .badge-warning {
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      color: #e65100;
+    }
+
+    /* Quality stat pills */
+    .quality-pills { 
+      width:100%; 
+      max-width:260px; 
+      display:flex; 
+      flex-direction:column; 
+      gap:12px; 
+      align-items:center; 
+    }
+    
+    .stat-pill { 
+      width:100%; 
+      border-radius:12px; 
+      display:flex; 
+      flex-direction:column; 
+      align-items:center; 
+      justify-content:center; 
+      box-shadow:0 6px 18px rgba(0,0,0,0.06); 
+      border:1px solid rgba(0,0,0,0.03); 
+      padding:0 18px; 
+    }
+    
+    .stat-pill .stat-number { 
+      font-size:18px; 
+      font-weight:900; 
+    }
+    
+    .stat-pill .stat-label { 
+      font-size:12px; 
+      color:#4b5563; 
+      margin-top:6px; 
+    }
+
+    .stat-pill--large { height:76px; }
+    .stat-pill--medium { height:56px; }
+    .stat-pill--small { height:44px; }
+
+    .stat-pill--green { 
+      background: linear-gradient(90deg,#e8fff0,#dff8e8); 
+      border-color: rgba(76,175,80,0.08); 
+    }
+    
+    .stat-pill--red { 
+      background: linear-gradient(90deg,#fff0f2,#ffe6ea); 
+      border-color: rgba(244,67,54,0.06); 
+    }
+    
+    .stat-pill--yellow { 
+      background: linear-gradient(90deg,#fffaf0,#fff3db); 
+      border-color: rgba(255,152,0,0.06); 
+    }
+  </style>
+</head>
+
+<body>
   <div class="header">
-    <h1>🗂️ דשבורד מערכת קליטת קבצים מכספות</h1>
-    <div class="filters">
-      <div class="filter-group">
-        <label>טווח תאריכים</label>
-        <input type="date" value="2025-09-02">
-      </div>
-      <div class="filter-group">
-        <label>עד תאריך</label>
-        <input type="date" value="2025-09-02">
-      </div>
-      <div class="filter-group">
-        <label>מערכת</label>
-        <select>
-          <option value="">כל המערכות</option>
-          <option value="1">מערכת כספות ראשית</option>
-          <option value="2">מערכת גיבוי</option>
-          <option value="3">מערכת דיווחים</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>מקור קליטה</label>
-        <select>
-          <option value="">כל המקורות</option>
-          <option value="1">קבצי משכורות</option>
-          <option value="2">דוחות כספיים</option>
-          <option value="3">נתוני לקוחות</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label>סטטוס</label>
-        <select>
-          <option value="">כל הסטטוסים</option>
-          <option value="0">ממתין לקליטה</option>
-          <option value="1">בתהליך קליטה</option>
-          <option value="2">הסתיים בהצלחה</option>
-          <option value="3">הסתיים בכשלון</option>
-        </select>
-      </div>
-      <button class="refresh-btn" (click)="refreshDashboard()">🔄 רענן</button>
+    <h1>🏠 דשבורד מערכת קליטת קבצים מכספות</h1>
+    <div class="welcome-message">
+      🌅 בוקר טוב! יש לך 3 התראות חדשות ו-2 קבצים בהמתנה
     </div>
   </div>
 
   <div class="dashboard">
-    <div class="dashboard-grid">
-      
-      <!-- סטטוס יומי חי -->
-      <div class="card">
-        <div class="card-title">📊 סטטוס יומי חי</div>
-        <div class="status-grid">
-          <div class="status-item status-waiting">
-            <span class="status-number">5</span>
-            <div class="status-label">ממתין לקליטה</div>
-          </div>
-          <div class="status-item status-processing">
-            <span class="status-number">3</span>
-            <div class="status-label">בתהליך קליטה</div>
-          </div>
-          <div class="status-item status-success">
-            <span class="status-number">47</span>
-            <div class="status-label">הצלחה</div>
-          </div>
-          <div class="status-item status-error">
-            <span class="status-number">2</span>
-            <div class="status-label">כישלון</div>
-          </div>
+    <!-- Filters -->
+    <div class="filters-wrapper">
+      <div class="filters">
+        <div class="filter-column">
+          <label for="status">סטטוס</label>
+          <select id="status" (change)="onStatusChange($event)">
+            <option value="">כל הסטטוסים</option>
+            <option value="waiting">ממתין</option>
+            <option value="processing">בתהליך</option>
+            <option value="completed">הסתיים</option>
+          </select>
         </div>
-        <div class="kpi-grid">
-          <div class="kpi-item"><div class="kpi-value">57</div><div class="kpi-label">הרצות היום</div></div>
-          <div class="kpi-item"><div class="kpi-value">96%</div><div class="kpi-label">אחוז הצלחות</div></div>
-          <div class="kpi-item"><div class="kpi-value">4.2 דק'</div><div class="kpi-label">זמן קליטה ממוצע</div></div>
-          <div class="kpi-item"><div class="kpi-value">3.1 דק'</div><div class="kpi-label">זמן קליטה חציוני</div></div>
+
+        <div class="filter-column">
+          <label for="system">מערכת</label>
+          <select id="system" (change)="onSystemChange($event)">
+            <option value="">כל המערכות</option>
+            <option value="1">כספות ראשית</option>
+            <option value="2">משאבי אנוש</option>
+            <option value="3">דיווחים</option>
+          </select>
         </div>
-      </div>
 
-      <!-- שגיאות מובילות -->
-      <div class="card">
-        <div class="card-title">⚠️ שגיאות מובילות (TOP 10)</div>
-        <div class="error-list">
-          <div class="error-item" (click)="showErrorDetails(4)"><div><div class="error-code">שדה אינו מספרי ייחודי</div><div class="error-desc">עמודה: מספר זהות</div></div><span class="error-count">23</span></div>
-          <div class="error-item" (click)="showErrorDetails(20)"><div><div class="error-code">שדה חובה אינו מלא</div><div class="error-desc">עמודה: תאריך לידה</div></div><span class="error-count">18</span></div>
-          <div class="error-item" (click)="showErrorDetails(10)"><div><div class="error-code">פורמט תאריך לא תקין</div><div class="error-desc">עמודה: תאריך התחלה</div></div><span class="error-count">15</span></div>
+        <div class="filter-column">
+          <label for="dateFrom">מתאריך</label>
+          <input id="dateFrom" type="date" (change)="onFromDate($event)" />
         </div>
-      </div>
 
-      <!-- תור קבצים ממתינים -->
-      <div class="card">
-        <div class="card-title">⏳ תור קבצים ממתינים</div>
-        <div class="queue-list">
-          <div class="queue-item"><div><div class="queue-source">קבצי משכורות - בנק הפועלים</div><div class="queue-eta">ETA: 5 דקות | SLA: 10 דקות</div></div><span class="queue-status on-time">בזמן</span></div>
-          <div class="queue-item"><div><div class="queue-source">דוחות יומיים - בנק לאומי</div><div class="queue-eta">ETA: 15 דקות | SLA: 10 דקות</div></div><span class="queue-status delayed">מתעכב</span></div>
+        <div class="filter-column">
+          <label for="dateTo">עד תאריך</label>
+          <input id="dateTo" type="date" (change)="onToDate($event)" />
         </div>
-      </div>
 
-      <!-- הודעה חשובה -->
-      <div class="card wide-card">
-        <div class="card-title">📢 הודעה חשובה יומית</div>
-        <div class="chart-container">אין קבצים חריגים לתאריך זה</div>
+        <div style="flex:1"></div>
+        <button class="btn-refresh" (click)="refreshDashboard()">🔄 רענן</button>
       </div>
+    </div>
 
-  <!-- איכות נתונים -->
-      <div class="card">
-        <div class="card-title">🎯 איכות נתונים (KPIs)</div>
-        <div class="kpi-grid"><div class="kpi-item"><div class="kpi-value">94.2%</div><div class="kpi-label">איכות נתונים כללית</div></div><div class="kpi-item"><div class="kpi-value">5.8%</div><div class="kpi-label">שורות פגומות</div></div></div>
+    <!-- KPIs עליונים -->
+    <div class="hero-kpis">
+      <div class="kpi-card primary">
+        <span class="kpi-icon">📈</span>
+        <div class="kpi-value">47</div>
+        <div class="kpi-label">קליטות היום</div>
+        <div class="kpi-change positive">↗️ +12% מאתמול</div>
       </div>
-    
-      <!-- התראות אחרונות -->
-      <div class="card">
-        <div class="card-title">🔔 התראות אחרונות</div>
-        <div class="alert-list" [attr.data-count]="recentAlerts.length">
-          <div class="alert-item" *ngFor="let alert of recentAlerts">
-            <div class="alert-time">{{ alert.time }}</div>
-            <div class="alert-content">
-              <div class="alert-message">{{ alert.message }}</div>
-              <div class="alert-recipient" *ngIf="alert.recipient">נשלח ל: {{ alert.recipient }}</div>
+           
+      <div class="kpi-card success">
+        <span class="kpi-icon">💯</span>
+        <div class="kpi-value">96.5%</div>
+        <div class="kpi-label">אחוז הצלחה</div>
+        <div class="kpi-change positive">↗️ +2.3% השבוע</div>
+      </div>
+           
+      <div class="kpi-card warning">
+        <span class="kpi-icon">⚡</span>
+        <div class="kpi-value">4.2</div>
+        <div class="kpi-label">זמן ממוצע (דקות)</div>
+        <div class="kpi-change negative">↘️ -8% מהממוצע</div>
+      </div>
+           
+      <div class="kpi-card info">
+        <span class="kpi-icon">📦</span>
+        <div class="kpi-value">2.4GB</div>
+        <div class="kpi-label">נפח נתונים היום</div>
+        <div class="kpi-change positive">↗️ 245,891 רשומות</div>
+      </div>
+    </div>
+
+    <!-- Layout שלושה טורים -->
+    <div class="dashboard-layout">
+      <!-- עמודה ראשית - ביצועים לפי מערכת -->
+      <div class="main-column">
+        <div class="card">
+          <div class="card-title">🏢 ביצועים לפי מערכת</div>
+          <div class="chart-container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; padding: 20px;">
+              <!-- עמודה שמאל - גרף עוגה -->
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <svg width="180" height="180" viewBox="0 0 180 180">
+                  <circle cx="90" cy="90" r="70" fill="none" stroke="#667eea" stroke-width="40"
+                      stroke-dasharray="175 440" transform="rotate(-90 90 90)" />
+                  <circle cx="90" cy="90" r="70" fill="none" stroke="#4caf50" stroke-width="40"
+                      stroke-dasharray="110 440" stroke-dashoffset="-175" transform="rotate(-90 90 90)" />
+                  <circle cx="90" cy="90" r="70" fill="none" stroke="#ff9800" stroke-width="40"
+                      stroke-dasharray="88 440" stroke-dashoffset="-285" transform="rotate(-90 90 90)" />
+                  <circle cx="90" cy="90" r="70" fill="none" stroke="#2196f3" stroke-width="40"
+                      stroke-dasharray="67 440" stroke-dashoffset="-373" transform="rotate(-90 90 90)" />
+                  <text x="90" y="85" text-anchor="middle" font-size="24" font-weight="700" fill="#333">127</text>
+                  <text x="90" y="105" text-anchor="middle" font-size="12" fill="#666">סה"כ קבצים</text>
+                </svg>
+              </div>
+                           
+              <!-- עמודה ימין - מקרא וסטטיסטיקות -->
+              <div style="display: flex; flex-direction: column; justify-content: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">
+                  <div style="width: 12px; height: 12px; background: #667eea; border-radius: 50%;"></div>
+                  <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: 600; color: #333;">כספות ראשית</div>
+                    <div style="font-size: 11px; color: #666;">45 קליטות • 98% הצלחה</div>
+                  </div>
+                </div>
+                               
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(76, 175, 80, 0.1); border-radius: 8px;">
+                  <div style="width: 12px; height: 12px; background: #4caf50; border-radius: 50%;"></div>
+                  <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: 600; color: #333;">משאבי אנוש</div>
+                    <div style="font-size: 11px; color: #666;">35 קליטות • 95% הצלחה</div>
+                  </div>
+                </div>
+                               
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(255, 152, 0, 0.1); border-radius: 8px;">
+                  <div style="width: 12px; height: 12px; background: #ff9800; border-radius: 50%;"></div>
+                  <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: 600; color: #333;">דיווחים</div>
+                    <div style="font-size: 11px; color: #666;">28 קליטות • 92% הצלחה</div>
+                  </div>
+                </div>
+                               
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(33, 150, 243, 0.1); border-radius: 8px;">
+                  <div style="width: 12px; height: 12px; background: #2196f3; border-radius: 50%;"></div>
+                  <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: 600; color: #333;">גיבוי</div>
+                    <div style="font-size: 11px; color: #666;">19 קליטות • 100% הצלחה</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-        <!-- מקורות בעייתיים -->
-      <div class="card">
-        <div class="card-title">🚨 מקורות בעייתיים</div>
-        <div class="source-list">
-          <div class="source-item" (click)="goToSource(101)"><div><div class="source-name">קבצי משכורות - חברה א'</div><div class="source-desc">זמן קליטה: 15.2 דק'</div></div><span class="failure-rate high-risk">25%</span></div>
+      <!-- עמודה צדדית 1 - סטטוס קליטות -->
+      <div class="side-column-1">
+        <div class="card">
+          <div class="card-title">📋 סטטוס קליטות</div>
+          <div class="status-grid">
+            <div class="status-item status-waiting">
+              <span class="status-number">5</span>
+              <div class="status-label">ממתין לקליטה</div>
+            </div>
+            <div class="status-item status-processing">
+              <span class="status-number">3</span>
+              <div class="status-label">בתהליך קליטה</div>
+            </div>
+            <div class="status-item status-success">
+              <span class="status-number">47</span>
+              <div class="status-label">הסתיים בהצלחה</div>
+            </div>
+            <div class="status-item status-error">
+              <span class="status-number">2</span>
+              <div class="status-label">כישלון</div>
+            </div>
+          </div>
         </div>
       </div>
 
-    
+      <!-- עמודה צדדית 2 - איכות הנתונים -->
+      <div class="side-column-2">
+        <div class="card">
+          <div class="card-title">💠 איכות נתונים</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:8px;">
+            <div style="width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 10px 30px rgba(0,0,0,0.08);background:conic-gradient(#4caf50 0 94.2%, #e9eef6 0 100%);">
+              <div style="width:100px;height:100px;border-radius:50%;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(102,126,234,0.06);">
+                <div style="font-size:20px;font-weight:900;color:#1b5e20;">94.2%</div>
+                <div style="font-size:12px;color:#6b7280;margin-top:4px;font-weight:700;">תקין</div>
+              </div>
+            </div>
 
+            <div class="quality-pills">
+              <div class="stat-pill stat-pill--large stat-pill--green">
+                <div class="stat-number">231,456</div>
+                <div class="stat-label">רשומות תקינות</div>
+              </div>
+              <div class="stat-pill stat-pill--medium stat-pill--red">
+                <div class="stat-number">14,435</div>
+                <div class="stat-label">רשומות כושלות</div>
+              </div>
+              <div class="stat-pill stat-pill--small stat-pill--yellow">
+                <div class="stat-number">127</div>
+                <div class="stat-label">שגיאות קריטיות</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- שורה תחתונה - שגיאות וקבצים בעייתיים -->
+    <div class="bottom-row">
+      <!-- שגיאות מובילות -->
+      <div class="card">
+        <div class="card-title">⚠️ TOP 10 שגיאות נפוצות</div>
+        <div class="error-list">
+          <div class="error-item" *ngFor="let error of topErrors; trackBy: trackByErrorId">
+            <div class="error-info">
+              <div class="error-code">{{ error.type }}</div>
+              <div class="error-details">{{ error.details }}</div>
+            </div>
+            <span class="error-count">{{ error.count }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- קבצים בעייתיים -->
+      <div class="card">
+        <div class="card-title">🚨 קבצים דורשים תשומת לב</div>
+        <div class="problem-files">
+          <div class="problem-item">
+            <div class="problem-name">קליטת עובדים סוציאליים - מחוז דרום</div>
+            <div class="problem-stats">
+              <span class="problem-badge badge-critical">25% כישלון</span>
+              <span>זמן עיבוד: 15.2 דק׳</span>
+            </div>
+          </div>
+          <div class="problem-item">
+            <div class="problem-name">נתוני מפונים - עדכון שבועי</div>
+            <div class="problem-stats">
+              <span class="problem-badge badge-warning">18% שגיאות</span>
+              <span>סטיית נפח: +45%</span>
+            </div>
+          </div>
+          <div class="problem-item">
+            <div class="problem-name">שעות OkToGo - קבצי פברואר</div>
+            <div class="problem-stats">
+              <span class="problem-badge badge-warning">12% שגיאות</span>
+              <span>רשומות כפולות: 23</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
+</body>
+</html>
