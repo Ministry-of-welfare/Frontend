@@ -367,19 +367,22 @@ calcCircleDash(percent: number): string {
 
 
   onFromDate(event: any) {
-    // implement date filtering if needed
+    this.searchFilters.fromDate = event.target.value;
     console.log('from date', event.target.value);
   }
 
   onToDate(event: any) {
+    this.searchFilters.toDate = event.target.value;
     console.log('to date', event.target.value);
   }
 
   onSystemChange(event: any) {
+    this.searchFilters.systemId = event.target.value;
     console.log('system changed', event.target.value);
   }
 
   onStatusChange(event: any) {
+    this.searchFilters.status = event.target.value;
     console.log('status changed', event.target.value);
   }
 
@@ -414,6 +417,7 @@ calcCircleDash(percent: number): string {
 
   refreshDashboard(): void {
     console.log('רענון דשבורד...');
+    this.loadTopErrors();
     this.updateLiveData();
   }
 
