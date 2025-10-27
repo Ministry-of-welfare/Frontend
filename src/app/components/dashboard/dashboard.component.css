@@ -932,4 +932,67 @@ display: flex;
         border-radius: 10px;
         border: 1px solid rgba(102, 126, 234, 0.1);
     }
+
+    /* סגנונות חדשים לסטטוס קליטות */
+    .status-container {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .status-title {
+        text-align: center;
+        margin: 0 0 20px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .status-card {
+        padding: 16px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .status-card.status-blue {
+        background-color: #B3D9FF;
+        color: #1976D2;
+    }
+
+    .status-card.status-orange {
+        background-color: #FFE4B3;
+        color: #F57C00;
+    }
+
+    .status-card.status-red {
+        background-color: #FFCDD2;
+        color: #D32F2F;
+    }
+
+    .status-card.status-green {
+        background-color: #C8E6C9;
+        color: #388E3C;
+    }
+
+    .status-number {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .status-label {
+        font-size: 12px;
+        line-height: 1.2;
+    }
 }

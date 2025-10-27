@@ -84,8 +84,8 @@ dataQuality: {
 
 
   statuses = {
-    waiting: 5,
-    processing: 3,
+    waiting: 3,
+    processing: 5,
     success: 47,
     error: 2
   };
