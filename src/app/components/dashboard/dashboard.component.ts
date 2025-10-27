@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
-import { DashboardApiService } from '../../services/DashBoard/dashboard.service';
+import { DashBoardService } from '../../services/DashBoard/dash-board.service';
 import { SystemsService } from '../../services/systems/systems.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
+  providers: [
+    { provide: DashBoardService, useClass: DashBoardService },
+    { provide: SystemsService, useClass: SystemsService }
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -119,7 +123,7 @@ dataQualityStats: any = {
     { id: 'alert3', message: 'עדכון מערכת הושלם', time: '07:40', severity: 'info', recipient: '', selected: false }
   ];
   constructor(
-    private dashboardService: DashboardApiService,
+    private dashboardService: DashBoardService,
     private systemsService: SystemsService
   ) {}
 
