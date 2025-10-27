@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
@@ -28,7 +28,7 @@ export interface EditProcessData {
   styleUrls: ['./edit-process-dialog.component.css'],
   providers: [ImportDataSourceService]
 })
-export class EditProcessDialogComponent {
+export class EditProcessDialogComponent implements OnChanges {
   @Input() visible: boolean = false;
   @Input() data: EditProcessData = {};
   @Input() isEdit: boolean = false;
@@ -73,6 +73,13 @@ export class EditProcessDialogComponent {
   errorMessage: string = '';
 
   constructor(private importDataSourceService: ImportDataSourceService) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // כשהדיאלוג נפתח, נקה הודעות קודמות
+    if (changes['visible'] && changes['visible'].currentValue === true) {
+      this.clearMessages();
+    }
+  }
 
   validate(): boolean {
     this.errors = {};
@@ -122,39 +129,57 @@ export class EditProcessDialogComponent {
 
   onConfirm() {
     if (this.isEdit && this.validate()) {
+      // בדיקה שיש ID תקין
+      if (!this.data.importDataSourceId || this.data.importDataSourceId === '' || this.data.importDataSourceId === '0') {
+        this.errorMessage = 'שגיאה: לא נמצא מזהה תקין לעדכון';
+        return;
+      }
+
+      // המרת systemId בבטיחות
+      let systemIdNumber: number | undefined = undefined;
+      if (this.data.systemId && this.data.systemId !== '') {
+        const parsed = Number(this.data.systemId);
+        if (!isNaN(parsed)) {
+          systemIdNumber = parsed;
+        }
+      }
+
       // המרת נתונים למודל ImportDataSources
       const importDataSource: ImportDataSources = {
-        importDataSourceId: Number(this.data.importDataSourceId || 0),
+        importDataSourceId: Number(this.data.importDataSourceId),
         importDataSourceDesc: this.data.importDataSourceDesc,
-  dataSourceTypeId: 1,
-        systemId: this.data.systemId ? Number(this.data.systemId) : undefined,
+        fileStatusId: 1, // ברירת מחדל - פעיל
+        dataSourceTypeId: 1,
+        systemId: systemIdNumber,
         jobName: this.data.jobName,
         tableName: this.data.tableName || '',
         urlFile: this.data.urlFile || '',
         urlFileAfterProcess: this.data.urlFileAfterProcess || '',
         endDate: this.data.endDate,
         errorRecipients: this.data.errorRecipients,
-        insertDate: new Date().toISOString(),
+        insertDate: this.data.createdDate || new Date().toISOString(),
         startDate: this.data.startDate
       };
+
+      console.log('שליחת עדכון לשרת:', importDataSource);
+      
+      // עדכון ישיר עם הפורמט הנכון
       this.importDataSourceService.updateImportDataSource(importDataSource).subscribe({
         next: (result) => {
+          console.log('עדכון הצליח:', result);
           this.successMessage = 'הנתונים עודכנו בהצלחה!';
-          // המרה חזרה ל-EditProcessData
-          if (result) {
-            const emitData = {
-              ...result,
-              importDataSourceId: result.importDataSourceId != null ? result.importDataSourceId.toString() : '',
-              systemId: result.systemId != null ? result.systemId.toString() : '',
-              endDate: result.endDate ? result.endDate.toString() : undefined,
-              startDate: result.startDate ? result.startDate.toString() : undefined
-            };
-            this.confirm.emit(emitData);
-          }
+          this.confirm.emit(this.data);
           this.visible = false;
         },
         error: (err) => {
-          this.errorMessage = 'אירעה שגיאה בעדכון הנתונים.';
+          console.error('שגיאה בעדכון:', err);
+          if (err.status === 404) {
+            this.errorMessage = `הרשומה עם מזהה ${this.data.importDataSourceId} לא נמצאה בשרת.`;
+          } else if (err.status === 0) {
+            this.errorMessage = 'לא ניתן להתחבר לשרת. אנא בדוק שהשרת פועל.';
+          } else {
+            this.errorMessage = `שגיאה בעדכון: ${err.status} - ${err.statusText}`;
+          }
         }
       });
     } else if (!this.isEdit) {
@@ -164,7 +189,14 @@ export class EditProcessDialogComponent {
   }
 
   onCancel() {
+    this.clearMessages();
     this.cancel.emit();
     this.visible = false;
+  }
+
+  private clearMessages() {
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.errors = {};
   }
 }

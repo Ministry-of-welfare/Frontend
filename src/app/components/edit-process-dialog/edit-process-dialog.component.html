@@ -85,6 +85,11 @@
             <div class="error-message" *ngIf="errors.endDate">{{ errors.endDate }}</div>
           </div>
         </div>
+        
+        <!-- הצגת הודעות הצלחה ושגיאה -->
+        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="error-message-global">{{ errorMessage }}</div>
+        
         <div class="popup-actions">
           <button *ngIf="!isView" type="submit" class="btn btn-primary">אישור</button>
           <button type="button" class="btn btn-secondary" (click)="onCancel()">ביטול</button>

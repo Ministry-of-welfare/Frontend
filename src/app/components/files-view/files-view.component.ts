@@ -133,6 +133,13 @@ selectedStatus: number | null = null;
   loadProcesses(): void {
     this.importDS.getAll().subscribe({
       next: (data) => {
+        console.log('נתונים מהשרת:', data);
+        // בדיקה של המבנה של הנתונים
+        if (data && data.length > 0) {
+          console.log('דוגמה לרשומה ראשונה:', data[0]);
+          console.log('שדות זמינים:', Object.keys(data[0]));
+        }
+        
         // Use only server-provided data; if empty, leave arrays empty and stop loading spinner
         this.processes = data || [];
         this.filteredProcesses = this.processes;
@@ -328,6 +335,12 @@ selectedStatus: number | null = null;
     this.dialogIsEdit = true;
     this.dialogIsView = false;
     console.log('openEditDialog: raw process:', process);
+    console.log('Available IDs:', {
+      importDataSourceId: process.importDataSourceId,
+      dataSourceId: process.dataSourceId,
+      id: process.id
+    });
+    
     this.dialogData = {
       importDataSourceId: process.importDataSourceId || process.dataSourceId || process.id || '',
       importDataSourceDesc: process.importDataSourceDesc || process.name || '',
@@ -448,7 +461,9 @@ startDate: this.formatDateForInput(
 
   onDialogConfirm(data: EditProcessData) {
     if (this.dialogIsEdit) {
-      // עדכון תהליך קיים
+      console.log('עדכון תהליך קיים:', data);
+      // טעינה מחדש של הנתונים מהשרת אחרי העדכון
+      this.loadProcesses();
     }
     this.dialogVisible = false;
   }

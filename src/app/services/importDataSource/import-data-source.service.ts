@@ -33,16 +33,54 @@ export class ImportDataSourceService {
     });
   }
 
+  getById(id: number): Observable<ImportDataSources> {
+    return this.http.get<ImportDataSources>(`${this.BASE_URL}/${id}`);
+  }
 
-
-
-
-
-
-
-
+  // הפורמט הנכון לפי השרת
   updateImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
-    return this.http.put<ImportDataSources>(`${this.BASE_URL}/${importDataSource.importDataSourceId}`, importDataSource);
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': '*/*'
+    };
+    console.log('עדכון בשירות:', {
+      url: `${this.BASE_URL}/update${importDataSource.importDataSourceId}`,
+      data: importDataSource,
+      headers
+    });
+    return this.http.put<ImportDataSources>(`${this.BASE_URL}/update${importDataSource.importDataSourceId}`, importDataSource, { headers });
+  }
+
+  // שיטה חלופית - ננסה עם endpoint אחר
+  updateImportDataSourceAlternative(importDataSource: ImportDataSources): Observable<ImportDataSources> {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    console.log('עדכון חלופי בשירות:', {
+      url: `${this.BASE_URL}/update`,
+      data: importDataSource,
+      headers
+    });
+    return this.http.put<ImportDataSources>(`${this.BASE_URL}/update`, importDataSource, { headers });
+  }
+
+  // נסיון עם POST לעדכון
+  updateViaPost(importDataSource: ImportDataSources): Observable<ImportDataSources> {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    return this.http.post<ImportDataSources>(`${this.BASE_URL}/update`, importDataSource, { headers });
+  }
+
+  // נסיון חלופי עם PATCH
+  patchImportDataSource(importDataSource: ImportDataSources): Observable<ImportDataSources> {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    return this.http.patch<ImportDataSources>(`${this.BASE_URL}/${importDataSource.importDataSourceId}`, importDataSource, { headers });
   }
 
   updateTheEndDate(id: number): Observable<void> {
