@@ -147,10 +147,15 @@ dataQualityStats: any = {
   ) { }
 
   ngOnInit(): void {
-
+    console.log('DashboardComponent initialized');
+    console.log('Initial topErrors:', this.topErrors);
+    
     this.loadTopErrors();
-
-    console.log('DashboardComponent initialized'); // 🔍 בדיקה
+    
+    // בדיקה אחרי שנייה
+    setTimeout(() => {
+      console.log('topErrors after 1 second:', this.topErrors);
+    }, 1000);
 
     this.startLiveUpdates();
     this.loadSystemPerformanceData();
@@ -192,19 +197,30 @@ calcCircleDash(percent: number): string {
 
   
   loadTopErrors(): void {
+    console.log('Loading top errors...');
     const searchParams = this.getSearchParams();
+    
     this.dashBoardService.getTopErrors(searchParams).subscribe({
       next: (data) => {
-        this.topErrors = data.map((error: any, index: number) => ({
-          id: `error${error.importErrorId}`,
-          type: error.errorDetail,
-          count: error.errorCount,
-          details: `עמודה: ${error.errorColumn} | ערך: ${error.errorValue}`,
-          selected: false
-        }));
+        console.log('Top errors data received:', data);
+        
+        if (data && Array.isArray(data) && data.length > 0) {
+          this.topErrors = data.map((error: any) => ({
+            id: `error${error.importErrorId}`,
+            type: error.errorDetail,
+            count: error.errorCount,
+            details: `עמודה: ${error.errorColumn} | ערך: ${error.errorValue}`,
+            selected: false
+          }));
+          console.log('Mapped topErrors:', this.topErrors);
+        } else {
+          console.warn('No errors data received');
+          this.topErrors = [];
+        }
       },
       error: (err) => {
         console.error('שגיאה בטעינת השגיאות הנפוצות:', err);
+        // נתונים לדוגמה במקרה של שגיאה
         this.topErrors = [
           { id: 'error1', type: 'שגיאת פורמט CSV', count: 15, details: 'עמודה: שדהX | קובץ: data.csv', selected: false },
           { id: 'error2', type: 'קובץ לא נמצא', count: 8, details: 'מקור: SFTP', selected: false },
@@ -283,7 +299,7 @@ calcCircleDash(percent: number): string {
     return Object.keys(params).length > 0 ? params : null;
   }
 
-  showErrorDetails(errorId: number): void {
+  showErrorDetails(errorId: string): void {
     console.log(`הצגת פרטי שגיאה מספר: ${errorId}`);
     // כאן יוצג חלון עם דוגמאות ופירוט השגיאה
   }
