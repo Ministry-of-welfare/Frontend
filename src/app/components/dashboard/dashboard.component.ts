@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common'
 import { DashBoardService } from '../../services/DashBoard/dash-board.service';
 
 @Component({
@@ -11,6 +11,7 @@ import { DashBoardService } from '../../services/DashBoard/dash-board.service';
 })
 export class DashboardComponent implements OnInit {
 
+ 
   // מערכת בחירה
   selectedItems: Set<string> = new Set();
   selectAll = false;
@@ -310,5 +311,6 @@ export class DashboardComponent implements OnInit {
 
   trackByErrorId(index: number, error: any): string {
     return error.id;
+  
   } 
   }
