@@ -97,12 +97,7 @@ import { FileStatusService } from '../../services/fileStatus/file-status.service
   }
 
   ngOnInit() {
-  //   this.ImportStatusService.getAll().subscribe(data => {
-  //     this.statuses= data.map(item => item.importStatusDesc)
-  // .filter((t): t is string => t !== undefined);
-  // console.log(data)
-  //   });
-    // השארת הקוד המקורי כהערה למקרה שתרצי לחזור אליו
+  
 
     this.FileStatusService.getAll().subscribe((data: any) => {
       this.statuses= data.map((item: any) => item.fileStatusDesc)

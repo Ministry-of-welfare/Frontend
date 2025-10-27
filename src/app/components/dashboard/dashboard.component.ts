@@ -1,17 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
-import { DashboardApiService } from '../../services/dashboard/dashboard.service';
+import { DashBoardService } from '../../services/DashBoard/dash-board.service';
+import { SystemsService } from '../../services/systems/systems.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
+  providers: [
+    { provide: DashBoardService, useClass: DashBoardService },
+    { provide: SystemsService, useClass: SystemsService }
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-
+  
   // מערכת בחירה
   selectedItems: Set<string> = new Set();
   selectAll = false;
@@ -37,12 +42,13 @@ export class DashboardComponent implements OnInit {
     { id: 3, name: 'דיווחים' }
   ];
 
-  systemStats = [
-    { name: 'כספות ראשית', count: 45, success: 98, color: '#667eea' },
-    { name: 'משאבי אנוש', count: 35, success: 95, color: '#4caf50' },
-    { name: 'דיווחים', count: 28, success: 92, color: '#ff9800' },
-    { name: 'גיבוי', count: 19, success: 100, color: '#2196f3' }
-  ];
+  systemStats: any[] = [];
+  
+  // נתוני ביצועים לפי מערכת מהשרת
+  systemPerformanceData: any[] = [];
+  
+  // צבעים למערכות בגרף
+  systemColors = ['#667eea', '#4caf50', '#ff9800', '#2196f3', '#e91e63', '#9c27b0'];
 
   pendingFiles = [
     { id: 'file1', name: 'קובץ לקוחות.csv', waitTime: '5 דק\'', position: 1, selected: false },
@@ -61,6 +67,11 @@ export class DashboardComponent implements OnInit {
     dailyVolume: 2.3,
     avgProcessTime: 3.2
   };
+
+  // נפח נתונים מהשרת
+  dataVolume: { totalRows: number; dataVolumeInGB: string } = { totalRows: 0, dataVolumeInGB: '' };
+  dataVolumeLoading = false;
+  dataVolumeError: string | null = null;
 
 dataQuality: {
   ImportStatusId: number;
@@ -116,7 +127,10 @@ dataQualityStats: any = {
     { id: 'alert2', message: 'שגיאה בעיבוד קובץ', time: '08:58', severity: 'error', recipient: 'ops@company.com', selected: false },
     { id: 'alert3', message: 'עדכון מערכת הושלם', time: '07:40', severity: 'info', recipient: '', selected: false }
   ];
-  constructor(private dashboardService: DashboardApiService) {}
+  constructor(
+    private dashboardService: DashBoardService,
+    private systemsService: SystemsService
+  ) {}
 
   // מחזיר את חמש ההתראות האחרונות — מסודר מהחדש לישן
   get lastFiveAlerts() {
@@ -134,16 +148,19 @@ dataQualityStats: any = {
       console.log('DashboardComponent initialized'); // 🔍 בדיקה
 
     this.startLiveUpdates();
+    this.loadSystemPerformance();
 
  this.dashboardService.getDataQualityKpis().subscribe({
-  next: (data) => {
+  next: (data: any) => {
     console.log('Data received', data);
     
     if (data && data.length > 0) {
       // כאן עושים חישובים והצגה
+
       const totalRows = data.reduce((sum, kpi) => sum + kpi.totalRows, 0);
       const totalInvalid = data.reduce((sum, kpi) => sum + kpi.rowsInvalid, 0); // 🟢 חשוב!
       const duplicateRecords = data.reduce((sum, kpi) => sum + (kpi.duplicateRows || 0), 0);
+
       const totalValid = totalRows - totalInvalid;
       const successRate = totalRows === 0 ? 0 : Math.round((totalValid / totalRows) * 100);
       this.dataQualityStats = {
@@ -158,11 +175,82 @@ dataQualityStats: any = {
       // את יכולה להסתיר את הגרף או להציג "אין נתונים"
     }
   },
-  error: (err) => {
+  error: (err: any) => {
     console.error('שגיאה בהבאת הנתונים', err);
   }
 });
+
+    // קבלת נפח הנתונים מהשרת
+    this.dataVolumeLoading = true;
+    this.dashboardService.getDataVolume().subscribe({
+      next: (res) => {
+        if (res) {
+          this.dataVolume = res;
+        }
+        this.dataVolumeLoading = false;
+      },
+      error: (err) => {
+        console.error('שגיאה בהבאת נפח נתונים', err);
+        this.dataVolumeError = err?.message || 'שגיאה בהבאת נפח נתונים';
+        this.dataVolumeLoading = false;
+      }
+    });
 }
+
+  loadSystemPerformance(): void {
+    this.systemsService.getSystemPerformance().subscribe({
+      next: (data) => {
+        console.log('System performance data received:', data);
+        this.systemPerformanceData = data;
+        
+        // המרת הנתונים לפורמט הקיים
+        this.systemStats = data.map((system, index) => ({
+          name: system.systemName,
+          count: system.totalFiles,
+          success: system.successRate,
+          color: this.systemColors[index % this.systemColors.length]
+        }));
+        
+        console.log('Updated systemStats:', this.systemStats);
+      },
+      error: (err) => {
+        console.error('שגיאה בטעינת נתוני ביצועים לפי מערכת:', err);
+        // במקרה של שגיאה, נשתמש בנתונים ברירת מחדל
+        this.systemStats = [
+          { name: 'אין נתונים זמינים', count: 0, success: 0, color: '#cccccc' }
+        ];
+      }
+    });
+  }
+
+  getTotalFiles(): number {
+    return this.systemStats.reduce((total, system) => total + system.count, 0);
+  }
+
+  getCircleDashArray(count: number, index: number): string {
+    const totalFiles = this.getTotalFiles();
+    if (totalFiles === 0) return "0 440";
+    
+    const percentage = (count / totalFiles) * 100;
+    const circumference = 2 * Math.PI * 70; // radius = 70
+    const dashLength = (percentage / 100) * circumference;
+    
+    return `${dashLength} 440`;
+  }
+
+  getCircleDashOffset(index: number): string {
+    const totalFiles = this.getTotalFiles();
+    if (totalFiles === 0) return "0";
+    
+    let offset = 0;
+    for (let i = 0; i < index; i++) {
+      const percentage = (this.systemStats[i].count / totalFiles) * 100;
+      const circumference = 2 * Math.PI * 70;
+      offset += (percentage / 100) * circumference;
+    }
+    
+    return `-${offset}`;
+  }
 
 calcCircleDash(percent: number): string {
   const radius = 50;
