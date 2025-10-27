@@ -193,45 +193,41 @@
 
       <div class="side-column-1">
 
-        <div class="card">
+        <div class="status-container">
 
-          <div class="card-title">
-
-            📋 סטטוס קליטות
-
-          </div>
+          <div class="status-title">📋 סטטוס קליטות</div>
 
           <div class="status-grid">
 
-            <div class="status-item status-waiting">
+            <div class="status-card status-blue">
 
-              <span class="status-number">5</span>
+              <div class="status-number">{{ statuses.waiting }}</div>
 
               <div class="status-label">ממתין לקליטה</div>
 
             </div>
 
-            <div class="status-item status-processing">
+            <div class="status-card status-orange">
 
-              <span class="status-number">3</span>
+              <div class="status-number">{{ statuses.processing }}</div>
 
               <div class="status-label">בתהליך קליטה</div>
 
             </div>
 
-            <div class="status-item status-success">
+            <div class="status-card status-red">
 
-              <span class="status-number">47</span>
+              <div class="status-number">{{ statuses.error }}</div>
 
-              <div class="status-label">הסתיים בהצלחה</div>
+              <div class="status-label">נכשל</div>
 
             </div>
 
-            <div class="status-item status-error">
+            <div class="status-card status-green">
 
-              <span class="status-number">2</span>
+              <div class="status-number">{{ statuses.success }}</div>
 
-              <div class="status-label">כישלון</div>
+              <div class="status-label">הושלם בהצלחה</div>
 
             </div>
 
