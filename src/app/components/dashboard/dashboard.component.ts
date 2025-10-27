@@ -145,7 +145,19 @@ dataQualityStats: any = {
   ];
 
   ngOnInit(): void {
+
+    console.log('DashboardComponent initialized');
+    console.log('Initial topErrors:', this.topErrors);
+    
+    this.loadTopErrors();
+    
+    // בדיקה אחרי שנייה
+    setTimeout(() => {
+      console.log('topErrors after 1 second:', this.topErrors);
+    }, 1000);
+
       console.log('DashboardComponent initialized'); // 🔍 בדיקה
+
 
     this.startLiveUpdates();
     this.loadSystemPerformance();
@@ -259,6 +271,50 @@ calcCircleDash(percent: number): string {
   return `${filled} ${circumference}`;
 }
 
+
+  
+  loadTopErrors(): void {
+    console.log('Loading top errors...');
+    const searchParams = this.getSearchParams();
+    
+    this.dashboardService.getTopErrors(searchParams).subscribe({
+      next: (data) => {
+        console.log('Top errors data received:', data);
+        
+        if (data && Array.isArray(data) && data.length > 0) {
+          this.topErrors = data.map((error: any) => ({
+            id: `error${error.importErrorId}`,
+            type: error.errorDetail,
+            count: error.errorCount,
+            details: `עמודה: ${error.errorColumn} | ערך: ${error.errorValue}`,
+            selected: false
+          }));
+          console.log('Mapped topErrors:', this.topErrors);
+        } else {
+          console.warn('No errors data received');
+          this.topErrors = [];
+        }
+      },
+      error: (err) => {
+        console.error('שגיאה בטעינת השגיאות הנפוצות:', err);
+        // נתונים לדוגמה במקרה של שגיאה
+        this.topErrors = [
+          { id: 'error1', type: 'שגיאת פורמט CSV', count: 15, details: 'עמודה: שדהX | קובץ: data.csv', selected: false },
+          { id: 'error2', type: 'קובץ לא נמצא', count: 8, details: 'מקור: SFTP', selected: false },
+          { id: 'error3', type: 'שגיאת הרשאות', count: 5, details: 'משתמש: svc_import', selected: false }
+        ];
+      }
+    });
+  }
+
+  searchFilters = {
+    fromDate: '',
+    toDate: '',
+    systemId: '',
+    status: ''
+  };
+
+
   onFromDate(event: any) {
     // implement date filtering if needed
     console.log('from date', event.target.value);
@@ -310,7 +366,21 @@ calcCircleDash(percent: number): string {
     this.updateLiveData();
   }
 
-  showErrorDetails(errorId: number): void {
+
+  private getSearchParams(): any {
+    const params: any = {};
+    
+    if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
+    if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
+    if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
+    if (this.searchFilters.status) params.status = this.searchFilters.status;
+    
+    return Object.keys(params).length > 0 ? params : null;
+  }
+
+
+  showErrorDetails(errorId: String): void {
+
     console.log(`הצגת פרטי שגיאה מספר: ${errorId}`);
     // כאן יוצג חלון עם דוגמאות ופירוט השגיאה
   }
