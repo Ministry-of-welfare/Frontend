@@ -151,7 +151,7 @@ dataQualityStats: any = {
     this.loadSystemPerformance();
 
  this.dashboardService.getDataQualityKpis().subscribe({
-  next: (data: any) => {
+  next: (data) => {
     console.log('Data received', data);
     
     if (data && data.length > 0) {
