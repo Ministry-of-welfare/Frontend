@@ -7,6 +7,10 @@ export interface DataQualityKpi {
   rowsInvalid: number;
   validRowsPercentage: number;
 }
+export interface DataVolumeResponse {
+  totalRows: number;
+  dataVolumeInGB: string;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -31,4 +35,11 @@ export class DashBoardService {
   getDataQualityKpis(): Observable<any[]> {
   return this.http.get<any[]>(`${this.apiUrl}/data-quality-simple`);
 }
+  
+  /**
+   * נתוני נפח הנתונים ומספר הרשומות
+   */
+  getDataVolume(): Observable<DataVolumeResponse> {
+    return this.http.get<DataVolumeResponse>(`${this.apiUrl}/DataVolume`);
+  }
 }
