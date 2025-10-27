@@ -127,11 +127,11 @@
 
         <span class="kpi-icon">📦</span>
 
-        <div class="kpi-value">2.4GB</div>
+        <div class="kpi-value">{{ dataVolumeLoading ? '...' : (dataVolume.dataVolumeInGB || '—') }}</div>
 
-        <div class="kpi-label">נפח נתונים היום</div>
+        <div class="kpi-label">נפח נתונים</div>
 
-        <div class="kpi-change positive">↗️ 245,891 רשומות</div>
+        <div class="kpi-change positive">↗️ {{ dataVolume.totalRows | number }} רשומות</div>
 
       </div>
 
