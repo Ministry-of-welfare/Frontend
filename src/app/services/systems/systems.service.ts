@@ -27,4 +27,8 @@ export class SystemsService {
       tap(data => this.systemsCache = data)
     );
   }
+
+  getSystemPerformance(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.BASE_URL}/system-performance`);
+  }
 }

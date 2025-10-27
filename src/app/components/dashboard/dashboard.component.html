@@ -164,27 +164,19 @@
 
                 <svg width="180" height="180" viewBox="0 0 180 180">
 
-                  <!-- גרף עוגה -->
-
-                  <circle cx="90" cy="90" r="70" fill="none" stroke="#667eea" stroke-width="40"
-
-                      stroke-dasharray="175 440" transform="rotate(-90 90 90)" />
-
-                  <circle cx="90" cy="90" r="70" fill="none" stroke="#4caf50" stroke-width="40"
-
-                      stroke-dasharray="110 440" stroke-dashoffset="-175" transform="rotate(-90 90 90)" />
-
-                  <circle cx="90" cy="90" r="70" fill="none" stroke="#ff9800" stroke-width="40"
-
-                      stroke-dasharray="88 440" stroke-dashoffset="-285" transform="rotate(-90 90 90)" />
-
-                  <circle cx="90" cy="90" r="70" fill="none" stroke="#2196f3" stroke-width="40"
-
-                      stroke-dasharray="67 440" stroke-dashoffset="-373" transform="rotate(-90 90 90)" />
+                  <!-- גרף עוגה דינמי -->
+                  <circle *ngFor="let system of systemStats; let i = index"
+                          cx="90" cy="90" r="70" 
+                          fill="none" 
+                          [attr.stroke]="system.color" 
+                          stroke-width="40"
+                          [attr.stroke-dasharray]="getSegmentDashArray(system.count)"
+                          [attr.stroke-dashoffset]="getSegmentOffset(i)"
+                          transform="rotate(-90 90 90)" />
 
                   <!-- טקסט באמצע -->
 
-                  <text x="90" y="85" text-anchor="middle" font-size="24" font-weight="700" fill="#333">127</text>
+                  <text x="90" y="85" text-anchor="middle" font-size="24" font-weight="700" fill="#333">{{ getTotalFiles() }}</text>
 
                   <text x="90" y="105" text-anchor="middle" font-size="12" fill="#666">סה"כ קבצים</text>
 
@@ -197,38 +189,12 @@
 
               <div class="chart-legend">
 
-                <div class="legend-item legend-item--purple">
-                  <div class="legend-dot legend-dot--purple"></div>
+                <div class="legend-item" *ngFor="let system of systemStats; let i = index" 
+                     [ngClass]="'legend-item--' + getColorClass(i)">
+                  <div class="legend-dot" [style.background-color]="system.color"></div>
                   <div class="legend-text">
-                    <div class="legend-title">כספות ראשית</div>
-                    <div class="legend-subtitle">45 קליטות • 98% הצלחה</div>
-                  </div>
-                </div>
-
-                               
-                <div class="legend-item legend-item--green">
-                  <div class="legend-dot legend-dot--green"></div>
-                  <div class="legend-text">
-                    <div class="legend-title">משאבי אנוש</div>
-                    <div class="legend-subtitle">35 קליטות • 95% הצלחה</div>
-                  </div>
-                </div>
-
-                               
-                <div class="legend-item legend-item--orange">
-                  <div class="legend-dot legend-dot--orange"></div>
-                  <div class="legend-text">
-                    <div class="legend-title">דיווחים</div>
-                    <div class="legend-subtitle">28 קליטות • 92% הצלחה</div>
-                  </div>
-                </div>
-
-                               
-                <div class="legend-item legend-item--blue">
-                  <div class="legend-dot legend-dot--blue"></div>
-                  <div class="legend-text">
-                    <div class="legend-title">גיבוי</div>
-                    <div class="legend-subtitle">19 קליטות • 100% הצלחה</div>
+                    <div class="legend-title">{{ system.name }}</div>
+                    <div class="legend-subtitle">{{ system.count }} קליטות • {{ system.success }}% הצלחה</div>
                   </div>
                 </div>
 
