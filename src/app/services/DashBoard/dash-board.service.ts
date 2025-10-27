@@ -71,17 +71,6 @@ export class DashBoardService {
     return this.http.get<StatusCounts>(`${this.apiUrl}/statusCounts`, { params });
   }
 
-  /**
-   * עזר: החזרת מספר של "קליטות היום" אם השרת מחזיר totalToday, אחרת סכום של סטטוסים
-   */
-  getTodayImports(filter?: { startDate?: string; endDate?: string; systemId?: number }) {
-    return this.getStatusCounts(filter).toPromise().then(res => {
-      if (!res) return 0;
-      if (res.totalToday !== undefined && res.totalToday !== null) return res.totalToday;
-      const sum = (res.waiting || 0) + (res.inprogress || 0) + (res.success || 0) + (res.error || 0);
-      return sum;
-    });
-  }
 
   // קריאה ישירה ל /imports-count שמחזירה { importsCount: number }
   getImportsCount(filter?: { statusId?: number; startDate?: string; endDate?: string }) {
@@ -93,6 +82,29 @@ export class DashBoardService {
     }
     return this.http.get<{ importsCount: number }>(`${this.apiUrl}/imports-count`, { params })
       .pipe(map(res => res?.importsCount ?? 0));
+  }
+  getsuccessRate(filter?: { startDate?: string; endDate?: string; systemId?: number; importDataSourceId?: number }) {
+    let params = new HttpParams();
+    if (filter) {
+      if (filter.startDate) params = params.set('startDate', filter.startDate);
+      if (filter.endDate) params = params.set('endDate', filter.endDate);
+      if (filter.systemId !== undefined && filter.systemId !== null) params = params.set('systemId', String(filter.systemId));
+      if (filter.importDataSourceId !== undefined && filter.importDataSourceId !== null) params = params.set('importDataSourceId', String(filter.importDataSourceId));
+    }
+
+    return this.http.get<StatusCounts>(`${this.apiUrl}/success-rate`, { params });
+  }
+
+getAvgProcessingTime(filter?: { startDate?: string; endDate?: string; systemId?: number; importDataSourceId?: number }) {
+    let params = new HttpParams();
+    if (filter) {
+      if (filter.startDate) params = params.set('startDate', filter.startDate);
+      if (filter.endDate) params = params.set('endDate', filter.endDate);
+      if (filter.systemId !== undefined && filter.systemId !== null) params = params.set('systemId', String(filter.systemId));
+      if (filter.importDataSourceId !== undefined && filter.importDataSourceId !== null) params = params.set('importDataSourceId', String(filter.importDataSourceId));
+    }
+
+    return this.http.get<StatusCounts>(`${this.apiUrl}/avg-processing-time`, { params });
   }
 
 }

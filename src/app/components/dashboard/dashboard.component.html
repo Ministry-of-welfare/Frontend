@@ -86,21 +86,21 @@
         <div class="kpi-value" id="todayImports">{{ todayImports !== null ? todayImports : '—' }}</div>
 
         <div class="kpi-label">קליטות היום</div>
-        <div class="kpi-change positive">↗️ +12% מאתמול</div>
+        <!-- <div class="kpi-change positive">↗️ +12% מאתמול</div> -->
       </div>
 
       <div class="kpi-card success">
         <span class="kpi-icon">💯</span>
-        <div class="kpi-value">{{ dataQualityStats?.successRate !== undefined ? (dataQualityStats.successRate + '%') : '—' }}</div>
+        <div class="kpi-value">{{ throughputStats.successRateRaw !== undefined ? (throughputStats.successRateRaw + '%') : '—' }}</div>
         <div class="kpi-label">אחוז הצלחה</div>
-        <div class="kpi-change positive">↗️ +2.3% השבוע</div>
+        <!-- <div class="kpi-change positive">↗️ +2.3% השבוע</div> -->
       </div>
 
       <div class="kpi-card warning">
         <span class="kpi-icon">⚡</span>
         <div class="kpi-value">{{ throughputStats?.avgProcessTime !== undefined ? throughputStats.avgProcessTime : '—' }}</div>
         <div class="kpi-label">זמן ממוצע (דקות)</div>
-        <div class="kpi-change negative">↘️ -8% מהממוצע</div>
+        <!-- <div class="kpi-change negative">↘️ -8% מהממוצע</div> -->
       </div>
 
       <div class="kpi-card info">
