@@ -501,40 +501,16 @@ calcCircleDash(percent: number): string {
   }
 
 
-  // private getSearchParams(): any {
-  //   const params: any = {};
-    
-  //   if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
-  //   if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
-  //   if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
-  //   if (this.searchFilters.status) params.status = this.searchFilters.status;
-    
-  //   return Object.keys(params).length > 0 ? params : null;
-  // }
   private getSearchParams(): any {
-  const params: any = {};
-
-  if (this.searchFilters.fromDate) params.startDate = this.searchFilters.fromDate;
-  if (this.searchFilters.toDate) params.endDate = this.searchFilters.toDate;
-
-  const sysId = this.selectedSystemId;
-  // if (sysId !== undefined && sysId !== null && sysId !== NaN) {
-  //   params.systemId = sysId;
-  // }
-if (sysId !== undefined && sysId !== null && !Number.isNaN(sysId)) {
-  params.systemId = sysId;
-}
-  const statusId = this.selectedStatusId;
-  // if (statusId !== undefined && statusId !== null && statusId !== NaN) {
-  //   params.status = statusId;
-  // }
-
-if (statusId !== undefined && statusId !== null && !Number.isNaN(statusId)) {
-  params.status = statusId;
-}
-  return Object.keys(params).length > 0 ? params : null;
-}
-
+    const params: any = {};
+    
+    if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
+    if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
+    if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
+    if (this.searchFilters.status) params.status = this.searchFilters.status;
+    
+    return Object.keys(params).length > 0 ? params : null;
+  }
 loadDashboardData(): void {
   const params = this.getSearchParams();
 
