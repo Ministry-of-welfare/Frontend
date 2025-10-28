@@ -33,29 +33,25 @@
 
         <div class="filter-column">
           <label for="status">סטטוס</label>
-          <select id="status" class="filter-select" (change)="onStatusChange($event)">
-            <option value="">כל הסטטוסים</option>
-            <option value="waiting">ממתין</option>
-            <option value="processing">בתהליך</option>
-            <option value="completed">הסתיים</option>
-          </select>
+         <select (change)="onStatusChange($event)">
+  <option value="">כל הסטטוסים</option>
+  <option *ngFor="let st of statuses$ | async" [value]="st.ImportStatusId">{{ st.importStatusDesc }}</option>
+</select>
         </div>
 
         <div class="filter-column">
           <label for="source">מקור קליטה</label>
-          <select id="source" class="filter-select">
-            <option value="">כל המקורות</option>
-            <option value="api">API</option>
-            <option value="file">קובץ</option>
-          </select>
+         <select (change)="onSourceChange($event)">
+  <option value="">כל המקורות</option>
+  <option *ngFor="let src of sources$ | async" [value]="src.ImportDataSourceId">{{ src.importDataSourceDesc }}</option>
+</select>
         </div>
 
         <div class="filter-column">
           <label for="system">מערכת</label>
-          <select id="system" class="filter-select" (change)="onSystemChange($event)">
-            <option value="">כל המערכות</option>
-            <option value="1">כספות ראשית</option>
-            <option value="2">משאבי אנוש</option>
+            <select (change)="onSystemChange($event)">
+  <option value="">כל המערכות</option>
+  <option *ngFor="let s of systems$ | async" [value]="s.SystemId">{{ s.systemName }}</option>
           </select>
         </div>
 

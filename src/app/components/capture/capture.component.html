@@ -6,21 +6,21 @@
   <!-- כרטיסי סטטוס -->
   <div class="status-cards">
     <div class="card border-blue">
-      <div class="value">{{ statusCounts.waiting }}</div>
+      <div class="value">{{ statusCounts?.waiting ?? '—' }}</div>
       <div class="label">ממתין</div>
     </div>
     <div class="card border-yellow">
-      <div class="value">{{ statusCounts.inProgress }}</div>
+      <div class="value">{{ statusCounts?.inprogress ?? '—' }}</div>
       <div class="label">בתהליך</div>
     </div>
 
     <div class="card border-green">
-      <div class="value">{{ statusCounts.success }}</div>
+      <div class="value">{{ statusCounts?.success ?? '—' }}</div>
       <div class="label">הצלחה</div>
     </div>
 
     <div class="card border-red">
-      <div class="value">{{ statusCounts.error }}</div>
+      <div class="value">{{ statusCounts?.error ?? '—' }}</div>
       <div class="label">כישלון</div>
     </div>
   </div>
@@ -30,25 +30,20 @@
     <div class="filters">
       <input type="date" [(ngModel)]="importStartDate" />
       <input type="date" [(ngModel)]="endDate" />
-      <select [(ngModel)]="selectedSystem">
-        <option value="">כל המערכות</option>
-        <option value="מערכת עובדים">מערכת עובדים</option>
-        <option value="מערכת חירום">מערכת חירום</option>
-        <option value="מערכת תיירות">מערכת תיירות</option>
-      </select>
-      <select [(ngModel)]="selectedSource">
-        <option value="">כל המקורות</option>
-        <option value="קליטת עובדים סוציאליים">קליטת עובדים סוציאליים</option>
-        <option value="קליטת משמרות">קליטת משמרות</option>
-        <option value="קליטת בתי מלון">קליטת בתי מלון</option>
-      </select>
-      <select [(ngModel)]="selectedStatus">
-        <option value="">כל הסטטוסים</option>
-        <option value="success">הצלחה</option>
-        <option value="in-progress">בתהליך</option>
-        <option value="error">כישלון</option>
-        <option value="pending">מוכן</option>
-      </select>
+     <select (change)="onSystemChange($event)">
+  <option value="">כל המערכות</option>
+  <option *ngFor="let s of systems$ | async" [value]="s.SystemId">{{ s.systemName }}</option>
+</select>
+
+<select (change)="onSourceChange($event)">
+  <option value="">כל המקורות</option>
+  <option *ngFor="let src of sources$ | async" [value]="src.ImportDataSourceId">{{ src.importDataSourceDesc }}</option>
+</select>
+
+<select (change)="onStatusChange($event)">
+  <option value="">כל הסטטוסים</option>
+  <option *ngFor="let st of statuses$ | async" [value]="st.ImportStatusId">{{ st.importStatusDesc }}</option>
+</select>
       <input type="text" [(ngModel)]="searchTerm" placeholder="שם קובץ..." />
 
     </div>
