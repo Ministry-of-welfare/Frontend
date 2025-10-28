@@ -1,13 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
 import { DashBoardService,StatusCounts } from '../../services/DashBoard/dash-board.service';
 import { SystemsService } from '../../services/systems/systems.service';
+import { Systems } from '../../models/systems.model';
+import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
+import { ImportStatusService } from '../../services/importStatus/import-status.service';
+;import { FormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   providers: [
     { provide: DashBoardService, useClass: DashBoardService },
     { provide: SystemsService, useClass: SystemsService }
@@ -43,6 +48,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ];
 
   systemStats: any[] = [];
+    private systemsSub?: Subscription;
+  systemsList: Systems[] = [];
+
   
   // נתוני ביצועים לפי מערכת מהשרת
   systemPerformanceData: any[] = [];
@@ -136,9 +144,18 @@ dataQualityStats: any = {
     { id: 'alert2', message: 'שגיאה בעיבוד קובץ', time: '08:58', severity: 'error', recipient: 'ops@company.com', selected: false },
     { id: 'alert3', message: 'עדכון מערכת הושלם', time: '07:40', severity: 'info', recipient: '', selected: false }
   ];
+   systems$!: Observable<any[]>;
+    sources$!: Observable<any[]>;
+    statuses$!: Observable<any[]>;
+  
+    selectedSystemId: number | null = null;
+    selectedSourceId: number | null = null;
+    selectedStatusId: number | null = null;
   constructor(
     private dashboardService: DashBoardService,
-    private systemsService: SystemsService
+    private systemsService: SystemsService,
+    private sourcesService: ImportDataSourceService,
+        private statusService: ImportStatusService
   ) {}
 
   // מחזיר את חמש ההתראות האחרונות — מסודר מהחדש לישן
@@ -157,9 +174,18 @@ dataQualityStats: any = {
 
   ngOnInit(): void {
 
+
+      this.systems$ = this.systemsService.getAll();
+    this.sources$ = this.sourcesService.getAll();
+    this.statuses$ = this.statusService.getAll();
+    this.systems$.subscribe(s => console.log('systems payload:', s));
+
+this.sources$.subscribe(s => console.log('sources payload:', s));
+  this.statuses$.subscribe(s => console.log('statuses payload:', s));
     console.log('DashboardComponent initialized');
     console.log('Initial topErrors:', this.topErrors);
-    
+
+
     this.loadTopErrors();
     
     // בדיקה אחרי שנייה
@@ -218,6 +244,19 @@ dataQualityStats: any = {
         this.dataVolumeLoading = false;
       }
     });
+//פילטרים מהשרת//
+debugger;
+        this.systemsSub = this.systemsService.getAll().subscribe({
+      next: (res) => this.systemsList = res || [],
+      
+      error: (err) => {
+        console.error('שגיאה ב-getAll systems:', err);
+        this.systemsList = [];
+
+      }
+
+    });
+          console.log('Fetched systemsList:', this.systemsList); // 🔍 בדיקה
 
     // קבלת "קליטות היום" מהשרת (משתמש ב-getTodayImports helper)
     this.dashboardService.getImportsCount().subscribe({
@@ -389,11 +428,24 @@ calcCircleDash(percent: number): string {
   onSystemChange(event: any) {
     this.searchFilters.systemId = event.target.value;
     console.log('system changed', event.target.value);
+    const v = (event.target as HTMLSelectElement).value;
+    this.selectedSystemId = v ? Number(v) : null;
   }
+ 
+
+  onSourceChange(event: Event) {
+    const v = (event.target as HTMLSelectElement).value;
+    this.selectedSourceId = v ? Number(v) : null;
+    // אפשר לקרוא applyFilters()
+  }
+
+ 
 
   onStatusChange(event: any) {
     this.searchFilters.status = event.target.value;
     console.log('status changed', event.target.value);
+      const v = (event.target as HTMLSelectElement).value;
+    this.selectedStatusId = v ? Number(v) : null;
   }
 
   openAddFile() {
