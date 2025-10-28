@@ -201,7 +201,7 @@
 
             <div class="status-card status-blue">
 
-              <div class="status-number">{{ statuses.waiting }}</div>
+              <div class="status-number">{{ statusCounts?.waiting ?? '—' }}</div>
 
               <div class="status-label">ממתין לקליטה</div>
 
@@ -209,7 +209,7 @@
 
             <div class="status-card status-orange">
 
-              <div class="status-number">{{ statuses.processing }}</div>
+              <div class="status-number">{{ statusCounts?.inprogress ?? '—' }}</div>
 
               <div class="status-label">בתהליך קליטה</div>
 
@@ -217,7 +217,7 @@
 
             <div class="status-card status-red">
 
-              <div class="status-number">{{ statuses.error }}</div>
+              <div class="status-number">{{ statusCounts?.error ?? '—' }}</div>
 
               <div class="status-label">נכשל</div>
 
@@ -225,7 +225,7 @@
 
             <div class="status-card status-green">
 
-              <div class="status-number">{{ statuses.success }}</div>
+              <div class="status-number">{{ statusCounts?.success ?? '—' }}</div>
 
               <div class="status-label">הושלם בהצלחה</div>
 

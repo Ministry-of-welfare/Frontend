@@ -2,9 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
-import { DashBoardService } from '../../services/DashBoard/dash-board.service';
+import { DashBoardService,StatusCounts } from '../../services/DashBoard/dash-board.service';
 import { SystemsService } from '../../services/systems/systems.service';
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -64,10 +63,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ];
 
   throughputStats = {
-    currentRate: 45,
-    dailyVolume: 2.3,
-    avgProcessTime: "-",
-    successRateRaw: "-"
+    currentRate: 0,
+    dailyVolume: 0.0,
+    avgProcessTime: 0.0,
+    successRateRaw: 0
+
 
   };
 
@@ -153,6 +153,8 @@ dataQualityStats: any = {
     { id: 'area2', location: 'מסד נתונים ראשי', description: 'שימוש גבוה בזיכרון', severity: 'high', selected: false },
     { id: 'area3', location: 'רשת פנימית', description: 'חיבור לא יציב', severity: 'low', selected: false }
   ];
+   statusCounts: StatusCounts | null = null;
+  private statusCountsSub?: Subscription;
 
   ngOnInit(): void {
 
@@ -257,7 +259,16 @@ this.successRateSub = this.dashboardService.getsuccessRate(this.getSearchParams(
         console.error('שגיאה ב-getsuccessRate:', err);
       }
     });
-  
+
+     this.statusCountsSub = this.dashboardService.getStatusCounts(this.getSearchParams()).subscribe({
+      next: (res: StatusCounts) => {
+        this.statusCounts = res;
+        console.log('statusCounts:', this.statusCounts);
+      },
+      error: (err: any) => {
+        console.error('שגיאה ב-getStatusCounts:', err);
+      }
+    });
 }
 
   loadSystemPerformance(): void {
@@ -534,6 +545,8 @@ calcCircleDash(percent: number): string {
     this.importsSub?.unsubscribe();
     this.avgTimeSub?.unsubscribe();
     this.successRateSub?.unsubscribe();
+        this.statusCountsSub?.unsubscribe();
+
     // אם נוספו מנויים נוספים בעתיד, יש להוסיף כאן ביטול גם להם
   }
 }
