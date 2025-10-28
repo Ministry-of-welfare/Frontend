@@ -66,8 +66,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   throughputStats = {
     currentRate: 45,
     dailyVolume: 2.3,
-    avgProcessTime: 3.2,
-    successRateRaw: null
+    avgProcessTime: "-",
+    successRateRaw: "-"
 
   };
 
