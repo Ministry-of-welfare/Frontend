@@ -33,44 +33,44 @@
 
         <div class="filter-column">
           <label for="status">סטטוס</label>
-          <select id="status" class="filter-select">
-            <option>כל הסטטוסים</option>
-            <option>ממתין</option>
-            <option>בתהליך</option>
-            <option>הסתיים</option>
+          <select id="status" class="filter-select" (change)="onStatusChange($event)">
+            <option value="">כל הסטטוסים</option>
+            <option value="waiting">ממתין</option>
+            <option value="processing">בתהליך</option>
+            <option value="completed">הסתיים</option>
           </select>
         </div>
 
         <div class="filter-column">
           <label for="source">מקור קליטה</label>
           <select id="source" class="filter-select">
-            <option>כל המקורות</option>
-            <option>API</option>
-            <option>קובץ</option>
+            <option value="">כל המקורות</option>
+            <option value="api">API</option>
+            <option value="file">קובץ</option>
           </select>
         </div>
 
         <div class="filter-column">
           <label for="system">מערכת</label>
-          <select id="system" class="filter-select">
-            <option>כל המערכות</option>
-            <option>כספות ראשית</option>
-            <option>משאבי אנוש</option>
+          <select id="system" class="filter-select" (change)="onSystemChange($event)">
+            <option value="">כל המערכות</option>
+            <option value="1">כספות ראשית</option>
+            <option value="2">משאבי אנוש</option>
           </select>
         </div>
 
         <div class="filter-column">
-          <label for="dateTo">טווח תאריכים</label>
-          <input id="dateTo" class="filter-date" type="date" />
+          <label for="dateFrom">מתאריך</label>
+          <input id="dateFrom" class="filter-date" type="date" (change)="onFromDate($event)" />
         </div>
 
         <div class="filter-column">
-          <label for="dateFrom">עד תאריך</label>
-          <input id="dateFrom" class="filter-date" type="date" />
+          <label for="dateTo">עד תאריך</label>
+          <input id="dateTo" class="filter-date" type="date" (change)="onToDate($event)" />
         </div>
 
   <div class="filters-spacer"></div>
-        <button class="btn-refresh" title="עדכן">🔄 רענן</button>
+        <button class="btn-refresh" (click)="refreshDashboard()" title="עדכן">🔄 רענן</button>
 
       </div>
     </div>
@@ -193,45 +193,41 @@
 
       <div class="side-column-1">
 
-        <div class="card">
+        <div class="status-container">
 
-          <div class="card-title">
-
-            📋 סטטוס קליטות
-
-          </div>
+          <div class="status-title">📋 סטטוס קליטות</div>
 
           <div class="status-grid">
 
-            <div class="status-item status-waiting">
+            <div class="status-card status-blue">
 
-              <span class="status-number">5</span>
+              <div class="status-number">{{ statusCounts?.waiting ?? '—' }}</div>
 
               <div class="status-label">ממתין לקליטה</div>
 
             </div>
 
-            <div class="status-item status-processing">
+            <div class="status-card status-orange">
 
-              <span class="status-number">3</span>
+              <div class="status-number">{{ statusCounts?.inprogress ?? '—' }}</div>
 
               <div class="status-label">בתהליך קליטה</div>
 
             </div>
 
-            <div class="status-item status-success">
+            <div class="status-card status-red">
 
-              <span class="status-number">47</span>
+              <div class="status-number">{{ statusCounts?.error ?? '—' }}</div>
 
-              <div class="status-label">הסתיים בהצלחה</div>
+              <div class="status-label">נכשל</div>
 
             </div>
 
-            <div class="status-item status-error">
+            <div class="status-card status-green">
 
-              <span class="status-number">2</span>
+              <div class="status-number">{{ statusCounts?.success ?? '—' }}</div>
 
-              <div class="status-label">כישלון</div>
+              <div class="status-label">הושלם בהצלחה</div>
 
             </div>
 

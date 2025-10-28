@@ -2,9 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
-import { DashBoardService } from '../../services/DashBoard/dash-board.service';
+import { DashBoardService,StatusCounts } from '../../services/DashBoard/dash-board.service';
 import { SystemsService } from '../../services/systems/systems.service';
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -64,10 +63,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ];
 
   throughputStats = {
-    currentRate: 45,
-    dailyVolume: 2.3,
-    avgProcessTime: "-",
-    successRateRaw: "-"
+    currentRate: 0,
+    dailyVolume: 0.0,
+    avgProcessTime: 0.0,
+    successRateRaw: 0
 
   };
 
@@ -86,8 +85,8 @@ dataQuality: {
 
 
   statuses = {
-    waiting: 5,
-    processing: 3,
+    waiting: 3,
+    processing: 5,
     success: 47,
     error: 2
   };
@@ -153,6 +152,8 @@ dataQualityStats: any = {
     { id: 'area2', location: 'מסד נתונים ראשי', description: 'שימוש גבוה בזיכרון', severity: 'high', selected: false },
     { id: 'area3', location: 'רשת פנימית', description: 'חיבור לא יציב', severity: 'low', selected: false }
   ];
+   statusCounts: StatusCounts | null = null;
+  private statusCountsSub?: Subscription;
 
   ngOnInit(): void {
 
@@ -257,7 +258,16 @@ this.successRateSub = this.dashboardService.getsuccessRate(this.getSearchParams(
         console.error('שגיאה ב-getsuccessRate:', err);
       }
     });
-  
+
+     this.statusCountsSub = this.dashboardService.getStatusCounts(this.getSearchParams()).subscribe({
+      next: (res: StatusCounts) => {
+        this.statusCounts = res;
+        console.log('statusCounts:', this.statusCounts);
+      },
+      error: (err: any) => {
+        console.error('שגיאה ב-getStatusCounts:', err);
+      }
+    });
 }
 
   loadSystemPerformance(): void {
@@ -367,19 +377,22 @@ calcCircleDash(percent: number): string {
 
 
   onFromDate(event: any) {
-    // implement date filtering if needed
+    this.searchFilters.fromDate = event.target.value;
     console.log('from date', event.target.value);
   }
 
   onToDate(event: any) {
+    this.searchFilters.toDate = event.target.value;
     console.log('to date', event.target.value);
   }
 
   onSystemChange(event: any) {
+    this.searchFilters.systemId = event.target.value;
     console.log('system changed', event.target.value);
   }
 
   onStatusChange(event: any) {
+    this.searchFilters.status = event.target.value;
     console.log('status changed', event.target.value);
   }
 
@@ -414,6 +427,7 @@ calcCircleDash(percent: number): string {
 
   refreshDashboard(): void {
     console.log('רענון דשבורד...');
+    this.loadTopErrors();
     this.updateLiveData();
   }
 
@@ -530,6 +544,8 @@ calcCircleDash(percent: number): string {
     this.importsSub?.unsubscribe();
     this.avgTimeSub?.unsubscribe();
     this.successRateSub?.unsubscribe();
+        this.statusCountsSub?.unsubscribe();
+
     // אם נוספו מנויים נוספים בעתיד, יש להוסיף כאן ביטול גם להם
   }
 }
