@@ -76,6 +76,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     avgProcessTime: 0.0,
     successRateRaw: 0
 
+
   };
 
   // נפח נתונים מהשרת
