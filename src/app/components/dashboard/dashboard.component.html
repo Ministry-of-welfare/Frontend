@@ -17,41 +17,42 @@
 <body>
 
   <div class="header">
-<br>
+    <br>
     <h2>🏠 דשבורד מערכת קליטת קבצים מכספות</h2>
 
-    
+
 
   </div>
 
- 
+
   <div class="dashboard">
 
     <!-- Filters (restored as single grouped bar) -->
     <div class="filters-wrapper">
-      <div class="filters" role="region" aria-label="סינון" >
+      <div class="filters" role="region" aria-label="סינון">
 
         <div class="filter-column">
           <label for="status">סטטוס</label>
-         <select (change)="onStatusChange($event)">
-  <option value="">כל הסטטוסים</option>
-  <option *ngFor="let st of statuses$ | async" [value]="st.ImportStatusId">{{ st.importStatusDesc }}</option>
-</select>
+          <select (change)="onStatusChange($event)">
+            <option value="">כל הסטטוסים</option>
+            <option *ngFor="let st of statuses$ | async" [value]="st.ImportStatusId">{{ st.importStatusDesc }}</option>
+          </select>
         </div>
 
         <div class="filter-column">
           <label for="source">מקור קליטה</label>
-         <select (change)="onSourceChange($event)">
-  <option value="">כל המקורות</option>
-  <option *ngFor="let src of sources$ | async" [value]="src.ImportDataSourceId">{{ src.importDataSourceDesc }}</option>
-</select>
+          <select (change)="onSourceChange($event)">
+            <option value="">כל המקורות</option>
+            <option *ngFor="let src of sources$ | async" [value]="src.ImportDataSourceId">{{ src.importDataSourceDesc }}
+            </option>
+          </select>
         </div>
 
         <div class="filter-column">
           <label for="system">מערכת</label>
-            <select (change)="onSystemChange($event)">
-  <option value="">כל המערכות</option>
-  <option *ngFor="let s of systems$ | async" [value]="s.SystemId">{{ s.systemName }}</option>
+          <select (change)="onSystemChange($event)">
+            <option value="">כל המערכות</option>
+            <option *ngFor="let s of systems$ | async" [value]="s.SystemId">{{ s.systemName }}</option>
           </select>
         </div>
 
@@ -65,7 +66,7 @@
           <input id="dateTo" class="filter-date" type="date" (change)="onToDate($event)" />
         </div>
 
-  <div class="filters-spacer"></div>
+        <div class="filters-spacer"></div>
         <button class="btn-refresh" (click)="refreshDashboard()" title="עדכן">🔄 רענן</button>
 
       </div>
@@ -87,14 +88,16 @@
 
       <div class="kpi-card success">
         <span class="kpi-icon">💯</span>
-        <div class="kpi-value">{{ throughputStats.successRateRaw !== undefined ? (throughputStats.successRateRaw + '%') : '—' }}</div>
+        <div class="kpi-value">{{ throughputStats.successRateRaw !== undefined ? (throughputStats.successRateRaw + '%')
+          : '—' }}</div>
         <div class="kpi-label">אחוז הצלחה</div>
         <!-- <div class="kpi-change positive">↗️ +2.3% השבוע</div> -->
       </div>
 
       <div class="kpi-card warning">
         <span class="kpi-icon">⚡</span>
-        <div class="kpi-value">{{ throughputStats?.avgProcessTime !== undefined ? throughputStats.avgProcessTime : '—' }}</div>
+        <div class="kpi-value">{{ throughputStats?.avgProcessTime !== undefined ? throughputStats.avgProcessTime : '—'
+          }}</div>
         <div class="kpi-label">זמן ממוצע (דקות)</div>
         <!-- <div class="kpi-change negative">↘️ -8% מהממוצע</div> -->
       </div>
@@ -108,7 +111,7 @@
 
     </div>
 
- 
+
     <!-- Layout שלושה טורים -->
 
     <div class="dashboard-layout">
@@ -137,17 +140,15 @@
 
                   <!-- גרף עוגה דינמי -->
                   <ng-container *ngFor="let system of systemStats; let i = index">
-                    <circle cx="90" cy="90" r="70" fill="none" 
-                            [attr.stroke]="system.color" 
-                            stroke-width="40"
-                            [attr.stroke-dasharray]="getCircleDashArray(system.count, i)"
-                            [attr.stroke-dashoffset]="getCircleDashOffset(i)"
-                            transform="rotate(-90 90 90)" />
+                    <circle cx="90" cy="90" r="70" fill="none" [attr.stroke]="system.color" stroke-width="40"
+                      [attr.stroke-dasharray]="getCircleDashArray(system.count, i)"
+                      [attr.stroke-dashoffset]="getCircleDashOffset(i)" transform="rotate(-90 90 90)" />
                   </ng-container>
 
                   <!-- טקסט באמצע -->
 
-                  <text x="90" y="85" text-anchor="middle" font-size="24" font-weight="700" fill="#333">{{getTotalFiles()}}</text>
+                  <text x="90" y="85" text-anchor="middle" font-size="24" font-weight="700"
+                    fill="#333">{{getTotalFiles()}}</text>
 
                   <text x="90" y="105" text-anchor="middle" font-size="12" fill="#666">סה"כ קבצים</text>
 
@@ -155,24 +156,24 @@
 
               </div>
 
-                           
+
               <!-- עמודה ימין - מקרא וסטטיסטיקות -->
 
               <div class="chart-legend">
 
-                <div *ngFor="let system of systemStats; let i = index" class="legend-item" 
-                     [ngClass]="'legend-item--' + (i === 0 ? 'purple' : i === 1 ? 'green' : i === 2 ? 'orange' : 'blue')">
-                  <div class="legend-dot" 
-                       [ngClass]="'legend-dot--' + (i === 0 ? 'purple' : i === 1 ? 'green' : i === 2 ? 'orange' : 'blue')"
-                       [style.background-color]="system.color"></div>
+                <div *ngFor="let system of systemStats; let i = index" class="legend-item"
+                  [ngClass]="'legend-item--' + (i === 0 ? 'purple' : i === 1 ? 'green' : i === 2 ? 'orange' : 'blue')">
+                  <div class="legend-dot"
+                    [ngClass]="'legend-dot--' + (i === 0 ? 'purple' : i === 1 ? 'green' : i === 2 ? 'orange' : 'blue')"
+                    [style.background-color]="system.color"></div>
                   <div class="legend-text">
                     <div class="legend-title">{{ system.name }}</div>
                     <div class="legend-subtitle">{{ system.count }} קליטות • {{ system.success }}% הצלחה</div>
                   </div>
                 </div>
 
-                               
-               
+
+
 
               </div>
 
@@ -184,7 +185,7 @@
 
       </div>
 
- 
+
       <!-- עמודה צדדית 1 - סטטוס קליטות -->
 
       <div class="side-column-1">
@@ -233,65 +234,61 @@
 
       </div>
 
- 
+
       <!-- עמודה צדדית 2 - איכות הנתונים (מחליפה את כרטיס ה-SLA) -->
 
- <!-- כרטיס איכות נתונים -->
-<div class="card">
-  <div class="card-title">🎯 איכות נתונים</div>
+      <!-- כרטיס איכות נתונים -->
+      <div class="card">
+        <div class="card-title">🎯 איכות נתונים</div>
 
-  <!-- עיגול אחוז הצלחה -->
-  <div class="quality-gauge-container">
-    <svg width="120" height="120" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="50" stroke="#f0f0f0" stroke-width="12" fill="none"/>
-      <circle cx="60" cy="60" r="50" 
-              [attr.stroke]="dataQualityStats.successRate >= 90 ? '#4caf50' : '#ff9800'" 
-              stroke-width="12"
-              fill="none"
-              [attr.stroke-dasharray]="calcCircleDash(dataQualityStats.successRate)"
-              stroke-linecap="round"
-              transform="rotate(-90 60 60)" />
-      <!-- <text x="60" y="60" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
+        <!-- עיגול אחוז הצלחה -->
+        <div class="quality-gauge-container">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" stroke="#f0f0f0" stroke-width="12" fill="none" />
+            <circle cx="60" cy="60" r="50" [attr.stroke]="dataQualityStats.successRate >= 90 ? '#4caf50' : '#ff9800'"
+              stroke-width="12" fill="none" [attr.stroke-dasharray]="calcCircleDash(dataQualityStats.successRate)"
+              stroke-linecap="round" transform="rotate(-90 60 60)" />
+            <!-- <text x="60" y="60" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
         {{ dataQualityStats.successRate }}%
       </text> -->
-          <text x="60" y="55" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
-  {{ dataQualityStats.successRate }}%
-</text>
+            <text x="60" y="55" text-anchor="middle" dy="7" font-size="20" font-weight="700" fill="#333">
+              {{ dataQualityStats.successRate }}%
+            </text>
 
-<text x="60" y="75" text-anchor="middle" font-size="14" fill="#555">
-  תקינות
-</text>
-    </svg>
-    <!-- <div class="kpi-label">תקינות</div> -->
-  </div>
+            <text x="60" y="75" text-anchor="middle" font-size="14" fill="#555">
+              תקינות
+            </text>
+          </svg>
+          <!-- <div class="kpi-label">תקינות</div> -->
+        </div>
 
-  <!-- נתונים -->
-  <div class="quality-pills">
-    <div class="stat-pill stat-pill--large stat-pill--green">
-      <div class="stat-number">{{ dataQualityStats.totalValid | number }}</div>
-      <div class="stat-label">רשומות תקינות</div>
+        <!-- נתונים -->
+        <div class="quality-pills">
+          <div class="stat-pill stat-pill--large stat-pill--green">
+            <div class="stat-number">{{ dataQualityStats.totalValid | number }}</div>
+            <div class="stat-label">רשומות תקינות</div>
+          </div>
+
+          <div class="stat-pill stat-pill--medium stat-pill--red">
+            <div class="stat-number">{{ dataQualityStats.totalInvalid | number }}</div>
+            <div class="stat-label">רשומות שגויות</div>
+          </div>
+
+          <div class="stat-pill stat-pill--small stat-pill--yellow">
+            <div class="stat-number">{{ dataQualityStats.duplicateRecords | number }}</div>
+            <div class="stat-label">רשומות כפולות</div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
     </div>
 
-    <div class="stat-pill stat-pill--medium stat-pill--red">
-      <div class="stat-number">{{ dataQualityStats.totalInvalid | number }}</div>
-      <div class="stat-label">רשומות שגויות</div>
-    </div>
 
-   <div class="stat-pill stat-pill--small stat-pill--yellow">
-  <div class="stat-number">{{ dataQualityStats.duplicateRecords | number }}</div>
-  <div class="stat-label">רשומות כפולות</div>
-</div>
-  </div>
-</div>
-
-
-
-
-         
-
-    </div>
-
- 
     <!-- שורה תחתונה - שגיאות וקבצים בעייתיים -->
 
     <div class="bottom-row">
@@ -381,23 +378,23 @@
         </div>
 
       </div> -->
-<!-- <div class="side-column-2"> -->
-        <!-- שגיאות מובילות -->
-        <div class="card">
-          <div class="card-title"> ⚠️ TOP 10 שגיאות נפוצות</div>
-          <div class="error-list">
-            <div class="error-item" *ngFor="let error of topErrors" (click)="showErrorDetails(error.id)">
-              <div>
-                <div class="error-code">{{ error.type }}</div>
-                <div class="error-desc">{{ error.details }}</div>
-              </div>
-              <span class="error-count">{{ error.count }}</span>
+      <!-- <div class="side-column-2"> -->
+      <!-- שגיאות מובילות -->
+      <div class="card">
+        <div class="card-title"> ⚠️ TOP 10 שגיאות נפוצות</div>
+        <div class="error-list">
+          <div class="error-item" *ngFor="let error of topErrors" (click)="showErrorDetails(error.id)">
+            <div>
+              <div class="error-code">{{ error.type }}</div>
+              <div class="error-desc">{{ error.details }}</div>
             </div>
-            <div *ngIf="topErrors.length === 0" class="no-data">אין שגיאות להצגה</div>
+            <span class="error-count">{{ error.count }}</span>
           </div>
+          <div *ngIf="topErrors.length === 0" class="no-data">אין שגיאות להצגה</div>
         </div>
+      </div>
 
- 
+
       <!-- קבצים בעייתיים -->
 
       <div class="card">
@@ -472,9 +469,7 @@
 
     </div>
 
- 
+
     <!-- שורה אחרונה - פעילות חיה וקיצורי דרך -->
 
     <div class="bottom-row">
-
-
