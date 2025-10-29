@@ -16,7 +16,7 @@ export interface DataVolumeResponse {
 // חדש: ממשק לספירת סטטוסים שמשרת מחזיר
 export interface StatusCounts {
   waiting?: number;
-  inprogress?: number;
+  inProgress?: number;
   success?: number;
   error?: number;
   // אופציונלי - אם השרת מחזיר סיכומים נוספים

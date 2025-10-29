@@ -177,6 +177,8 @@ ngOnInit(): void {
   this.systems$ = this.systemsService.getAll();
   this.sources$ = this.sourcesService.getAll();
   this.statuses$ = this.statusService.getAll();
+    this.systems$.subscribe(s => console.log('systems payload:', s));
+
 
   this.systemsSub = this.systemsService.getAll().subscribe({
     next: (res) => this.systemsList = res || [],
@@ -440,12 +442,24 @@ calcCircleDash(percent: number): string {
     console.log('to date', event.target.value);
   }
 
-  onSystemChange(event: any) {
-    this.searchFilters.systemId = event.target.value;
-    console.log('system changed', event.target.value);
-    const v = (event.target as HTMLSelectElement).value;
+ // ...existing code...
+onSystemChange(eventOrValue: any) {
+  // מקבל או את האירוע DOM או אובייקט/ערך ישירות
+  const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
+  let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
+
+  // במקרה של [ngValue] v יכול להיות האובייקט עצמו
+  if (v && typeof v === 'object') {
+    this.selectedSystemId = v.systemId ?? v.systemId ?? null;
+    this.searchFilters.systemId = String(this.selectedSystemId ?? '');
+  } else {
     this.selectedSystemId = v ? Number(v) : null;
+    this.searchFilters.systemId = v ?? '';
   }
+
+  console.log('selected system id:', this.selectedSystemId);
+}
+// ...existing code...
  
 
   onSourceChange(event: Event) {
@@ -501,40 +515,16 @@ calcCircleDash(percent: number): string {
   }
 
 
-  // private getSearchParams(): any {
-  //   const params: any = {};
-    
-  //   if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
-  //   if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
-  //   if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
-  //   if (this.searchFilters.status) params.status = this.searchFilters.status;
-    
-  //   return Object.keys(params).length > 0 ? params : null;
-  // }
   private getSearchParams(): any {
-  const params: any = {};
-
-  if (this.searchFilters.fromDate) params.startDate = this.searchFilters.fromDate;
-  if (this.searchFilters.toDate) params.endDate = this.searchFilters.toDate;
-
-  const sysId = this.selectedSystemId;
-  // if (sysId !== undefined && sysId !== null && sysId !== NaN) {
-  //   params.systemId = sysId;
-  // }
-if (sysId !== undefined && sysId !== null && !Number.isNaN(sysId)) {
-  params.systemId = sysId;
-}
-  const statusId = this.selectedStatusId;
-  // if (statusId !== undefined && statusId !== null && statusId !== NaN) {
-  //   params.status = statusId;
-  // }
-
-if (statusId !== undefined && statusId !== null && !Number.isNaN(statusId)) {
-  params.status = statusId;
-}
-  return Object.keys(params).length > 0 ? params : null;
-}
-
+    const params: any = {};
+    
+    if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
+    if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
+    if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
+    if (this.searchFilters.status) params.status = this.searchFilters.status;
+    
+    return Object.keys(params).length > 0 ? params : null;
+  }
 loadDashboardData(): void {
   const params = this.getSearchParams();
 
