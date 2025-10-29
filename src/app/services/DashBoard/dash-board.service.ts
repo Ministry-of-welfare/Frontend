@@ -52,8 +52,19 @@ export class DashBoardService {
   /**
    * נתוני נפח הנתונים ומספר הרשומות
    */
-  getDataVolume(): Observable<DataVolumeResponse> {
-    return this.http.get<DataVolumeResponse>(`${this.apiUrl}/DataVolume`);
+  getDataVolume(searchParams?: any): Observable<DataVolumeResponse> {
+    let params = new HttpParams();
+
+    if (searchParams) {
+      Object.keys(searchParams).forEach(key => {
+        const val = searchParams[key];
+        if (val !== null && val !== undefined && val !== '') {
+          params = params.set(key, String(val));
+        }
+      });
+    }
+
+    return this.http.get<DataVolumeResponse>(`${this.apiUrl}/DataVolume`, { params });
   }
   
   /**
