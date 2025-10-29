@@ -550,13 +550,29 @@ const duplicateRecords = data.reduce((sum: number, kpi: DataQualityKpi) => sum +
     }
   });
 
+  // build DataVolume params according to the API (use IDs for sources/status/system, strings for dates)
+  const dvParams: any = {};
+  if (this.selectedStatusId !== undefined && this.selectedStatusId !== null && Number.isFinite(this.selectedStatusId)) dvParams.importStatusId = this.selectedStatusId;
+  if (this.selectedSourceId !== undefined && this.selectedSourceId !== null && Number.isFinite(this.selectedSourceId)) dvParams.importDataSourceId = this.selectedSourceId;
+  if (this.selectedSystemId !== undefined && this.selectedSystemId !== null && Number.isFinite(this.selectedSystemId)) dvParams.systemId = this.selectedSystemId;
+  if (this.searchFilters.fromDate) dvParams.importFromDate = this.searchFilters.fromDate;
+  if (this.searchFilters.toDate) dvParams.importToDate = this.searchFilters.toDate;
+
+  const dataVolumeParams = Object.keys(dvParams).length > 0 ? dvParams : null;
+  console.log('DataVolume params ->', dataVolumeParams);
+
   this.dataVolumeLoading = true;
-  this.dashboardService.getDataVolume().subscribe({
+  this.dataVolumeError = null;
+  this.dashboardService.getDataVolume(dataVolumeParams).subscribe({
     next: (res) => {
       this.dataVolume = res;
       this.dataVolumeLoading = false;
     },
-    error: () => this.dataVolumeLoading = false
+    error: (err) => {
+      console.error('Error loading DataVolume', err);
+      this.dataVolumeError = err?.message || 'שגיאה בטעינת נפח נתונים';
+      this.dataVolumeLoading = false;
+    }
   });
 
   this.dashboardService.getImportsCount().subscribe({
