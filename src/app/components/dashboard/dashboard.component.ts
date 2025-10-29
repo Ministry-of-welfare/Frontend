@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, Subscription } from 'rxjs';
 import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
-import { DashBoardService,StatusCounts } from '../../services/DashBoard/dash-board.service';
+import { DashBoardService,DataQualityKpi,StatusCounts } from '../../services/DashBoard/dash-board.service';
 import { SystemsService } from '../../services/systems/systems.service';
 import { Systems } from '../../models/systems.model';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
@@ -20,6 +20,7 @@ import { ImportStatusService } from '../../services/importStatus/import-status.s
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
+
 export class DashboardComponent implements OnInit, OnDestroy {
   
   // מערכת בחירה
@@ -543,11 +544,12 @@ loadDashboardData(): void {
   this.loadTopErrors();
   this.loadSystemPerformance();
 
-  this.dashboardService.getDataQualityKpis().subscribe({
+this.dashboardService.getDataQualityKpis(this.getSearchParams()).subscribe({
     next: (data) => {
-      const totalRows = data.reduce((sum, kpi) => sum + kpi.totalRows, 0);
-      const totalInvalid = data.reduce((sum, kpi) => sum + kpi.rowsInvalid, 0);
-      const duplicateRecords = data.reduce((sum, kpi) => sum + (kpi.duplicateRows || 0), 0);
+    const totalRows = data.reduce((sum: number, kpi: DataQualityKpi) => sum + kpi.totalRows, 0);
+const totalInvalid = data.reduce((sum: number, kpi: DataQualityKpi) => sum + kpi.rowsInvalid, 0);
+const duplicateRecords = data.reduce((sum: number, kpi: DataQualityKpi) => sum + (kpi.duplicateRows || 0), 0);
+
       const totalValid = totalRows - totalInvalid;
       const successRate = totalRows === 0 ? 0 : Math.round((totalValid / totalRows) * 100);
       this.dataQualityStats = {
