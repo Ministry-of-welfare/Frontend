@@ -426,6 +426,7 @@ calcCircleDash(percent: number): string {
     fromDate: '',
     toDate: '',
     systemId: '',
+    sourceId: '',
     status: ''
   };
 
@@ -441,26 +442,21 @@ calcCircleDash(percent: number): string {
   }
 
   onSystemChange(event: any) {
-    this.searchFilters.systemId = event.target.value;
-    console.log('system changed', event.target.value);
-    const v = (event.target as HTMLSelectElement).value;
-    this.selectedSystemId = v ? Number(v) : null;
+    // ngModel כבר מעדכן את searchFilters.systemId אוטומטית
+    this.selectedSystemId = this.searchFilters.systemId ? Number(this.searchFilters.systemId) : null;
+    console.log('system changed to:', this.searchFilters.systemId, 'searchFilters:', this.searchFilters);
   }
- 
 
   onSourceChange(event: Event) {
-    const v = (event.target as HTMLSelectElement).value;
-    this.selectedSourceId = v ? Number(v) : null;
-    // אפשר לקרוא applyFilters()
+    // ngModel כבר מעדכן את searchFilters.sourceId אוטומטית
+    this.selectedSourceId = this.searchFilters.sourceId ? Number(this.searchFilters.sourceId) : null;
+    console.log('source changed to:', this.searchFilters.sourceId, 'searchFilters:', this.searchFilters);
   }
 
- 
-
   onStatusChange(event: any) {
-    this.searchFilters.status = event.target.value;
-    console.log('status changed', event.target.value);
-      const v = (event.target as HTMLSelectElement).value;
-    this.selectedStatusId = v ? Number(v) : null;
+    // ngModel כבר מעדכן את searchFilters.status אוטומטית
+    this.selectedStatusId = this.searchFilters.status ? Number(this.searchFilters.status) : null;
+    console.log('status changed to:', this.searchFilters.status, 'searchFilters:', this.searchFilters);
   }
 
   openAddFile() {
@@ -504,11 +500,24 @@ calcCircleDash(percent: number): string {
   private getSearchParams(): any {
     const params: any = {};
     
-    if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
-    if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
-    if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
-    if (this.searchFilters.status) params.status = this.searchFilters.status;
+    if (this.searchFilters.fromDate && this.searchFilters.fromDate !== '') {
+      params.fromDate = this.searchFilters.fromDate;
+    }
+    if (this.searchFilters.toDate && this.searchFilters.toDate !== '') {
+      params.toDate = this.searchFilters.toDate;
+    }
+    if (this.searchFilters.systemId && this.searchFilters.systemId !== '') {
+      params.systemId = this.searchFilters.systemId;
+    }
+    if (this.searchFilters.sourceId && this.searchFilters.sourceId !== '') {
+      params.sourceId = this.searchFilters.sourceId;
+    }
+    if (this.searchFilters.status && this.searchFilters.status !== '') {
+      params.status = this.searchFilters.status;
+    }
     
+    console.log('searchFilters:', this.searchFilters);
+    console.log('getSearchParams returning:', params);
     return Object.keys(params).length > 0 ? params : null;
   }
 loadDashboardData(): void {
