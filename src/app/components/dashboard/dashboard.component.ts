@@ -178,7 +178,7 @@ ngOnInit(): void {
   this.systems$ = this.systemsService.getAll();
   this.sources$ = this.sourcesService.getAll();
   this.statuses$ = this.statusService.getAll();
-    this.systems$.subscribe(s => console.log('systems payload:', s));
+
 
 
   this.systemsSub = this.systemsService.getAll().subscribe({
@@ -325,6 +325,7 @@ loadTopErrors(params: any): void {
     fromDate: '',
     toDate: '',
     systemId: '',
+    sourceId: '',
     status: ''
   };
 
@@ -338,6 +339,7 @@ loadTopErrors(params: any): void {
     this.searchFilters.toDate = event.target.value;
     console.log('to date', event.target.value);
   }
+
 
  // ...existing code...
 onSystemChange(eventOrValue: any) {
@@ -357,15 +359,28 @@ onSystemChange(eventOrValue: any) {
   console.log('selected system id:', this.selectedSystemId);
 }
 // ...existing code...
- 
 
- onSourceChange(event: Event) {
-const v = (event.target as HTMLSelectElement).value;
-const parsed = parseInt(v, 10);
-this.selectedSourceId = !isNaN(parsed) ? parsed : null;
 
-  console.log('selectedSourceId:', this.selectedSourceId);
-}
+
+  onSourceChange(eventOrValue: any) {
+    const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
+    let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
+    
+    console.log('source changed to:', v, 'type:', typeof v);
+    // במקרה של [ngValue] v יכול להיות האובייקט עצמו
+    if (v && typeof v === 'object') {
+      this.selectedSourceId = v.importDataSourceId ?? null;
+      this.searchFilters.sourceId = String(this.selectedSourceId ?? '');
+    } else {
+      this.selectedSourceId = (v && v !== '' && v !== 'undefined') ? Number(v) : null;
+      this.searchFilters.sourceId = (v === 'undefined') ? '' : (v ?? '');
+    }
+    console.log('selected source id:', this.selectedSourceId);
+    // // ngModel כבר מעדכן את searchFilters.sourceId אוטומטית
+    // this.selectedSourceId = this.searchFilters.sourceId ? Number(this.searchFilters.sourceId) : null;
+    // console.log('source changed to:', this.searchFilters.sourceId, 'searchFilters:', this.searchFilters);
+  }
+
 
 
  
@@ -417,32 +432,38 @@ refreshDashboard(): void {
   this.updateLiveData();
 }
 
-private getSearchParams(): any {
-  const params: any = {};
 
-  if (this.selectedSystemId !== null && !isNaN(this.selectedSystemId)) {
-    params.systemId = this.selectedSystemId;
-  }
+
+
+
+  private getSearchParams(): any {
+    const params: any = {};
+    
+    if (this.searchFilters.fromDate && this.searchFilters.fromDate !== '') {
+      params.fromDate = this.searchFilters.fromDate;
+    }
+    if (this.searchFilters.toDate && this.searchFilters.toDate !== '') {
+      params.toDate = this.searchFilters.toDate;
+    }
+    if (this.searchFilters.systemId && this.searchFilters.systemId !== '') {
+      params.systemId = this.searchFilters.systemId;
+    }
+    if (this.searchFilters.sourceId && this.searchFilters.sourceId !== '') {
+      params.sourceId = this.searchFilters.sourceId;
+    }
+    if (this.searchFilters.status && this.searchFilters.status !== '') {
+      params.status = this.searchFilters.status;
+    }
+    
+    console.log('searchFilters:', this.searchFilters);
+    console.log('getSearchParams returning:', params);
+    return Object.keys(params).length > 0 ? params : null;
 
   if (this.selectedSourceId !== null && this.selectedSourceId !== undefined) {
     params.importDataSourceId = this.selectedSourceId;
+
   }
-
-  if (this.selectedStatusId !== null && !isNaN(this.selectedStatusId)) {
-    params.statusId = this.selectedStatusId;
-  }
-
-  if (this.searchFilters.fromDate) {
-    params.startDate = this.searchFilters.fromDate;
-  }
-
-  if (this.searchFilters.toDate) {
-    params.endDate = this.searchFilters.toDate;
-  }
-
-  console.log('Search params sent to server:', params); // ✅ אחרי המילוי
-
-  return params;
+ return params;
 }
 
 
