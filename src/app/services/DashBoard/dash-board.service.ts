@@ -7,7 +7,9 @@ export interface DataQualityKpi {
   totalRows: number;
   rowsInvalid: number;
   validRowsPercentage: number;
+  duplicateRows?: number; // 🟢 שדה אופציונלי חדש
 }
+
 export interface DataVolumeResponse {
   totalRows: number;
   dataVolumeInGB: string;
@@ -45,8 +47,8 @@ export class DashBoardService {
 
     return this.http.get(`${this.apiUrl}/top-errors`, { params });
   }
-  getDataQualityKpis(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/data-quality-simple`);
+getDataQualityKpis(params?: any): Observable<any> {  
+  return this.http.get(`${this.apiUrl}/data-quality-simple`, { params });
 }
   
   /**
