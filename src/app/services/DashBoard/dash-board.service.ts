@@ -36,7 +36,7 @@ export class DashBoardService {
 
   getTopErrors(searchParams?: any): Observable<any> {
     let params = new HttpParams();
-    
+
     if (searchParams) {
       Object.keys(searchParams).forEach(key => {
         if (searchParams[key] !== null && searchParams[key] !== undefined) {
@@ -47,10 +47,39 @@ export class DashBoardService {
 
     return this.http.get(`${this.apiUrl}/top-errors`, { params });
   }
-getDataQualityKpis(params?: any): Observable<any> {  
-  return this.http.get(`${this.apiUrl}/data-quality-simple`, { params });
-}
-  
+  // getDataQualityKpis(params?: any): Observable<any> {  
+  //   return this.http.get(`${this.apiUrl}/data-quality-simple`, { params });
+  // }
+  getDataQualityKpis(filter?: {
+    statusId?: number;
+    importDataSourceId?: number;
+    systemId?: number;
+    startDate?: string;
+    endDate?: string
+  }): Observable<DataQualityKpi[]> {
+    let params = new HttpParams();
+
+    if (filter) {
+      if (filter.statusId !== undefined && filter.statusId !== null) {
+        params = params.set('importStatusId', String(filter.statusId)); // 👈 חשוב! ב־API זה נקרא importStatusId
+      }
+      if (filter.importDataSourceId !== undefined && filter.importDataSourceId !== null) {
+        params = params.set('importDataSourceId', String(filter.importDataSourceId));
+      }
+      if (filter.systemId !== undefined && filter.systemId !== null) {
+        params = params.set('systemId', String(filter.systemId));
+      }
+      if (filter.startDate) {
+        params = params.set('startDate', filter.startDate);
+      }
+      if (filter.endDate) {
+        params = params.set('endDate', filter.endDate);
+      }
+    }
+
+    return this.http.get<DataQualityKpi[]>(`${this.apiUrl}/data-quality-simple`, { params });
+  }
+
   /**
    * נתוני נפח הנתונים ומספר הרשומות
    */
@@ -68,7 +97,7 @@ getDataQualityKpis(params?: any): Observable<any> {
 
     return this.http.get<DataVolumeResponse>(`${this.apiUrl}/DataVolume`, { params });
   }
-  
+
   /**
    * קבלת ספירות סטטוסים (waiting,inprogress,success,error) ו/או סיכומים נוספים
    */
@@ -77,8 +106,11 @@ getDataQualityKpis(params?: any): Observable<any> {
     if (filter) {
       if (filter.startDate) params = params.set('startDate', filter.startDate);
       if (filter.endDate) params = params.set('endDate', filter.endDate);
-      if (filter.systemId !== undefined && filter.systemId !== null) params = params.set('systemId', String(filter.systemId));
-      if (filter.importDataSourceId !== undefined && filter.importDataSourceId !== null) params = params.set('importDataSourceId', String(filter.importDataSourceId));
+      if (filter.systemId !== undefined && filter.systemId !== null && !isNaN(filter.systemId)) {
+        params = params.set('systemId', String(filter.systemId));}
+      if (filter.importDataSourceId !== undefined && filter.importDataSourceId !== null && !isNaN(filter.importDataSourceId)) {
+        params = params.set('importDataSourceId', String(filter.importDataSourceId));
+      }
     }
 
     return this.http.get<StatusCounts>(`${this.apiUrl}/statusCounts`, { params });
@@ -108,7 +140,7 @@ getDataQualityKpis(params?: any): Observable<any> {
     return this.http.get<StatusCounts>(`${this.apiUrl}/success-rate`, { params });
   }
 
-getAvgProcessingTime(filter?: { startDate?: string; endDate?: string; systemId?: number; importDataSourceId?: number }) {
+  getAvgProcessingTime(filter?: { startDate?: string; endDate?: string; systemId?: number; importDataSourceId?: number }) {
     let params = new HttpParams();
     if (filter) {
       if (filter.startDate) params = params.set('startDate', filter.startDate);
