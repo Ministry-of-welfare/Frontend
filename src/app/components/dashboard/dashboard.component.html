@@ -48,13 +48,15 @@
           </select>
         </div>
 
-        <div class="filter-column">
-          <label for="system">מערכת</label>
-          <select [(ngModel)]="searchFilters.systemId" (change)="onSystemChange($event)">
-            <option value="">כל המערכות</option>
-            <option *ngFor="let s of systems$ | async" [value]="s.SystemId">{{ s.systemName }}</option>
-          </select>
-        </div>
+
+<div class="filter-column">
+  <label for="system">מערכת</label>
+  <select (change)="onSystemChange($event)">
+    <option value="">כל המערכות</option>
+    <option *ngFor="let s of systems$ | async" [value]="s.systemId">{{ s.systemName }}</option>
+  </select>
+</div>
+
 
         <div class="filter-column">
           <label for="dateFrom">מתאריך</label>
@@ -206,7 +208,7 @@
 
             <div class="status-card status-orange">
 
-              <div class="status-number">{{ statusCounts?.inprogress ?? '—' }}</div>
+              <div class="status-number">{{ statusCounts?.inProgress ?? '—' }}</div>
 
               <div class="status-label">בתהליך קליטה</div>
 
