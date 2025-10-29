@@ -43,7 +43,7 @@
           <label for="source">מקור קליטה</label>
           <select [(ngModel)]="searchFilters.sourceId" (change)="onSourceChange($event)">
             <option value="">כל המקורות</option>
-            <option *ngFor="let src of sources$ | async" [value]="src.ImportDataSourceId">{{ src.importDataSourceDesc }}
+            <option *ngFor="let src of sources$ | async" [value]="src.importDataSourceId">{{ src.importDataSourceDesc }}
             </option>
           </select>
         </div>

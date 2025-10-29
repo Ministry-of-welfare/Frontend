@@ -178,7 +178,7 @@ ngOnInit(): void {
   this.systems$ = this.systemsService.getAll();
   this.sources$ = this.sourcesService.getAll();
   this.statuses$ = this.statusService.getAll();
-    this.systems$.subscribe(s => console.log('systems payload:', s));
+
 
 
   this.systemsSub = this.systemsService.getAll().subscribe({
@@ -465,10 +465,23 @@ onSystemChange(eventOrValue: any) {
 // ...existing code...
 
 
-  onSourceChange(event: Event) {
-    // ngModel כבר מעדכן את searchFilters.sourceId אוטומטית
-    this.selectedSourceId = this.searchFilters.sourceId ? Number(this.searchFilters.sourceId) : null;
-    console.log('source changed to:', this.searchFilters.sourceId, 'searchFilters:', this.searchFilters);
+  onSourceChange(eventOrValue: any) {
+    const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
+    let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
+    
+    console.log('source changed to:', v, 'type:', typeof v);
+    // במקרה של [ngValue] v יכול להיות האובייקט עצמו
+    if (v && typeof v === 'object') {
+      this.selectedSourceId = v.importDataSourceId ?? null;
+      this.searchFilters.sourceId = String(this.selectedSourceId ?? '');
+    } else {
+      this.selectedSourceId = (v && v !== '' && v !== 'undefined') ? Number(v) : null;
+      this.searchFilters.sourceId = (v === 'undefined') ? '' : (v ?? '');
+    }
+    console.log('selected source id:', this.selectedSourceId);
+    // // ngModel כבר מעדכן את searchFilters.sourceId אוטומטית
+    // this.selectedSourceId = this.searchFilters.sourceId ? Number(this.searchFilters.sourceId) : null;
+    // console.log('source changed to:', this.searchFilters.sourceId, 'searchFilters:', this.searchFilters);
   }
 
   onStatusChange(event: any) {
