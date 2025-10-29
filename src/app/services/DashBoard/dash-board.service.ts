@@ -83,9 +83,11 @@ export class DashBoardService {
     return this.http.get<{ importsCount: number }>(`${this.apiUrl}/imports-count`, { params })
       .pipe(map(res => res?.importsCount ?? 0));
   }
-  getsuccessRate(filter?: { startDate?: string; endDate?: string; systemId?: number; importDataSourceId?: number }) {
+  getsuccessRate(filter?: { statusId?: number;startDate?: string; endDate?: string; systemId?: number; importDataSourceId?: number }) {
     let params = new HttpParams();
     if (filter) {
+            if (filter.statusId !== undefined && filter.statusId !== null) params = params.set('statusId', String(filter.statusId));
+
       if (filter.startDate) params = params.set('startDate', filter.startDate);
       if (filter.endDate) params = params.set('endDate', filter.endDate);
       if (filter.systemId !== undefined && filter.systemId !== null) params = params.set('systemId', String(filter.systemId));

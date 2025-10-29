@@ -428,7 +428,8 @@ calcCircleDash(percent: number): string {
     fromDate: '',
     toDate: '',
     systemId: '',
-    status: ''
+    statusId: '',
+    importSourceId: ''
   };
 
 
@@ -471,7 +472,7 @@ onSystemChange(eventOrValue: any) {
  
 
   onStatusChange(event: any) {
-    this.searchFilters.status = event.target.value;
+    this.searchFilters.statusId = event.target.value;
     console.log('status changed', event.target.value);
       const v = (event.target as HTMLSelectElement).value;
     this.selectedStatusId = v ? Number(v) : null;
@@ -521,7 +522,7 @@ onSystemChange(eventOrValue: any) {
     if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
     if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
     if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
-    if (this.searchFilters.status) params.status = this.searchFilters.status;
+    if (this.searchFilters.statusId) params.status = this.searchFilters.statusId;
     
     return Object.keys(params).length > 0 ? params : null;
   }
