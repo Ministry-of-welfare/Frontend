@@ -178,7 +178,7 @@ ngOnInit(): void {
   this.systems$ = this.systemsService.getAll();
   this.sources$ = this.sourcesService.getAll();
   this.statuses$ = this.statusService.getAll();
-    this.systems$.subscribe(s => console.log('systems payload:', s));
+
 
 
   this.systemsSub = this.systemsService.getAll().subscribe({
@@ -340,6 +340,7 @@ loadTopErrors(params: any): void {
     console.log('to date', event.target.value);
   }
 
+
  // ...existing code...
 onSystemChange(eventOrValue: any) {
   // מקבל או את האירוע DOM או אובייקט/ערך ישירות
@@ -358,7 +359,6 @@ onSystemChange(eventOrValue: any) {
   console.log('selected system id:', this.selectedSystemId);
 }
 // ...existing code...
- 
 
   onSourceChange(event: Event) {
     const v = (event.target as HTMLSelectElement).value;

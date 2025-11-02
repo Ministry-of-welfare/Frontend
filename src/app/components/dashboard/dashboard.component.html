@@ -33,7 +33,7 @@
 
         <div class="filter-column">
           <label for="status">סטטוס</label>
-          <select (change)="onStatusChange($event)">
+          <select [(ngModel)]="searchFilters.status" (change)="onStatusChange($event)">
             <option value="">כל הסטטוסים</option>
             <option *ngFor="let st of statuses$ | async" [value]="st.ImportStatusId">{{ st.importStatusDesc }}</option>
           </select>
@@ -41,14 +41,14 @@
 
         <div class="filter-column">
           <label for="source">מקור קליטה</label>
-          <select (change)="onSourceChange($event)">
+          <select [(ngModel)]="searchFilters.sourceId" (change)="onSourceChange($event)">
             <option value="">כל המקורות</option>
-            <option *ngFor="let src of sources$ | async" [value]="src.ImportDataSourceId">{{ src.importDataSourceDesc }}
+            <option *ngFor="let src of sources$ | async" [value]="src.importDataSourceId">{{ src.importDataSourceDesc }}
             </option>
           </select>
         </div>
 
-        <!-- ...existing code... -->
+
 <div class="filter-column">
   <label for="system">מערכת</label>
   <select (change)="onSystemChange($event)">
@@ -56,16 +56,16 @@
     <option *ngFor="let s of systems$ | async" [value]="s.systemId">{{ s.systemName }}</option>
   </select>
 </div>
-<!-- ...existing code... -->
+
 
         <div class="filter-column">
           <label for="dateFrom">מתאריך</label>
-          <input id="dateFrom" class="filter-date" type="date" (change)="onFromDate($event)" />
+          <input id="dateFrom" class="filter-date" type="date" [(ngModel)]="searchFilters.fromDate" (change)="onFromDate($event)" />
         </div>
 
         <div class="filter-column">
           <label for="dateTo">עד תאריך</label>
-          <input id="dateTo" class="filter-date" type="date" (change)="onToDate($event)" />
+          <input id="dateTo" class="filter-date" type="date" [(ngModel)]="searchFilters.toDate" (change)="onToDate($event)" />
         </div>
 
         <div class="filters-spacer"></div>
