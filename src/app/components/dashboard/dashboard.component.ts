@@ -358,7 +358,7 @@ onSystemChange(eventOrValue: any) {
 
   console.log('selected system id:', this.selectedSystemId);
 }
-// ...existing code...
+
 
 
 
@@ -468,62 +468,7 @@ refreshDashboard(): void {
 
 
 
-// loadDashboardData(): void {
-//   const params = this.getSearchParams();
 
-//   this.loadTopErrors();
-//   this.loadSystemPerformance();
-
-// this.dashboardService.getDataQualityKpis(params()).subscribe({
-    
-//   next: (data) => {
-//     const totalRows = data.reduce((sum: number, kpi: DataQualityKpi) => sum + kpi.totalRows, 0);
-// const totalInvalid = data.reduce((sum: number, kpi: DataQualityKpi) => sum + kpi.rowsInvalid, 0);
-// const duplicateRecords = data.reduce((sum: number, kpi: DataQualityKpi) => sum + (kpi.duplicateRows || 0), 0);
-
-//       const totalValid = totalRows - totalInvalid;
-//       const successRate = totalRows === 0 ? 0 : Math.round((totalValid / totalRows) * 100);
-//       this.dataQualityStats = {
-//         totalRows,
-//         totalInvalid,
-//         totalValid,
-//         successRate,
-//         duplicateRecords
-//       };
-//     }
-//   });
-
-//   this.dataVolumeLoading = true;
-//   this.dashboardService.getDataVolume().subscribe({
-//     next: (res) => {
-//       this.dataVolume = res;
-//       this.dataVolumeLoading = false;
-//     },
-//     error: () => this.dataVolumeLoading = false
-//   });
-
-//   this.dashboardService.getImportsCount().subscribe({
-//     next: (count) => this.todayImports = count
-//   });
-
-//   this.dashboardService.getAvgProcessingTime(params).subscribe({
-//     next: (res: any) => {
-//       const avg = res?.averageMinutes ?? res;
-//       this.throughputStats.avgProcessTime = avg;
-//     }
-//   });
-
-//   this.dashboardService.getsuccessRate(params).subscribe({
-//     next: (res: any) => {
-//       const rate = res?.successRatePercent ?? res;
-//       this.throughputStats.successRateRaw = rate;
-//     }
-//   });
-
-//   this.dashboardService.getStatusCounts(params).subscribe({
-//     next: (res: StatusCounts) => this.statusCounts = res
-//   });
-// }
 
 loadDashboardData(): void {
   const params = this.getSearchParams();
