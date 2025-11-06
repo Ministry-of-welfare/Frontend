@@ -1,13 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { ImportControlService, ImportControl } from '../../services/import-control/import-control.service';
-import { DashBoardService,StatusCounts } from '../../services/DashBoard/dash-board.service';
+import { DashBoardService,DataQualityKpi,StatusCounts } from '../../services/DashBoard/dash-board.service';
 import { SystemsService } from '../../services/systems/systems.service';
+import { Systems } from '../../models/systems.model';
+import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
+import { ImportStatusService } from '../../services/importStatus/import-status.service';
+;import { FormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   providers: [
     { provide: DashBoardService, useClass: DashBoardService },
     { provide: SystemsService, useClass: SystemsService }
@@ -15,6 +20,7 @@ import { SystemsService } from '../../services/systems/systems.service';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
+
 export class DashboardComponent implements OnInit, OnDestroy {
   
   // מערכת בחירה
@@ -43,6 +49,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ];
 
   systemStats: any[] = [];
+    private systemsSub?: Subscription;
+  systemsList: Systems[] = [];
+
   
   // נתוני ביצועים לפי מערכת מהשרת
   systemPerformanceData: any[] = [];
@@ -137,9 +146,18 @@ dataQualityStats: any = {
     { id: 'alert2', message: 'שגיאה בעיבוד קובץ', time: '08:58', severity: 'error', recipient: 'ops@company.com', selected: false },
     { id: 'alert3', message: 'עדכון מערכת הושלם', time: '07:40', severity: 'info', recipient: '', selected: false }
   ];
+   systems$!: Observable<any[]>;
+    sources$!: Observable<any[]>;
+    statuses$!: Observable<any[]>;
+  
+    selectedSystemId: number | null = null;
+    selectedSourceId: number | null = null;
+    selectedStatusId: number | null = null;
   constructor(
     private dashboardService: DashBoardService,
-    private systemsService: SystemsService
+    private systemsService: SystemsService,
+    private sourcesService: ImportDataSourceService,
+        private statusService: ImportStatusService
   ) {}
 
   // מחזיר את חמש ההתראות האחרונות — מסודר מהחדש לישן
@@ -156,120 +174,23 @@ dataQualityStats: any = {
    statusCounts: StatusCounts | null = null;
   private statusCountsSub?: Subscription;
 
-  ngOnInit(): void {
-
-    console.log('DashboardComponent initialized');
-    console.log('Initial topErrors:', this.topErrors);
-    
-    this.loadTopErrors();
-    
-    // בדיקה אחרי שנייה
-    setTimeout(() => {
-      console.log('topErrors after 1 second:', this.topErrors);
-    }, 1000);
-
-      console.log('DashboardComponent initialized'); // 🔍 בדיקה
+ngOnInit(): void {
+  this.systems$ = this.systemsService.getAll();
+  this.sources$ = this.sourcesService.getAll();
+  this.statuses$ = this.statusService.getAll();
 
 
-    this.startLiveUpdates();
-    this.loadSystemPerformance();
 
- this.dashboardService.getDataQualityKpis().subscribe({
-  next: (data) => {
-    console.log('Data received', data);
-    
-    if (data && data.length > 0) {
-      // כאן עושים חישובים והצגה
+  this.systemsSub = this.systemsService.getAll().subscribe({
+    next: (res) => this.systemsList = res || [],
+    error: () => this.systemsList = []
+  });
 
-      const totalRows = data.reduce((sum, kpi) => sum + kpi.totalRows, 0);
-      const totalInvalid = data.reduce((sum, kpi) => sum + kpi.rowsInvalid, 0); // 🟢 חשוב!
-      const duplicateRecords = data.reduce((sum, kpi) => sum + (kpi.duplicateRows || 0), 0);
-
-      const totalValid = totalRows - totalInvalid;
-      const successRate = totalRows === 0 ? 0 : Math.round((totalValid / totalRows) * 100);
-      this.dataQualityStats = {
-        totalRows,
-        totalInvalid,
-        totalValid,
-        successRate,
-        duplicateRecords
-      };
-    } else {
-      console.warn('אין נתונים להצגה');
-      // את יכולה להסתיר את הגרף או להציג "אין נתונים"
-    }
-  },
-  error: (err: any) => {
-    console.error('שגיאה בהבאת הנתונים', err);
-  }
-});
-
-    // קבלת נפח הנתונים מהשרת
-    this.dataVolumeLoading = true;
-    this.dashboardService.getDataVolume().subscribe({
-      next: (res) => {
-        if (res) {
-          this.dataVolume = res;
-        }
-        this.dataVolumeLoading = false;
-      },
-      error: (err) => {
-        console.error('שגיאה בהבאת נפח נתונים', err);
-        this.dataVolumeError = err?.message || 'שגיאה בהבאת נפח נתונים';
-        this.dataVolumeLoading = false;
-      }
-    });
-
-    // קבלת "קליטות היום" מהשרת (משתמש ב-getTodayImports helper)
-    this.dashboardService.getImportsCount().subscribe({
-      next: (count) => {
-        this.todayImports = count;
-
-        
-      },
-      error: (err) => {
-        console.error('שגיאה בהבאת קליטות היום (imports-count):', err);
-        this.todayImports = null;
-      }
-    });
-
-    // קבלת זמן עיבוד ממוצע מהשרת
-  
-  this.avgTimeSub = this.dashboardService.getAvgProcessingTime(this.getSearchParams()).subscribe({
-      next: (res: any) => {
-                console.log('avgProcessingTime:', res);
-
-        const avg = res?.averageMinutes ?? res; // פשוט קח averageMinutes אם קיים, אחרת כל ה-res
-        this.throughputStats.avgProcessTime = avg;
-      },
-      error: (err: any) => {
-        console.error('שגיאה ב-getAvgProcessingTime:', err);
-      }
-    });
-    
-this.successRateSub = this.dashboardService.getsuccessRate(this.getSearchParams()).subscribe({
-      next: (res: any) => {
-      const rate = res?.successRatePercent ?? res; // פשוט קח averageMinutes אם קיים, אחרת כל ה-res
-
-        console.log('successRateRaw:', res);
-        this.throughputStats.successRateRaw = rate;
-        console.log('Updated successRateRaw:', this.throughputStats.successRateRaw);
-      },
-      error: (err: any) => {
-        console.error('שגיאה ב-getsuccessRate:', err);
-      }
-    });
-
-     this.statusCountsSub = this.dashboardService.getStatusCounts(this.getSearchParams()).subscribe({
-      next: (res: StatusCounts) => {
-        this.statusCounts = res;
-        console.log('statusCounts:', this.statusCounts);
-      },
-      error: (err: any) => {
-        console.error('שגיאה ב-getStatusCounts:', err);
-      }
-    });
+  this.startLiveUpdates();
+  this.loadDashboardData();
 }
+
+
 
   loadSystemPerformance(): void {
     this.systemsService.getSystemPerformance().subscribe({
@@ -335,45 +256,77 @@ calcCircleDash(percent: number): string {
 
 
   
-  loadTopErrors(): void {
-    console.log('Loading top errors...');
-    const searchParams = this.getSearchParams();
+  // loadTopErrors(): void {
+  //   console.log('Loading top errors...');
+  //   const searchParams = this.getSearchParams();
     
-    this.dashboardService.getTopErrors(searchParams).subscribe({
-      next: (data) => {
-        console.log('Top errors data received:', data);
+  //   this.dashboardService.getTopErrors(searchParams).subscribe({
+  //     next: (data) => {
+  //       console.log('Top errors data received:', data);
         
-        if (data && Array.isArray(data) && data.length > 0) {
-          this.topErrors = data.map((error: any) => ({
-            id: `error${error.importErrorId}`,
-            type: error.errorDetail,
-            count: error.errorCount,
-            details: `עמודה: ${error.errorColumn} | ערך: ${error.errorValue}`,
-            selected: false
-          }));
-          console.log('Mapped topErrors:', this.topErrors);
-        } else {
-          console.warn('No errors data received');
-          this.topErrors = [];
-        }
-      },
-      error: (err) => {
-        console.error('שגיאה בטעינת השגיאות הנפוצות:', err);
-        // נתונים לדוגמה במקרה של שגיאה
-        this.topErrors = [
-          { id: 'error1', type: 'שגיאת פורמט CSV', count: 15, details: 'עמודה: שדהX | קובץ: data.csv', selected: false },
-          { id: 'error2', type: 'קובץ לא נמצא', count: 8, details: 'מקור: SFTP', selected: false },
-          { id: 'error3', type: 'שגיאת הרשאות', count: 5, details: 'משתמש: svc_import', selected: false }
-        ];
+  //       if (data && Array.isArray(data) && data.length > 0) {
+  //         this.topErrors = data.map((error: any) => ({
+  //           id: `error${error.importErrorId}`,
+  //           type: error.errorDetail,
+  //           count: error.errorCount,
+  //           details: `עמודה: ${error.errorColumn} | ערך: ${error.errorValue}`,
+  //           selected: false
+  //         }));
+  //         console.log('Mapped topErrors:', this.topErrors);
+  //       } else {
+  //         console.warn('No errors data received');
+  //         this.topErrors = [];
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('שגיאה בטעינת השגיאות הנפוצות:', err);
+  //       // נתונים לדוגמה במקרה של שגיאה
+  //       this.topErrors = [
+  //         { id: 'error1', type: 'שגיאת פורמט CSV', count: 15, details: 'עמודה: שדהX | קובץ: data.csv', selected: false },
+  //         { id: 'error2', type: 'קובץ לא נמצא', count: 8, details: 'מקור: SFTP', selected: false },
+  //         { id: 'error3', type: 'שגיאת הרשאות', count: 5, details: 'משתמש: svc_import', selected: false }
+  //       ];
+  //     }
+  //   });
+  // }
+loadTopErrors(params: any): void {
+  console.log('Loading top errors...');
+  this.dashboardService.getTopErrors(params).subscribe({
+    next: (data) => {
+      console.log('Top errors data received:', data);
+
+      if (data && Array.isArray(data) && data.length > 0) {
+        this.topErrors = data.map((error: any) => ({
+          id: `error${error.importErrorId}`,
+          type: error.errorDetail,
+          count: error.errorCount,
+          details: `עמודה: ${error.errorColumn} | ערך: ${error.errorValue}`,
+          selected: false
+        }));
+        console.log('Mapped topErrors:', this.topErrors);
+      } else {
+        console.warn('No errors data received');
+        this.topErrors = [];
       }
-    });
-  }
+    },
+    error: (err) => {
+      console.error('שגיאה בטעינת השגיאות הנפוצות:', err);
+      // נתונים לדוגמה במקרה של שגיאה
+      this.topErrors = [
+        { id: 'error1', type: 'שגיאת פורמט CSV', count: 15, details: 'עמודה: שדהX | קובץ: data.csv', selected: false },
+        { id: 'error2', type: 'קובץ לא נמצא', count: 8, details: 'מקור: SFTP', selected: false },
+        { id: 'error3', type: 'שגיאת הרשאות', count: 5, details: 'משתמש: svc_import', selected: false }
+      ];
+    }
+  });
+}
 
   searchFilters = {
     fromDate: '',
     toDate: '',
     systemId: '',
-    status: ''
+    statusId: '',
+    importSourceId: ''
   };
 
 
@@ -387,16 +340,67 @@ calcCircleDash(percent: number): string {
     console.log('to date', event.target.value);
   }
 
-  onSystemChange(event: any) {
-    this.searchFilters.systemId = event.target.value;
-    console.log('system changed', event.target.value);
+
+ // ...existing code...
+onSystemChange(eventOrValue: any) {
+  debugger;
+  // מקבל או את האירוע DOM או אובייקט/ערך ישירות
+  const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
+  let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
+
+  // במקרה של [ngValue] v יכול להיות האובייקט עצמו
+  if (v && typeof v === 'object') {
+    this.selectedSystemId = v.systemId ?? v.systemId ?? null;
+    this.searchFilters.systemId = String(this.selectedSystemId ?? '');
+  } else {
+    this.selectedSystemId = v ? Number(v) : null;
+    this.searchFilters.systemId = v ?? '';
   }
 
-  onStatusChange(event: any) {
-    this.searchFilters.status = event.target.value;
-    console.log('status changed', event.target.value);
+  console.log('selected system id:', this.selectedSystemId);
+}
+// ...existing code...
+
+  onSourceChange(event: Event) {
+    const v = (event.target as HTMLSelectElement).value;
+    this.selectedSourceId = v ? Number(v) : null;
+    // אפשר לקרוא applyFilters()
+    console.log('source changed', this.selectedSourceId);
   }
 
+ 
+
+  // onStatusChange(event: any) {
+  //   this.searchFilters.statusId = event.target.value;
+  //   console.log('status changed', event.target.value);
+  //     const v = (event.target as HTMLSelectElement).value;
+  //   this.selectedStatusId = v ? Number(v) : null;
+  // }
+  // ...existing code...
+  // ...existing code...
+onStatusChange(eventOrValue: any) {
+  // מקבל או את האירוע DOM או את הערך/האובייקט ישירות
+  const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
+  let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
+
+  // אם קיבלנו מחרוזת בפורמט "x: id" - נחלץ את ה‑id אחרי ":"
+  if (typeof v === 'string' && v.includes(':')) {
+    const afterColon = v.split(':').pop()?.trim();
+    if (afterColon !== undefined && afterColon !== '') v = afterColon;
+  }
+
+  // אם v הוא אובייקט (ngValue) - שלוף id מתאים, אחרת המרה ל‑number
+  if (v && typeof v === 'object') {
+    this.selectedStatusId = v.id ?? v.importStatusId ?? null;
+    this.searchFilters.statusId = String(this.selectedStatusId ?? '');
+  } else {
+    this.selectedStatusId = v ? Number(v) : null;
+    this.searchFilters.statusId = v ?? '';
+  }
+
+  console.log('selected status id:', this.selectedStatusId);
+}
+// ...existing code...
   openAddFile() {
     console.log('open add file dialog');
   }
@@ -426,12 +430,13 @@ calcCircleDash(percent: number): string {
     this.throughputStats.dailyVolume = Math.round((2 + Math.random() * 2) * 10) / 10;
   }
 
-  refreshDashboard(): void {
-    console.log('רענון דשבורד...');
-    this.loadTopErrors();
-    this.updateLiveData();
-  }
-
+refreshDashboard(): void {
+  console.log('רענון דשבורד...');
+  const params = this.getSearchParams(); // 🔁 זה מה שהיה חסר
+  this.loadTopErrors(params);            // ⬅️ עכשיו זה יעבוד
+  this.loadDashboardData();
+  this.updateLiveData();
+}
 
   private getSearchParams(): any {
     const params: any = {};
@@ -439,11 +444,82 @@ calcCircleDash(percent: number): string {
     if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
     if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
     if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
-    if (this.searchFilters.status) params.status = this.searchFilters.status;
+    if (this.searchFilters.statusId) params.status = this.searchFilters.statusId;
     
     return Object.keys(params).length > 0 ? params : null;
   }
+loadDashboardData(): void {
+  const params = this.getSearchParams();
 
+  this.loadTopErrors(params); // ⬅️ מעביר את params במקום לקרוא שוב
+
+  this.loadSystemPerformance();
+
+  this.dashboardService.getDataQualityKpis(params).subscribe({
+    next: (data) => {
+      const totalRows = data.reduce((sum: number, kpi: DataQualityKpi) => sum + kpi.totalRows, 0);
+      const totalInvalid = data.reduce((sum: number, kpi: DataQualityKpi) => sum + kpi.rowsInvalid, 0);
+      const duplicateRecords = data.reduce((sum: number, kpi: DataQualityKpi) => sum + (kpi.duplicateRows || 0), 0);
+
+      const totalValid = totalRows - totalInvalid;
+      const successRate = totalRows === 0 ? 0 : Math.round((totalValid / totalRows) * 100);
+      this.dataQualityStats = {
+        totalRows,
+        totalInvalid,
+        totalValid,
+        successRate,
+        duplicateRecords
+      };
+    }
+  });
+
+  // build DataVolume params according to the API (use IDs for sources/status/system, strings for dates)
+  const dvParams: any = {};
+  if (this.selectedStatusId !== undefined && this.selectedStatusId !== null && Number.isFinite(this.selectedStatusId)) dvParams.importStatusId = this.selectedStatusId;
+  if (this.selectedSourceId !== undefined && this.selectedSourceId !== null && Number.isFinite(this.selectedSourceId)) dvParams.importDataSourceId = this.selectedSourceId;
+  if (this.selectedSystemId !== undefined && this.selectedSystemId !== null && Number.isFinite(this.selectedSystemId)) dvParams.systemId = this.selectedSystemId;
+  if (this.searchFilters.fromDate) dvParams.importFromDate = this.searchFilters.fromDate;
+  if (this.searchFilters.toDate) dvParams.importToDate = this.searchFilters.toDate;
+
+  const dataVolumeParams = Object.keys(dvParams).length > 0 ? dvParams : null;
+  console.log('DataVolume params ->', dataVolumeParams);
+
+  this.dataVolumeLoading = true;
+  this.dataVolumeError = null;
+  this.dashboardService.getDataVolume(dataVolumeParams).subscribe({
+    next: (res) => {
+      this.dataVolume = res;
+      this.dataVolumeLoading = false;
+    },
+    error: (err) => {
+      console.error('Error loading DataVolume', err);
+      this.dataVolumeError = err?.message || 'שגיאה בטעינת נפח נתונים';
+      this.dataVolumeLoading = false;
+    }
+  });
+
+  this.dashboardService.getImportsCount().subscribe({
+    next: (count) => this.todayImports = count
+  });
+
+  this.dashboardService.getAvgProcessingTime(params).subscribe({
+    next: (res: any) => {
+      const avg = res?.averageMinutes ?? res;
+      this.throughputStats.avgProcessTime = avg;
+    }
+  });
+
+  this.dashboardService.getsuccessRate(params).subscribe({
+    next: (res: any) => {
+      const rate = res?.successRatePercent ?? res;
+      this.throughputStats.successRateRaw = rate;
+    }
+  });
+
+  this.dashboardService.getStatusCounts(params).subscribe({
+    next: (res: StatusCounts) => this.statusCounts = res
+  });
+}
 
   showErrorDetails(errorId: String): void {
 

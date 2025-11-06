@@ -5,8 +5,11 @@ import { Router } from '@angular/router';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { ExportService } from '../../services/export/export.service';
 import { CaptureService } from '../../services/capture/capture.service';
-import { catchError, of } from 'rxjs';
+import { catchError, Observable, of, Subscription } from 'rxjs';
 import * as XLSX from 'xlsx';
+import { DashBoardService,StatusCounts } from '../../services/DashBoard/dash-board.service';
+import { SystemsService } from '../../services/systems/systems.service';
+import { ImportStatusService } from '../../services/importStatus/import-status.service';
 
 
 interface TableRow {
@@ -32,6 +35,13 @@ interface TableRow {
   styleUrl: './capture.component.css'
 })
 export class CaptureComponent implements OnInit {
+   systems$!: Observable<any[]>;
+  sources$!: Observable<any[]>;
+  statuses$!: Observable<any[]>;
+
+  selectedSystemId: number | null = null;
+  selectedSourceId: number | null = null;
+  selectedStatusId: number | null = null;
   // מקור נתונים: השרת מחזיר DTO/מוזג דרך search
   tableData: TableRow[] = [];
 
@@ -57,11 +67,9 @@ export class CaptureComponent implements OnInit {
   pageSize = 10;
   currentPage = 1;
 
-  // context menu
-  // contextMenuVisible = false;
-  // contextMenuX = 0;
-  // contextMenuY = 0;
-  // contextMenuRow: TableRow | null = null;
+  statusCounts: StatusCounts | null = null;
+  private statusCountsSub?: Subscription;
+  
   contextMenuVisible = false;
   contextMenuX = 0;
   contextMenuY = 0;
@@ -71,10 +79,21 @@ export class CaptureComponent implements OnInit {
     private importDataSourceService: ImportDataSourceService,
     private router: Router,
     private exportService: ExportService
-    , private captureService: CaptureService
+    , private captureService: CaptureService,
+    private dashboardService: DashBoardService,
+    private systemsService: SystemsService,
+    private sourcesService: ImportDataSourceService,
+    private statusService: ImportStatusService
   ) {}
 
   ngOnInit(): void {
+       this.systems$ = this.systemsService.getAll();
+    this.sources$ = this.sourcesService.getAll();
+    this.statuses$ = this.statusService.getAll();
+    this.systems$.subscribe(s => console.log('systems payload:', s));
+
+this.sources$.subscribe(s => console.log('sources payload:', s));
+  this.statuses$.subscribe(s => console.log('statuses payload:', s));
     // התחלה: בקשת search עם פילטרים ריקים => השרת יחזיר את כל ה־DTO/מוזג
     this.searchImportDataSources();
     // קאש של נתיבי קבצים מתוך ה-ImportControl (urlFileAfterProcess)
@@ -96,6 +115,17 @@ export class CaptureComponent implements OnInit {
         console.warn('failed mapping capture paths', e);
       }
     });
+
+
+       this.statusCountsSub = this.dashboardService.getStatusCounts().subscribe({
+          next: (res: StatusCounts) => {
+            this.statusCounts = res;
+            console.log('statusCounts:', this.statusCounts);
+          },
+          error: (err: any) => {
+            console.error('שגיאה ב-getStatusCounts:', err);
+          }
+        });
   }
   // map of importControlId -> urlFileAfterProcess
   private _filePathMap: Record<number, string> = {};
@@ -180,10 +210,25 @@ export class CaptureComponent implements OnInit {
     this.currentPage = Math.min(Math.max(1, this.currentPage), maxPage);
     const start = (this.currentPage - 1) * this.pageSize;
     this.filteredData = this.allFilteredData.slice(start, start + this.pageSize);
-        this.computeStatusCounts();
 
   }
+  onSystemChange(event: Event) {
+    const v = (event.target as HTMLSelectElement).value;
+    this.selectedSystemId = v ? Number(v) : null;
+    // כאן אפשר לקרוא לפונקציה שמעדכנת את הפילטרים/applyFilters()
+  }
 
+  onSourceChange(event: Event) {
+    const v = (event.target as HTMLSelectElement).value;
+    this.selectedSourceId = v ? Number(v) : null;
+    // אפשר לקרוא applyFilters()
+  }
+
+  onStatusChange(event: Event) {
+    const v = (event.target as HTMLSelectElement).value;
+    this.selectedStatusId = v ? Number(v) : null;
+    // אפשר לקרוא applyFilters()
+  }
   // --- כפתורים / אירועים UI ---
   onSearchButtonClick(): void {
     // שולח את הפילטרים לשרת; השרת מחזיר DTO מוכן
@@ -249,35 +294,6 @@ export class CaptureComponent implements OnInit {
     }
   }
 
-//   // --- context menu / row actions ---
-//   onContextMenu(event: MouseEvent, row: TableRow): void {
-//     event.preventDefault();
-//     this.contextMenuVisible = true;
-//     this.contextMenuX = event.clientX;
-//     this.contextMenuY = event.clientY;
-//     this.contextMenuRow = row;
-//   }
-
-//   onDocumentClick(_: MouseEvent): void {
-//     this.contextMenuVisible = false;
-//   }
-
-//   viewDetails(): void { console.log('viewDetails', this.contextMenuRow); this.contextMenuVisible = false; }
-//   viewRows(): void {
-//     if (!this.contextMenuRow) return;
-//     this.router.navigate(['/view-control'], { state: { captureId: this.contextMenuRow.id } });
-//     this.contextMenuVisible = false;
-//   }
-//   viewErrors(): void { console.log('viewErrors', this.contextMenuRow); this.contextMenuVisible = false; }
-//   downloadErrorReport(): void { console.log('downloadErrorReport', this.contextMenuRow); this.contextMenuVisible = false; }
-//   openFilePath(): void { console.log('openFilePath', this.contextMenuRow); this.contextMenuVisible = false; }
-//   showLogs(): void { console.log('showLogs', this.contextMenuRow); this.contextMenuVisible = false; }
-//   onRowDoubleClick(row: TableRow): void { this.viewRows(); }
-
-//  exportToExcel(): void {
-//     // שמתי לוג בלבד — אם תרצי, אוסיף יצוא מלא כמו קודם
-//     console.log('exportToExcel - total items', this.allFilteredData.length);
-//   }
 
 
 
@@ -554,13 +570,13 @@ export class CaptureComponent implements OnInit {
 }
 // ...existing code...
   // סטטיסטיקות לסטטוסים
-  statusCounts = {
-    waiting: 0,     // ממתין
-    inProgress: 0,  // בתהליך
-    success: 0,     // הצלחה
-    error: 0,       // כישלון
-    other: 0
-  };
+  // statusCounts = {
+  //   waiting: 0,     // ממתין
+  //   inProgress: 0,  // בתהליך
+  //   success: 0,     // הצלחה
+  //   error: 0,       // כישלון
+  //   other: 0
+  // };
 
   private normalizeStatusToken(token: string): 'waiting'|'inProgress'|'success'|'error'|'other' {
     if (!token) return 'other';
@@ -573,17 +589,17 @@ export class CaptureComponent implements OnInit {
   }
 
   // קראי לפונקציה הזו אחרי שמשנים/ממפים את הנתונים (למשל בסוף applyLocalFiltersAndPaginate או בסוף שגיאת ה־search)
-  computeStatusCounts(): void {
-    // אם רוצים שהסכום ישקף את התוצאות לאחר סינון מקומי - השתמשי ב־allFilteredData
-    const list = Array.isArray(this.allFilteredData) ? this.allFilteredData : (Array.isArray(this.tableData) ? this.tableData : []);
-    const counts = { waiting: 0, inProgress: 0, success: 0, error: 0, other: 0 };
-    for (const item of list) {
-      const token = this.getStatusToken ? this.getStatusToken(item) : ((item.statusLabel || item.status || '') + '');
-      const key = this.normalizeStatusToken((token || '') + '');
-      counts[key]++;
-    }
-    this.statusCounts = counts;
-  }
+  // computeStatusCounts(): void {
+  //   // אם רוצים שהסכום ישקף את התוצאות לאחר סינון מקומי - השתמשי ב־allFilteredData
+  //   const list = Array.isArray(this.allFilteredData) ? this.allFilteredData : (Array.isArray(this.tableData) ? this.tableData : []);
+  //   const counts = { waiting: 0, inProgress: 0, success: 0, error: 0, other: 0 };
+  //   for (const item of list) {
+  //     const token = this.getStatusToken ? this.getStatusToken(item) : ((item.statusLabel || item.status || '') + '');
+  //     const key = this.normalizeStatusToken((token || '') + '');
+  //     counts[key]++;
+  //   }
+  //   this.statusCounts = counts;
+  // }
 // ...existing code...
 
 
