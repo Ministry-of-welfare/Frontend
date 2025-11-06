@@ -343,6 +343,7 @@ loadTopErrors(params: any): void {
 
  // ...existing code...
 onSystemChange(eventOrValue: any) {
+  debugger;
   // מקבל או את האירוע DOM או אובייקט/ערך ישירות
   const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
   let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
@@ -364,17 +365,42 @@ onSystemChange(eventOrValue: any) {
     const v = (event.target as HTMLSelectElement).value;
     this.selectedSourceId = v ? Number(v) : null;
     // אפשר לקרוא applyFilters()
+    console.log('source changed', this.selectedSourceId);
   }
 
  
 
-  onStatusChange(event: any) {
-    this.searchFilters.statusId = event.target.value;
-    console.log('status changed', event.target.value);
-      const v = (event.target as HTMLSelectElement).value;
-    this.selectedStatusId = v ? Number(v) : null;
+  // onStatusChange(event: any) {
+  //   this.searchFilters.statusId = event.target.value;
+  //   console.log('status changed', event.target.value);
+  //     const v = (event.target as HTMLSelectElement).value;
+  //   this.selectedStatusId = v ? Number(v) : null;
+  // }
+  // ...existing code...
+  // ...existing code...
+onStatusChange(eventOrValue: any) {
+  // מקבל או את האירוע DOM או את הערך/האובייקט ישירות
+  const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
+  let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
+
+  // אם קיבלנו מחרוזת בפורמט "x: id" - נחלץ את ה‑id אחרי ":"
+  if (typeof v === 'string' && v.includes(':')) {
+    const afterColon = v.split(':').pop()?.trim();
+    if (afterColon !== undefined && afterColon !== '') v = afterColon;
   }
 
+  // אם v הוא אובייקט (ngValue) - שלוף id מתאים, אחרת המרה ל‑number
+  if (v && typeof v === 'object') {
+    this.selectedStatusId = v.id ?? v.importStatusId ?? null;
+    this.searchFilters.statusId = String(this.selectedStatusId ?? '');
+  } else {
+    this.selectedStatusId = v ? Number(v) : null;
+    this.searchFilters.statusId = v ?? '';
+  }
+
+  console.log('selected status id:', this.selectedStatusId);
+}
+// ...existing code...
   openAddFile() {
     console.log('open add file dialog');
   }
