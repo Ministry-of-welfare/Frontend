@@ -325,8 +325,8 @@ loadTopErrors(params: any): void {
     fromDate: '',
     toDate: '',
     systemId: '',
-    sourceId: '',
-    status: ''
+    statusId: '',
+    importSourceId: ''
   };
 
 
@@ -343,6 +343,7 @@ loadTopErrors(params: any): void {
 
  // ...existing code...
 onSystemChange(eventOrValue: any) {
+  debugger;
   // מקבל או את האירוע DOM או אובייקט/ערך ישירות
   const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
   let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
@@ -360,41 +361,46 @@ onSystemChange(eventOrValue: any) {
 }
 
 
-
-
-  onSourceChange(eventOrValue: any) {
-    const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
-    let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
-    
-    console.log('source changed to:', v, 'type:', typeof v);
-    // במקרה של [ngValue] v יכול להיות האובייקט עצמו
-    if (v && typeof v === 'object') {
-      this.selectedSourceId = v.importDataSourceId ?? null;
-      this.searchFilters.sourceId = String(this.selectedSourceId ?? '');
-    } else {
-      this.selectedSourceId = (v && v !== '' && v !== 'undefined') ? Number(v) : null;
-      this.searchFilters.sourceId = (v === 'undefined') ? '' : (v ?? '');
-    }
-    console.log('selected source id:', this.selectedSourceId);
-    // // ngModel כבר מעדכן את searchFilters.sourceId אוטומטית
-    // this.selectedSourceId = this.searchFilters.sourceId ? Number(this.searchFilters.sourceId) : null;
-    // console.log('source changed to:', this.searchFilters.sourceId, 'searchFilters:', this.searchFilters);
+  onSourceChange(event: Event) {
+    const v = (event.target as HTMLSelectElement).value;
+    this.selectedSourceId = v ? Number(v) : null;
+    // אפשר לקרוא applyFilters()
+    console.log('source changed', this.selectedSourceId);
   }
 
-
-
  
-onStatusChange(event: Event) {
-  const v = (event.target as HTMLSelectElement).value;
 
-  // ✅ רק אם הערך הוא מספר תקין — נגדיר אותו
-  this.selectedStatusId = v && !isNaN(Number(v)) ? Number(v) : null;
+  // onStatusChange(event: any) {
+  //   this.searchFilters.statusId = event.target.value;
+  //   console.log('status changed', event.target.value);
+  //     const v = (event.target as HTMLSelectElement).value;
+  //   this.selectedStatusId = v ? Number(v) : null;
+  // }
+  // ...existing code...
+  // ...existing code...
+onStatusChange(eventOrValue: any) {
+  // מקבל או את האירוע DOM או את הערך/האובייקט ישירות
+  const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
+  let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
 
-  console.log('selectedStatusId:', this.selectedStatusId);
+  // אם קיבלנו מחרוזת בפורמט "x: id" - נחלץ את ה‑id אחרי ":"
+  if (typeof v === 'string' && v.includes(':')) {
+    const afterColon = v.split(':').pop()?.trim();
+    if (afterColon !== undefined && afterColon !== '') v = afterColon;
+  }
+
+  // אם v הוא אובייקט (ngValue) - שלוף id מתאים, אחרת המרה ל‑number
+  if (v && typeof v === 'object') {
+    this.selectedStatusId = v.id ?? v.importStatusId ?? null;
+    this.searchFilters.statusId = String(this.selectedStatusId ?? '');
+  } else {
+    this.selectedStatusId = v ? Number(v) : null;
+    this.searchFilters.statusId = v ?? '';
+  }
+
+  console.log('selected status id:', this.selectedStatusId);
 }
-
-
-
+// ...existing code...
   openAddFile() {
     console.log('open add file dialog');
   }
@@ -432,44 +438,16 @@ refreshDashboard(): void {
   this.updateLiveData();
 }
 
-
-
-
-
   private getSearchParams(): any {
     const params: any = {};
     
-    if (this.searchFilters.fromDate && this.searchFilters.fromDate !== '') {
-      params.fromDate = this.searchFilters.fromDate;
-    }
-    if (this.searchFilters.toDate && this.searchFilters.toDate !== '') {
-      params.toDate = this.searchFilters.toDate;
-    }
-    if (this.searchFilters.systemId && this.searchFilters.systemId !== '') {
-      params.systemId = this.searchFilters.systemId;
-    }
-    if (this.searchFilters.sourceId && this.searchFilters.sourceId !== '') {
-      params.sourceId = this.searchFilters.sourceId;
-    }
-    if (this.searchFilters.status && this.searchFilters.status !== '') {
-      params.status = this.searchFilters.status;
-    }
+    if (this.searchFilters.fromDate) params.fromDate = this.searchFilters.fromDate;
+    if (this.searchFilters.toDate) params.toDate = this.searchFilters.toDate;
+    if (this.searchFilters.systemId) params.systemId = this.searchFilters.systemId;
+    if (this.searchFilters.statusId) params.status = this.searchFilters.statusId;
     
-    console.log('searchFilters:', this.searchFilters);
-    console.log('getSearchParams returning:', params);
     return Object.keys(params).length > 0 ? params : null;
-
-  if (this.selectedSourceId !== null && this.selectedSourceId !== undefined) {
-    params.importDataSourceId = this.selectedSourceId;
-
   }
- return params;
-}
-
-
-
-
-
 loadDashboardData(): void {
   const params = this.getSearchParams();
 

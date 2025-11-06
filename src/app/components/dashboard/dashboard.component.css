@@ -29,35 +29,45 @@
         animation: slideInDown 0.8s ease-out;
     }
 
-    .filters {
-        display: flex;
-        gap: 16px;
-        align-items: flex-end;
-        flex-wrap: wrap;
-    }
+   /* ...existing code... */
 
-    .filter-column {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        min-width: 140px;
-    }
+.filters {
+  display: flex;
+  flex-wrap: nowrap;      /* אל תנתק שורות */
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  overflow: hidden;
+}
 
-    .filter-column label {
-        font-size: 13px;
-        color: #666;
-    }
+.filter-column {
+  flex: 0 0 auto;         /* לא יתפרסו מעבר */
+  min-width: 140px;       /* אפשר לכוונן בהתאם */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-    .filter-column select,
-    .filter-column input[type="date"] {
-        border: 1px solid rgba(102, 126, 234, 0.06);
-        background: linear-gradient(180deg, rgba(248, 249, 255, 1), rgba(243, 246, 255, 1));
-        font-size: 14px;
-        padding: 10px 12px;
-        border-radius: 10px;
-        min-width: 160px;
-    }
+.filters-spacer {
+  flex: 1 1 auto;         /* דוחף את הכפתור לצד */
+  min-width: 0;
+}
 
+.btn-refresh {
+  flex: 0 0 auto;
+  white-space: nowrap;    /* למנוע שבירת טקסט בכפתור */
+  margin-inline-start: 8px; /* ריווח בצד שמאל/ימין בהתחשב ב-RTL */
+}
+
+/* התאמות קטנות לשדות כדי לא לגרום לשבירה */
+.filter-date,
+select {
+  max-width: 200px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ...existing code... */
     .refresh-btn:hover {
         transform: translateY(-3px);
         box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
@@ -996,4 +1006,74 @@ display: flex;
         font-size: 12px;
         line-height: 1.2;
     }
+    /* ...existing code... */
+
+/* Force single-line filters bar, allow horizontal scroll on very small screens */
+.filters {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100%;
+  overflow-x: auto; /* תאפשר גלילה אופקית אם המסך צר מדי */
+  -webkit-overflow-scrolling: touch;
 }
+
+/* allow columns to shrink so they לא יגרמו לשבירה */
+.filter-column {
+  flex: 0 1 140px !important; /* grow:0, shrink:1, base:140px */
+  min-width: 100px !important; /* הורדת מינימום כדי לא לאלץ שבירה */
+  display: flex !important;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* הכפתור תמיד שורה אחת ולא יישבר */
+.filters .btn-refresh,
+.btn-refresh {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  margin-inline-start: 8px !important;
+}
+
+/* שדות יכולים להתכווץ */
+.filter-column select,
+.filter-column input[type="date"] {
+  max-width: 220px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* ספציפית למודלים שבמובייל — פותחים גלילה אופקית במקום שבירה */
+@media (max-width: 720px) {
+  .filters {
+    padding-bottom: 8px;
+  }
+}
+
+/* ...existing code... */
+
+/* יותר רווח בין כפתורים בפס הפילטרים */
+.filters {
+  gap: 18px !important;
+}
+
+/* ריווח נוסף לפני כפתור "רענן" והגדלת padding בכפתור כדי לא להידבק לשאר הכפתורים */
+.filters .btn-refresh {
+  margin-inline-start: 12px !important;
+  padding-inline: 18px !important;
+  white-space: nowrap !important;
+}
+
+/* כלל כללי לכפתורים בתוך ה-filters כדי להבטיח מרווח אחיד */
+.filters button {
+  margin-inline-start: 8px;
+}
+
+/* במובייל נחזיר ריווח מעט קטן כדי למנוע גלילה מיותרת */
+@media (max-width: 720px) {
+  .filters { gap: 12px !important; }
+  .filters .btn-refresh { margin-inline-start: 8px !important; padding-inline: 14px !important; }
+
+}   }

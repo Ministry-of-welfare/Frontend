@@ -33,15 +33,15 @@
 
         <div class="filter-column">
           <label for="status">סטטוס</label>
-          <select [(ngModel)]="searchFilters.status" (change)="onStatusChange($event)">
+          <select [(ngModel)]="searchFilters.statusId" (change)="onStatusChange($event)">
             <option value="">כל הסטטוסים</option>
-            <option *ngFor="let st of statuses$ | async" [value]="st.ImportStatusId">{{ st.importStatusDesc }}</option>
+            <option *ngFor="let st of statuses$ | async" [ngValue]="st.importStatusId">{{ st.importStatusDesc }}</option>
           </select>
         </div>
 
         <div class="filter-column">
           <label for="source">מקור קליטה</label>
-          <select [(ngModel)]="searchFilters.sourceId" (change)="onSourceChange($event)">
+          <select [(ngModel)]="searchFilters.importSourceId" (change)="onSourceChange($event)">
             <option value="">כל המקורות</option>
             <option *ngFor="let src of sources$ | async" [value]="src.importDataSourceId">{{ src.importDataSourceDesc }}
             </option>
