@@ -8,6 +8,7 @@ import { SystemsService } from '../../services/systems/systems.service';
 import { DataSourceTypeService } from '../../services/dataSuorceType/data-source-type.service';
 import { FileStatusService } from '../../services/fileStatus/file-status.service';
 import { FileStatus } from '../../models/filleStatus.model';
+import { LoginService } from '../../services/Login/login.service';
 
 @Component({
   selector: 'app-files-view',
@@ -82,8 +83,9 @@ selectedStatus: number | null = null;
     private importDS: ImportDataSourceService,
     private router: Router,
     private systemsService: SystemsService,
-    private DataTypeService: DataSourceTypeService
-    , private fileStatusService: FileStatusService
+    private DataTypeService: DataSourceTypeService,
+    private fileStatusService: FileStatusService,
+    private loginService: LoginService
   ) {}
 
   ngOnInit(): void {
@@ -331,6 +333,14 @@ selectedStatus: number | null = null;
     return pattern.test(email.trim());
   }
 
+  canEdit(): boolean {
+    return this.loginService.canEdit();
+  }
+
+  canDelete(): boolean {
+    return this.loginService.canDelete();
+  }
+
   openEditDialog(process: any) {
     this.dialogIsEdit = true;
     this.dialogIsView = false;
@@ -416,6 +426,7 @@ startDate: this.formatDateForInput(
   }
 
   openDeleteDialog(process: any) {
+    if (!this.canDelete()) return;
     console.log('openDeleteDialog called with:', process);
     this.selectedProcessToDelete = process;
     this.deleteDialogVisible = true;

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ImportDataSourceService } from '../../services/importDataSource/import-data-source.service';
 import { ImportDataSources } from '../../models/importDataSources.model';
+import { LoginService } from '../../services/Login/login.service';
 
 export interface EditProcessData {
   importDataSourceId?: string;
@@ -72,7 +73,10 @@ export class EditProcessDialogComponent implements OnChanges {
   successMessage: string = '';
   errorMessage: string = '';
 
-  constructor(private importDataSourceService: ImportDataSourceService) {}
+  constructor(
+    private importDataSourceService: ImportDataSourceService,
+    private loginService: LoginService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     // כשהדיאלוג נפתח, נקה הודעות קודמות
@@ -198,5 +202,9 @@ export class EditProcessDialogComponent implements OnChanges {
     this.successMessage = '';
     this.errorMessage = '';
     this.errors = {};
+  }
+
+  canEdit(): boolean {
+    return this.loginService.canEdit();
   }
 }
