@@ -9,6 +9,7 @@ import { SystemsService } from '../../services/systems/systems.service';
 import { DataSourceTypeService } from '../../services/dataSuorceType/data-source-type.service';
 import { Systems } from '../../models/systems.model';
 import { DataSourceType } from '../../models/dataSourceType.model';
+import { LoginService } from '../../services/Login/login.service';
 
 interface Column {
   order: number;
@@ -145,7 +146,8 @@ export class AddFileComponent implements OnInit {
     private importDS: ImportDataSourceService,
     private importDSColumn: ImportDataSourceColumnService,
     private systemsService: SystemsService,
-    private dataSourceTypeService: DataSourceTypeService
+    private dataSourceTypeService: DataSourceTypeService,
+    private loginService: LoginService
   ) { }
 
   submitGeneralDetails() {
@@ -559,6 +561,10 @@ export class AddFileComponent implements OnInit {
 
   onSystemTypeChange() {
     console.log('מערכת שונתה ל:', this.systemType);
+  }
+
+  canEdit(): boolean {
+    return this.loginService.canEdit();
   }
 
 

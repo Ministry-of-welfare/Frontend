@@ -120,7 +120,7 @@
         <div class="actions-section">
           <div></div>
           <button type="button" class="btn btn-primary" (click)="nextStep()"
-            [disabled]="urlFileCustomWarning || urlFileAfterCustomWarning">המשך לשלב הבא ➡️</button>
+            [disabled]="!canEdit() || urlFileCustomWarning || urlFileAfterCustomWarning">המשך לשלב הבא ➡️</button>
         </div>
       </div>
 
@@ -185,7 +185,7 @@
 
         <div class="actions-section">
           <button type="button" class="btn btn-secondary" (click)="prevStep()">⬅️ חזרה</button>
-          <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!isColumnsValid()">המשך לאישור
+          <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!canEdit() || !isColumnsValid()">המשך לאישור
             ➡️</button>
         </div>
       </div>
@@ -263,7 +263,7 @@
 
         <div class="actions-section">
           <button type="button" class="btn btn-secondary" (click)="prevStep()">⬅️ חזרה לעריכה</button>
-          <button type="button" class="btn btn-primary" (click)="createFile()" [disabled]="creatingFile">
+          <button type="button" class="btn btn-primary" (click)="createFile()" [disabled]="!canEdit() || creatingFile">
             {{creatingFile ? '⏳ יוצר קובץ...' : '🚀 צור קובץ'}}
           </button>
         </div>
