@@ -175,8 +175,13 @@ this.sources$.subscribe(s => console.log('sources payload:', s));
     });
   }
  getStatusToken(item: any): string {
+  debugger
     const val = (item?.status || item?.statusLabel || '') + '';
     const parts = val.trim().split(/[ \t\-]+/);
+    if(parts.length > 2) {
+          return parts.length ? parts[length-1] : '';
+
+    }
     return parts.length ? parts[0] : '';
   }
   // --- פילטרים מקומיים + פאגינציה (slice) ---

@@ -379,6 +379,7 @@ onSystemChange(eventOrValue: any) {
   // ...existing code...
   // ...existing code...
 onStatusChange(eventOrValue: any) {
+  debugger;
   // מקבל או את האירוע DOM או את הערך/האובייקט ישירות
   const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
   let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
@@ -498,25 +499,25 @@ loadDashboardData(): void {
     }
   });
 
-  this.dashboardService.getImportsCount().subscribe({
+  this.dashboardService.getImportsCount(dataVolumeParams).subscribe({
     next: (count) => this.todayImports = count
   });
 
-  this.dashboardService.getAvgProcessingTime(params).subscribe({
+  this.dashboardService.getAvgProcessingTime(dataVolumeParams).subscribe({
     next: (res: any) => {
       const avg = res?.averageMinutes ?? res;
       this.throughputStats.avgProcessTime = avg;
     }
   });
 
-  this.dashboardService.getsuccessRate(params).subscribe({
+  this.dashboardService.getsuccessRate(dataVolumeParams).subscribe({
     next: (res: any) => {
       const rate = res?.successRatePercent ?? res;
       this.throughputStats.successRateRaw = rate;
     }
   });
 
-  this.dashboardService.getStatusCounts(params).subscribe({
+  this.dashboardService.getStatusCounts(dataVolumeParams).subscribe({
     next: (res: StatusCounts) => this.statusCounts = res
   });
 }
