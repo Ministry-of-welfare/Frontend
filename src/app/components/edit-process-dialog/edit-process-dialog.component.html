@@ -91,7 +91,7 @@
         <div *ngIf="errorMessage" class="error-message-global">{{ errorMessage }}</div>
         
         <div class="popup-actions">
-          <button *ngIf="!isView" type="submit" class="btn btn-primary">אישור</button>
+          <button *ngIf="!isView" type="submit" class="btn btn-primary" [disabled]="!canEdit()">אישור</button>
           <button type="button" class="btn btn-secondary" (click)="onCancel()">ביטול</button>
         </div>
       </form>
