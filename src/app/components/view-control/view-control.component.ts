@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import { ExportService } from '../../services/export/export.service';
 import { RouterLink, Router } from "@angular/router";
 import { HttpClient } from '@angular/common/http';
+import { ImportControlService, ImportControlData, ImportError } from '../../services/import-control.service';
 
 interface EmployeeRow {
   selected?: boolean;
@@ -44,16 +45,23 @@ export class ViewControlComponent implements OnInit {
   filteredRows: EmployeeRow[] = [];
   captureId: number = 1001;
   captureName: string = 'קליטת עובדים סוציאליים';
+  importControlId: number = 1001;
   allRows: EmployeeRow[] = [];
   errorDetails: ErrorDetail[] = [];
   summaryByError: any[] = [];
   stats: any = {};
 consol: any;
-  constructor(private router: Router, private http: HttpClient, private _exportService: ExportService) {
+  constructor(
+    private router: Router, 
+    private http: HttpClient, 
+    private _exportService: ExportService,
+    private importControlService: ImportControlService
+  ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.captureId = navigation.extras.state['captureId'] || this.captureId;
       this.captureName = navigation.extras.state['captureName'] || this.captureName;
+      this.importControlId = navigation.extras.state['importControlId'] || this.captureId;
       // אם נשלח selectedTab דרך ה־state (למשל 'errors'), נעדכן את הטאב הנבחר
       if (navigation.extras.state['selectedTab']) {
         this.selectedTab = navigation.extras.state['selectedTab'];
@@ -179,38 +187,79 @@ consol: any;
    * 🟢 טעינת נתונים מהשרת (אם נכשל – מציג נתוני דמה)
    */
   loadData() {
-    this.http.get<any>('/api/errors').subscribe({
-      next: (response: any) => {
-        if (response && response.rows) {
-          this.rows = response.rows;
-          this.allRows = response.rows;
-          this.errorDetails = response.errors;
-        } else {
-          this.loadMockData();
-        }
-        this.applyFilters();
-        this.loadSummaryData(); // ✅ נוספה כאן
-        // אם המשתמש ביקש ייצוא אוטומטי — נפעיל אותו כאן אחרי שהנתונים נטענו
-        if (this._autoExportRequest) {
-          // וידוא שהנתונים של אותה קליטה נטענו (אם יש פילטר לפי captureId אפשר להפעיל כאן)
-          // פשוט מפעילים את פונקציית הייצוא של שגיאות לפי ה־filteredRows
-          setTimeout(() => {
-            this.selectedTab = 'errors';
-            this.applyFilters();
-            this.exportErrorsToExcel();
-          }, 200);
-          this._autoExportRequest = null;
-        }
-
+    // שליפת נתוני הקליטה
+    this.importControlService.getImportControlData(this.importControlId).subscribe({
+      next: (controlData: ImportControlData) => {
+        this.captureName = controlData.ImportDataSourceDesc;
+        
+        // שליפת שורות מטבלת BULK
+        this.importControlService.getBulkTableRows(controlData.TableName, this.importControlId).subscribe({
+          next: (bulkRows: any[]) => {
+            // שליפת שגיאות
+            this.importControlService.getImportErrors(this.importControlId).subscribe({
+              next: (errors: ImportError[]) => {
+                this.processDataWithErrors(bulkRows, errors);
+                this.applyFilters();
+                this.loadSummaryData();
+                this.handleAutoExport();
+              },
+              error: () => this.fallbackToMockData()
+            });
+          },
+          error: () => this.fallbackToMockData()
+        });
       },
-      error: () => {
-        console.warn('⚠️ לא הצלחנו לטעון נתונים מהשרת – מוצגים נתוני דמה.');
-        this.loadMockData();
-        this.applyFilters();
-        this.loadSummaryData(); // ✅ נוספה גם כאן
-
-      }
+      error: () => this.fallbackToMockData()
     });
+  }
+
+  private processDataWithErrors(bulkRows: any[], errors: ImportError[]) {
+    // מיפוי השגיאות לפי שורה
+    const errorsByRow = new Map<number, ImportError[]>();
+    errors.forEach(error => {
+      if (!errorsByRow.has(error.ErrorRow)) {
+        errorsByRow.set(error.ErrorRow, []);
+      }
+      errorsByRow.get(error.ErrorRow)!.push(error);
+    });
+
+    // עיבוד השורות עם סימון שגיאות
+    this.rows = bulkRows.map(row => ({
+      ...row,
+      status: errorsByRow.has(row.id) ? 'error' : 'ok',
+      errors: errorsByRow.get(row.id)?.map(err => ({
+        field: err.ErrorColumn,
+        message: err.ErrorDetail
+      })) || []
+    }));
+    
+    this.allRows = [...this.rows];
+    this.errorDetails = errors.map(err => ({
+      lineId: err.ErrorRow,
+      columnName: err.ErrorColumn,
+      errorType: err.ErrorDetail,
+      receivedValue: err.ErrorValue,
+      requiredFormat: 'פורמט נדרש',
+      description: err.ErrorDetail
+    }));
+  }
+
+  private fallbackToMockData() {
+    console.warn('⚠️ לא הצלחנו לטעון נתונים מהשרת – מוצגים נתוני דמה.');
+    this.loadMockData();
+    this.applyFilters();
+    this.loadSummaryData();
+  }
+
+  private handleAutoExport() {
+    if (this._autoExportRequest) {
+      setTimeout(() => {
+        this.selectedTab = 'errors';
+        this.applyFilters();
+        this.exportErrorsToExcel();
+      }, 200);
+      this._autoExportRequest = null;
+    }
   }
 
   /**
@@ -525,5 +574,7 @@ private mapRowsForExport(rows: EmployeeRow[]): any[] {
     status: row.status === 'error' ? 'שגיאה' : 'תקין'
   }));
 }
+
+
 
 }

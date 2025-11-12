@@ -502,8 +502,13 @@ this.sources$.subscribe(s => console.log('sources payload:', s));
 
   // לחיצה כפולה על שורת אב
   onRowDoubleClick(row: any) {
-    this.contextMenuRow = row;
-    this.viewRows();
+    this.router.navigate(['/view-control'], {
+      state: {
+        captureId: row.id,
+        captureName: row.source,
+        importControlId: row.id
+      }
+    });
   }
 
   // סגירת תפריט בלחיצה מחוץ
