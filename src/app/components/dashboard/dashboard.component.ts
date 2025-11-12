@@ -341,7 +341,6 @@ loadTopErrors(params: any): void {
   }
 
 
- // ...existing code...
 onSystemChange(eventOrValue: any) {
   debugger;
   // מקבל או את האירוע DOM או אובייקט/ערך ישירות
@@ -370,14 +369,7 @@ onSystemChange(eventOrValue: any) {
 
  
 
-  // onStatusChange(event: any) {
-  //   this.searchFilters.statusId = event.target.value;
-  //   console.log('status changed', event.target.value);
-  //     const v = (event.target as HTMLSelectElement).value;
-  //   this.selectedStatusId = v ? Number(v) : null;
-  // }
-  // ...existing code...
-  // ...existing code...
+ 
 onStatusChange(eventOrValue: any) {
   debugger;
   // מקבל או את האירוע DOM או את הערך/האובייקט ישירות
@@ -401,7 +393,6 @@ onStatusChange(eventOrValue: any) {
 
   console.log('selected status id:', this.selectedStatusId);
 }
-// ...existing code...
   openAddFile() {
     console.log('open add file dialog');
   }
