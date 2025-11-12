@@ -1,0 +1,21 @@
+<div style="padding: 20px; max-width: 400px;">
+  <h3>בדיקת Login Service</h3>
+  
+  <div style="margin-bottom: 10px;">
+    <label>שם משתמש:</label>
+    <input type="text" [(ngModel)]="username" style="width: 100%; padding: 5px;">
+  </div>
+  
+  <div style="margin-bottom: 10px;">
+    <label>סיסמה:</label>
+    <input type="password" [(ngModel)]="password" style="width: 100%; padding: 5px;">
+  </div>
+  
+  <button (click)="testLogin()" style="padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer;">
+    בדוק Login
+  </button>
+  
+  <div *ngIf="message" style="margin-top: 15px; padding: 10px; border: 1px solid #ccc; background: #f9f9f9;">
+    {{ message }}
+  </div>
+</div>

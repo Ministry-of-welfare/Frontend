@@ -567,8 +567,13 @@ onStatusChange(eventOrValue: any) {
 
   // לחיצה כפולה על שורת אב
   onRowDoubleClick(row: any) {
-    this.contextMenuRow = row;
-    this.viewRows();
+    this.router.navigate(['/view-control'], {
+      state: {
+        captureId: row.id,
+        captureName: row.source,
+        importControlId: row.id
+      }
+    });
   }
 
   // סגירת תפריט בלחיצה מחוץ
