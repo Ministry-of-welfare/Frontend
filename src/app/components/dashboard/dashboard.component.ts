@@ -341,7 +341,6 @@ loadTopErrors(params: any): void {
   }
 
 
- // ...existing code...
 onSystemChange(eventOrValue: any) {
   debugger;
   // מקבל או את האירוע DOM או אובייקט/ערך ישירות
@@ -370,15 +369,9 @@ onSystemChange(eventOrValue: any) {
 
  
 
-  // onStatusChange(event: any) {
-  //   this.searchFilters.statusId = event.target.value;
-  //   console.log('status changed', event.target.value);
-  //     const v = (event.target as HTMLSelectElement).value;
-  //   this.selectedStatusId = v ? Number(v) : null;
-  // }
-  // ...existing code...
-  // ...existing code...
+ 
 onStatusChange(eventOrValue: any) {
+  debugger;
   // מקבל או את האירוע DOM או את הערך/האובייקט ישירות
   const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
   let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
@@ -400,7 +393,6 @@ onStatusChange(eventOrValue: any) {
 
   console.log('selected status id:', this.selectedStatusId);
 }
-// ...existing code...
   openAddFile() {
     console.log('open add file dialog');
   }
@@ -498,25 +490,25 @@ loadDashboardData(): void {
     }
   });
 
-  this.dashboardService.getImportsCount().subscribe({
+  this.dashboardService.getImportsCount(dataVolumeParams).subscribe({
     next: (count) => this.todayImports = count
   });
 
-  this.dashboardService.getAvgProcessingTime(params).subscribe({
+  this.dashboardService.getAvgProcessingTime(dataVolumeParams).subscribe({
     next: (res: any) => {
       const avg = res?.averageMinutes ?? res;
       this.throughputStats.avgProcessTime = avg;
     }
   });
 
-  this.dashboardService.getsuccessRate(params).subscribe({
+  this.dashboardService.getsuccessRate(dataVolumeParams).subscribe({
     next: (res: any) => {
       const rate = res?.successRatePercent ?? res;
       this.throughputStats.successRateRaw = rate;
     }
   });
 
-  this.dashboardService.getStatusCounts(params).subscribe({
+  this.dashboardService.getStatusCounts(dataVolumeParams).subscribe({
     next: (res: StatusCounts) => this.statusCounts = res
   });
 }
