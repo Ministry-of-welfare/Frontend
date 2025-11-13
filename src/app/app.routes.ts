@@ -8,8 +8,9 @@ import { ViewControlComponent } from './components/view-control/view-control.com
 import { LoginComponent } from './components/login/login.component';
 
 export const routes: Routes = [
-  { path: '', component: DashboardComponent },
-  { path: 'log-in', component: LoginComponent },
+
+  { path: 'dashboard', component: DashboardComponent },
+  { path: '', component:  LoginComponent},
 
   { path: 'files', component: FilesListComponent },
   { path: 'add-file', component: AddFilePageComponent },

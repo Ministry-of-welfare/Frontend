@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { LoginService } from '../../services/Login/login.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { RouterOutlet } from "../../../../node_modules/@angular/router/index";
 
 @Component({
@@ -16,15 +17,20 @@ export class LoginComponent {
   password = 'testpass';
   message = '';
 
-  constructor(private loginService: LoginService) {}
+  constructor(
+    private loginService: LoginService,
+    private router: Router
+  ) {}
 
   testLogin() {
     this.message = 'מתחבר...';
     
     this.loginService.login(this.username, this.password).subscribe({
       next: (response) => {
-        this.message = `הצלחה! טוקן: ${response.token}`;
+        this.message = 'התחברות הצליחה! מעבר לדשבורד...';
         console.log('Login successful:', response);
+        // ניתוב לדשבורד אחרי התחברות מוצלחת
+        this.router.navigate(['/dashboard']);
       },
       error: (error) => {
         this.message = `שגיאה: ${error.message || error.status}`;
