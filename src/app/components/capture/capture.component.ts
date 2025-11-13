@@ -175,8 +175,13 @@ this.sources$.subscribe(s => console.log('sources payload:', s));
     });
   }
  getStatusToken(item: any): string {
+  
     const val = (item?.status || item?.statusLabel || '') + '';
     const parts = val.trim().split(/[ \t\-]+/);
+    if(parts.length > 2) {
+          return parts.length ? parts[length-1] : '';
+
+    }
     return parts.length ? parts[0] : '';
   }
   // --- פילטרים מקומיים + פאגינציה (slice) ---
@@ -212,23 +217,83 @@ this.sources$.subscribe(s => console.log('sources payload:', s));
     this.filteredData = this.allFilteredData.slice(start, start + this.pageSize);
 
   }
-  onSystemChange(event: Event) {
-    const v = (event.target as HTMLSelectElement).value;
+  // onSystemChange(event: Event) {
+  //   const v = (event.target as HTMLSelectElement).value;
+  //   this.selectedSystemId = v ? Number(v) : null;
+  //   console.log('Selected System ID:', this.selectedSystemId);
+  //   // כאן אפשר לקרוא לפונקציה שמעדכנת את הפילטרים/applyFilters()
+  // }
+
+  // onSourceChange(event: Event) {
+
+  //   const v = (event.target as HTMLSelectElement).value;
+  //   this.selectedSourceId = v ? Number(v) : null;
+  //   console.log('Selected Source ID:', this.selectedSourceId);
+  //   // אפשר לקרוא applyFilters()
+  // }
+
+  // onStatusChange(event: Event) {
+  //   const v = (event.target as HTMLSelectElement).value;
+  //   this.selectedStatusId = v ? Number(v) : null;
+  //   console.log('Selected Status ID:', this.selectedStatusId);
+  //   // אפשר לקרוא applyFilters()
+  // }
+  onSystemChange(eventOrValue: any) {
+  debugger;
+  // מקבל או את האירוע DOM או אובייקט/ערך ישירות
+  const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
+  let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
+
+  // במקרה של [ngValue] v יכול להיות האובייקט עצמו
+  if (v && typeof v === 'object') {
+    this.selectedSystemId = v.systemId ?? v.systemId ?? null;
+  } else {
     this.selectedSystemId = v ? Number(v) : null;
-    // כאן אפשר לקרוא לפונקציה שמעדכנת את הפילטרים/applyFilters()
   }
+
+  console.log('selected system id:', this.selectedSystemId);
+}
+
 
   onSourceChange(event: Event) {
     const v = (event.target as HTMLSelectElement).value;
     this.selectedSourceId = v ? Number(v) : null;
     // אפשר לקרוא applyFilters()
+    console.log('source changed', this.selectedSourceId);
   }
 
-  onStatusChange(event: Event) {
-    const v = (event.target as HTMLSelectElement).value;
-    this.selectedStatusId = v ? Number(v) : null;
-    // אפשר לקרוא applyFilters()
+ 
+
+  // onStatusChange(event: any) {
+  //   this.searchFilters.statusId = event.target.value;
+  //   console.log('status changed', event.target.value);
+  //     const v = (event.target as HTMLSelectElement).value;
+  //   this.selectedStatusId = v ? Number(v) : null;
+  // }
+  // ...existing code...
+  // ...existing code...
+onStatusChange(eventOrValue: any) {
+  debugger;
+  // מקבל או את האירוע DOM או את הערך/האובייקט ישירות
+  const maybeEvent = eventOrValue && eventOrValue.target ? eventOrValue : null;
+  let v: any = maybeEvent ? (maybeEvent.target as HTMLSelectElement).value : eventOrValue;
+
+  // אם קיבלנו מחרוזת בפורמט "x: id" - נחלץ את ה‑id אחרי ":"
+  if (typeof v === 'string' && v.includes(':')) {
+    const afterColon = v.split(':').pop()?.trim();
+    if (afterColon !== undefined && afterColon !== '') v = afterColon;
   }
+
+  // אם v הוא אובייקט (ngValue) - שלוף id מתאים, אחרת המרה ל‑number
+  if (v && typeof v === 'object') {
+    this.selectedStatusId = v.id ?? v.importStatusId ?? null;
+  } else {
+    this.selectedStatusId = v ? Number(v) : null;
+  }
+
+  console.log('selected status id:', this.selectedStatusId);
+}
+// ...existing code...
   // --- כפתורים / אירועים UI ---
   onSearchButtonClick(): void {
     // שולח את הפילטרים לשרת; השרת מחזיר DTO מוכן

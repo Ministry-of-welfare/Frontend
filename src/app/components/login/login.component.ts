@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { LoginService } from '../../services/Login/login.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterOutlet } from "../../../../node_modules/@angular/router/index";
 
 @Component({
   selector: 'app-login',
