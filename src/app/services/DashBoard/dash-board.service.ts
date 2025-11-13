@@ -84,6 +84,8 @@ export class DashBoardService {
    * נתוני נפח הנתונים ומספר הרשומות
    */
   getDataVolume(searchParams?: any): Observable<DataVolumeResponse> {
+    console.info('Fetching data volume with params:', searchParams);
+
     let params = new HttpParams();
 
     if (searchParams) {
@@ -101,54 +103,81 @@ export class DashBoardService {
   /**
    * קבלת ספירות סטטוסים (waiting,inprogress,success,error) ו/או סיכומים נוספים
    */
-  getStatusCounts(filter?: { startDate?: string; endDate?: string; systemId?: number; importDataSourceId?: number }) {
+// ...existing code...
+ // ...existing code...
+  getStatusCounts(searchParams?: any): Observable<StatusCounts> {
+    console.info('Fetching status counts with params:', searchParams);
     let params = new HttpParams();
-    if (filter) {
-      if (filter.startDate) params = params.set('startDate', filter.startDate);
-      if (filter.endDate) params = params.set('endDate', filter.endDate);
-      if (filter.systemId !== undefined && filter.systemId !== null && !isNaN(filter.systemId)) {
-        params = params.set('systemId', String(filter.systemId));}
-      if (filter.importDataSourceId !== undefined && filter.importDataSourceId !== null && !isNaN(filter.importDataSourceId)) {
-        params = params.set('importDataSourceId', String(filter.importDataSourceId));
-      }
-    }
 
-    return this.http.get<StatusCounts>(`${this.apiUrl}/statusCounts`, { params });
+    if (searchParams) {
+      Object.keys(searchParams).forEach(key => {
+        const val = searchParams[key];
+        if (val !== null && val !== undefined && val !== '') {
+          // המרת שם הפרמטר שנדרש ב־API
+          if (key === 'statusId') {
+            params = params.set('importStatusId', String(val));
+          } else {
+            params = params.set(key, String(val));
+          }
+        }
+      });
+    } 
+ return this.http.get<StatusCounts>(`${this.apiUrl}/statusCounts`, { params });
   }
 
-
   // קריאה ישירה ל /imports-count שמחזירה { importsCount: number }
-  getImportsCount(filter?: { statusId?: number; startDate?: string; endDate?: string }) {
+ getImportsCount(searchParams?: any): Observable<number> {
     let params = new HttpParams();
-    if (filter) {
-      if (filter.statusId !== undefined && filter.statusId !== null) params = params.set('statusId', String(filter.statusId));
-      if (filter.startDate) params = params.set('startDate', filter.startDate);
-      if (filter.endDate) params = params.set('endDate', filter.endDate);
+
+    if (searchParams) {
+      Object.keys(searchParams).forEach(key => {
+        const val = searchParams[key];
+        if (val !== null && val !== undefined && val !== '') {
+          // המרת name הפרמטר שה‑API מצפה לו אם צריך
+          if (key === 'statusId') {
+            params = params.set('importStatusId', String(val));
+          } else {
+            params = params.set(key, String(val));
+          }
+        }
+      });
     }
+
     return this.http.get<{ importsCount: number }>(`${this.apiUrl}/imports-count`, { params })
       .pipe(map(res => res?.importsCount ?? 0));
   }
-  getsuccessRate(filter?: { statusId?: number;startDate?: string; endDate?: string; systemId?: number; importDataSourceId?: number }) {
+  getsuccessRate(searchParams?: any): Observable<StatusCounts> {
+    console.info('Fetching success rate with params:', searchParams);
     let params = new HttpParams();
-    if (filter) {
-            if (filter.statusId !== undefined && filter.statusId !== null) params = params.set('statusId', String(filter.statusId));
 
-      if (filter.startDate) params = params.set('startDate', filter.startDate);
-      if (filter.endDate) params = params.set('endDate', filter.endDate);
-      if (filter.systemId !== undefined && filter.systemId !== null) params = params.set('systemId', String(filter.systemId));
-      if (filter.importDataSourceId !== undefined && filter.importDataSourceId !== null) params = params.set('importDataSourceId', String(filter.importDataSourceId));
+    if (searchParams) {
+      Object.keys(searchParams).forEach(key => {
+        const val = searchParams[key];
+        if (val !== null && val !== undefined && val !== '') {
+          // אם המפתח הוא statusId - המרתו לפרמטר שה־API מצפה לו (importStatusId)
+          if (key === 'statusId') {
+            params = params.set('importStatusId', String(val));
+          } else {
+            params = params.set(key, String(val));
+          }
+        }
+      });
     }
 
     return this.http.get<StatusCounts>(`${this.apiUrl}/success-rate`, { params });
   }
 
-  getAvgProcessingTime(filter?: { startDate?: string; endDate?: string; systemId?: number; importDataSourceId?: number }) {
+  getAvgProcessingTime(searchParams?: any) {
+    console.info('Fetching average processing time with params:', searchParams);
     let params = new HttpParams();
-    if (filter) {
-      if (filter.startDate) params = params.set('startDate', filter.startDate);
-      if (filter.endDate) params = params.set('endDate', filter.endDate);
-      if (filter.systemId !== undefined && filter.systemId !== null) params = params.set('systemId', String(filter.systemId));
-      if (filter.importDataSourceId !== undefined && filter.importDataSourceId !== null) params = params.set('importDataSourceId', String(filter.importDataSourceId));
+
+    if (searchParams) {
+      Object.keys(searchParams).forEach(key => {
+        const val = searchParams[key];
+        if (val !== null && val !== undefined && val !== '') {
+          params = params.set(key, String(val));
+        }
+      });
     }
 
     return this.http.get<StatusCounts>(`${this.apiUrl}/avg-processing-time`, { params });
