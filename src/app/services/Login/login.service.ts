@@ -2,19 +2,22 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { jwtDecode } from 'jwt-decode';
 
 export enum PermissionType {
-  VIEW_ONLY = 'VIEW_ONLY',
-  EDIT = 'EDIT',
-  ADMIN = 'ADMIN'
+  VIEW_ONLY = 'ViewOnly',
+  EDIT = 'Edit',
+  ADMIN = 'Admin',
+  SUPER_ADMIN = 'SuperAdmin',
+  MANAGER = 'Manager'
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-  private readonly API_URL = 'https://localhost:54525/api/Auth';
-  private currentPermission: PermissionType = PermissionType.VIEW_ONLY;
+  private readonly API_URL = 'https://localhost:54525/TabUser';
+  // הוסר הארד-קוד - ההרשאות יגיעו מהטוקן
   private token: string | null = null;
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
@@ -24,14 +27,13 @@ export class LoginService {
   }
 
   login(username: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/login`, { username, password }).pipe(
+    return this.http.post<any>(`${this.API_URL}/login`, { userName: username, password }).pipe(
       tap(response => {
         if (response.token) {
           this.token = response.token;
           localStorage.setItem('authToken', response.token);
-          this.currentPermission = this.mapPermission(response.role || response.permission);
+          // ההרשאות יגיעו מהטוקן
           this.isLoggedInSubject.next(true);
-          alert(this.token)
         }
       })
     );
@@ -40,7 +42,7 @@ export class LoginService {
   logout(): void {
     this.token = null;
     localStorage.removeItem('authToken');
-    this.currentPermission = PermissionType.VIEW_ONLY;
+    // ההרשאות יגיעו מהטוקן
     this.isLoggedInSubject.next(false);
   }
 
@@ -55,6 +57,7 @@ export class LoginService {
   private loadTokenFromStorage(): void {
     this.token = localStorage.getItem('authToken');
     if (this.token) {
+      // ההרשאות יגיעו מהטוקן
       this.isLoggedInSubject.next(true);
     }
   }
@@ -78,15 +81,71 @@ export class LoginService {
   }
 
   getCurrentPermission(): PermissionType {
-    return this.currentPermission;
+    return this.getPermissionFromToken();
+  }
+
+  private getPermissionFromToken(): PermissionType {
+    if (!this.token) return PermissionType.VIEW_ONLY;
+    
+    try {
+      const decoded: any = jwtDecode(this.token);
+      console.log('Decoded token:', decoded); // לבדיקה
+      
+      // בדיקה של השדה permission
+      if (decoded.permission) {
+        switch (decoded.permission.toLowerCase()) {
+          case 'superadmin': return PermissionType.SUPER_ADMIN;
+          case 'admin': return PermissionType.ADMIN;
+          case 'manager': return PermissionType.MANAGER;
+          case 'edit': return PermissionType.EDIT;
+          case 'viewonly': return PermissionType.VIEW_ONLY;
+          default: return PermissionType.VIEW_ONLY;
+        }
+      }
+      
+      // בדיקה של השדה role (אם permission לא קיים)
+      const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      if (role) {
+        switch (role.toLowerCase()) {
+          case 'superadmin': return PermissionType.SUPER_ADMIN;
+          case 'admin': return PermissionType.ADMIN;
+          case 'manager': return PermissionType.MANAGER;
+          case 'editor': return PermissionType.EDIT;
+          case 'viewer': return PermissionType.VIEW_ONLY;
+          default: return PermissionType.VIEW_ONLY;
+        }
+      }
+      
+      return PermissionType.VIEW_ONLY;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return PermissionType.VIEW_ONLY;
+    }
   }
 
   canEdit(): boolean {
-    return this.currentPermission === PermissionType.EDIT || this.currentPermission === PermissionType.ADMIN;
+    const permission = this.getCurrentPermission();
+    return permission === PermissionType.EDIT || 
+           permission === PermissionType.MANAGER ||
+           permission === PermissionType.ADMIN || 
+           permission === PermissionType.SUPER_ADMIN;
   }
 
   canDelete(): boolean {
-    return this.currentPermission === PermissionType.ADMIN;
+    const permission = this.getCurrentPermission();
+    return permission === PermissionType.ADMIN || 
+           permission === PermissionType.SUPER_ADMIN;
+  }
+
+  canManage(): boolean {
+    const permission = this.getCurrentPermission();
+    return permission === PermissionType.MANAGER ||
+           permission === PermissionType.ADMIN || 
+           permission === PermissionType.SUPER_ADMIN;
+  }
+
+  isSuperAdmin(): boolean {
+    return this.getCurrentPermission() === PermissionType.SUPER_ADMIN;
   }
 
   canView(): boolean {
