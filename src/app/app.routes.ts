@@ -9,12 +9,13 @@ import { LoginComponent } from './components/login/login.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
+  { path: 'log-in', component: LoginComponent },
+
   { path: 'files', component: FilesListComponent },
   { path: 'add-file', component: AddFilePageComponent },
   { path: 'environments', component: EnvironmentsComponent },
     { path: 'view-control', component: ViewControlComponent },
     { path: 'capture', component: CaptureComponent },
-     { path: 'login', component: LoginComponent },
 
 
   { path: '**', redirectTo: '' }
