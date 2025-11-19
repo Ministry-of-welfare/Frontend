@@ -106,6 +106,7 @@ export class LoginService {
       // בדיקה של השדה permission
       if (decoded.permission) {
         switch (decoded.permission.toLowerCase()) {
+          case 'manageusers': return PermissionType.SUPER_ADMIN;
           case 'superadmin': return PermissionType.SUPER_ADMIN;
           case 'admin': return PermissionType.ADMIN;
           case 'manager': return PermissionType.MANAGER;
@@ -119,8 +120,8 @@ export class LoginService {
       const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
       if (role) {
         switch (role.toLowerCase()) {
+          case 'admin': return PermissionType.SUPER_ADMIN;
           case 'superadmin': return PermissionType.SUPER_ADMIN;
-          case 'admin': return PermissionType.ADMIN;
           case 'manager': return PermissionType.MANAGER;
           case 'editor': return PermissionType.EDIT;
           case 'viewer': return PermissionType.VIEW_ONLY;

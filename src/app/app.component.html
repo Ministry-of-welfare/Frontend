@@ -24,6 +24,10 @@
 
         <span class="nav-icon">🖥️</span>
       </a> -->
+      <a *ngIf="isSuperAdmin()" routerLink="/add-user" routerLinkActive="active" class="nav-link">
+        <span>הוסף משתמש</span>
+        <span class="nav-icon">👥</span>
+      </a>
       <a routerLink="/add-file" routerLinkActive="active" class="nav-link">
         <span>הוסף קובץ</span>
 
