@@ -12,10 +12,13 @@
   </div>
   
   <button (click)="testLogin()" style="padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer;">
-    בדוק Login
+     Login
   </button>
   
-  <div *ngIf="message" style="margin-top: 15px; padding: 10px; border: 1px solid #ccc; background: #f9f9f9;">
+  <div *ngIf="message" 
+       [style.background]="message.includes('שגיאה') || message.includes('שגויים') || message.includes('לא רשום') ? '#ffebee' : message.includes('הצליחה') ? '#e8f5e8' : '#f9f9f9'"
+       [style.color]="message.includes('שגיאה') || message.includes('שגויים') || message.includes('לא רשום') ? '#c62828' : message.includes('הצליחה') ? '#2e7d32' : '#333'"
+       style="margin-top: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
     {{ message }}
   </div>
 </div>

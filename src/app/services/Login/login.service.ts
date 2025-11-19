@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 
 export enum PermissionType {
@@ -32,9 +32,21 @@ export class LoginService {
         if (response.token) {
           this.token = response.token;
           localStorage.setItem('authToken', response.token);
-          // ההרשאות יגיעו מהטוקן
           this.isLoggedInSubject.next(true);
         }
+      }),
+      catchError(error => {
+        let errorMessage = 'שגיאה בהתחברות';
+        
+        if (error.status === 401) {
+          errorMessage = 'שם משתמש או סיסמה שגויים';
+        } else if (error.status === 404) {
+          errorMessage = 'משתמש לא קיים במערכת';
+        } else if (error.status === 0) {
+          errorMessage = 'בעיית תקשורת עם השרת';
+        }
+        
+        return throwError(() => ({ message: errorMessage, originalError: error }));
       })
     );
   }
@@ -71,11 +83,11 @@ export class LoginService {
   }
 
   // פונקציה נוחה לקריאה ישירה
-  loginUser(username: string, password: string): Promise<boolean> {
+  loginUser(username: string, password: string): Promise<{ success: boolean; message?: string }> {
     return new Promise((resolve, reject) => {
       this.login(username, password).subscribe({
-        next: () => resolve(true),
-        error: (err) => reject(err)
+        next: () => resolve({ success: true }),
+        error: (err) => resolve({ success: false, message: err.message })
       });
     });
   }
@@ -94,6 +106,7 @@ export class LoginService {
       // בדיקה של השדה permission
       if (decoded.permission) {
         switch (decoded.permission.toLowerCase()) {
+          case 'manageusers': return PermissionType.SUPER_ADMIN;
           case 'superadmin': return PermissionType.SUPER_ADMIN;
           case 'admin': return PermissionType.ADMIN;
           case 'manager': return PermissionType.MANAGER;
@@ -107,8 +120,8 @@ export class LoginService {
       const role = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
       if (role) {
         switch (role.toLowerCase()) {
+          case 'admin': return PermissionType.SUPER_ADMIN;
           case 'superadmin': return PermissionType.SUPER_ADMIN;
-          case 'admin': return PermissionType.ADMIN;
           case 'manager': return PermissionType.MANAGER;
           case 'editor': return PermissionType.EDIT;
           case 'viewer': return PermissionType.VIEW_ONLY;
