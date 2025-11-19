@@ -6,6 +6,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { CaptureComponent } from './components/capture/capture.component';
 import { ViewControlComponent } from './components/view-control/view-control.component';
 import { LoginComponent } from './components/login/login.component';
+import { AddUserComponent } from './components/add-user/add-user.component';
 
 export const routes: Routes = [
 
@@ -17,6 +18,8 @@ export const routes: Routes = [
   { path: 'environments', component: EnvironmentsComponent },
     { path: 'view-control', component: ViewControlComponent },
     { path: 'capture', component: CaptureComponent },
+        { path: 'add-user', component: AddUserComponent },
+
 
 
   { path: '**', redirectTo: '' }
